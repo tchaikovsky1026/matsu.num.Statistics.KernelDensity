@@ -1,0 +1,30 @@
+#Folder
+/bin/
+/dist/
+/testout/
+/javadoc-file/
+/local/
+
+# Eclipse
+.project
+.classpath
+.settings
+.checkstyle
+
+#Java
+*.class
+*.jar
+*.war
+*.ear
+
+#Local File
+local.properties
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Other
+*.log
+*.swp
+*.bak
