@@ -6,9 +6,12 @@
  */
 
 /*
- * 2025.10.10
+ * 2025.10.14
  */
 package matsu.num.statistics.kerneldensity;
+
+import java.util.Arrays;
+import java.util.Spliterators;
 
 /**
  * {@code double} 値に関するユーティリティクラス. <br>
@@ -40,5 +43,31 @@ final class DoubleValueUtil {
             return Double.MAX_VALUE;
         }
         return v;
+    }
+
+    /**
+     * double 配列がソート済みかどうかを変底する. <br>
+     * 基準は, {@code Double.compare(v1,v2) <= 0}
+     * 
+     * @param v 配列
+     * @return ソート済みなら true
+     * @throws NullPointerException 引数がnullの場合
+     */
+    static boolean isSorted(double[] v) {
+        if (v.length <= 1) {
+            return true;
+        }
+
+        var ite = Spliterators.iterator(Arrays.spliterator(v));
+        double former = ite.nextDouble();
+        for (; ite.hasNext();) {
+            double latter = ite.nextDouble();
+            if (Double.compare(former, latter) > 0) {
+                return false;
+            }
+            former = latter;
+        }
+
+        return true;
     }
 }
