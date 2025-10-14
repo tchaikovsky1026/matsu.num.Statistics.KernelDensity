@@ -122,4 +122,40 @@ final class DoubleValueUtilTest {
             return DoubleValueUtil.average(v, absMax(v));
         }
     }
+
+    public static class rmsのテスト {
+
+        @Test
+        public void test_空はNaN() {
+            double[] v = {};
+            assertThat(std(v), is(Double.NaN));
+        }
+
+        @Test
+        public void test_サイズ1() {
+            double[] v = { -2d };
+            assertThat(std(v), is(0d));
+        }
+
+        @Test
+        public void test_サイズ2() {
+            double[] v = { -2d, -3d };
+            assertThat(std(v), is(0.5d));
+        }
+
+        @Test
+        public void test_巨大数() {
+            double[] v = { Double.MAX_VALUE, Double.MAX_VALUE * 0.5 };
+            assertThat(std(v), is(Double.MAX_VALUE * 0.25));
+        }
+
+        /**
+         * {@link DoubleValueUtil#rms(double[], double)} をコールするショートカット. <br>
+         * ただし, 標準偏差の計算として, centerを省略.
+         */
+        private static double std(double[] v) {
+            double absMax = absMax(v);
+            return DoubleValueUtil.rms(v, average(v, absMax), absMax);
+        }
+    }
 }

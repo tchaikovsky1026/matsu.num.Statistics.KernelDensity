@@ -128,7 +128,7 @@ final class DoubleValueUtil {
      * <p>
      * 実装の詳細: <br>
      * (この説明は古いかもしれない) <br>
-     * 要素を2^800 (正確に, およそ 1E+240) を掛けて平均を計算し,
+     * 要素を2^800 (正確に, およそ 1E+240) で割って平均を計算し,
      * 最後に戻す.
      * </p>
      */
@@ -149,5 +149,67 @@ final class DoubleValueUtil {
         }
 
         return currentAverage;
+    }
+
+    /**
+     * 与えた配列の, center に対する二乗平均平方根 (RMS) を計算する. <br>
+     * RMSの性質上, 有限の値しか含まない場合であっても, 無限大が返る場合がある
+     * (巨大要素と center が逆符号の場合). <br>
+     * 無限大を含む場合は結果は不定である. <br>
+     * 空の場合は NaN が返る.
+     * 
+     * <p>
+     * center に average を与えた場合は, (n で割るタイプの) 標準偏差が返る.
+     * </p>
+     * 
+     * @param v 配列
+     * @param center 中心
+     * @param absMax absMax(v)
+     * @return vの要素の center に対する RMS
+     */
+    static double rms(double[] v, double center, double absMax) {
+        if (v.length == 0) {
+            return Double.NaN;
+        }
+
+        final double largeLimit = 2.58224987808690859e+120; // 2^400
+        if (absMax >= largeLimit || Math.abs(center) >= largeLimit) {
+            return rmsHuge(v, center);
+        }
+
+        double sum = 0d;
+        for (double e : v) {
+            double diff = e - center;
+            sum += diff * diff;
+        }
+        return Math.sqrt(sum / v.length);
+    }
+
+    /**
+     * vの要素が大きすぎる場合の, vのRMSの計算.
+     * 
+     * <p>
+     * 引数には空でない配列が渡されなければならない.
+     * </p>
+     * 
+     * <p>
+     * 実装の詳細: <br>
+     * (この説明は古いかもしれない) <br>
+     * 要素を2^800 (正確に, およそ 1E+240) で割ってRMSを計算し,
+     * 最後に戻す.
+     * </p>
+     */
+    private static double rmsHuge(double[] v, double center) {
+
+        final double largeCoeff = 6.668014432879854274e+240; // 2^800
+        final double invLargeCoeff = 1d / largeCoeff; // 2^(-800)
+
+        double modifiedCenter = center * invLargeCoeff;
+        double sum = 0d;
+        for (double e : v) {
+            double mdiff = e * invLargeCoeff - modifiedCenter;
+            sum += mdiff * mdiff;
+        }
+        return Math.sqrt((sum / v.length)) * largeCoeff;
     }
 }
