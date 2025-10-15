@@ -20,6 +20,8 @@ import org.junit.runner.RunWith;
 @RunWith(Enclosed.class)
 final class DoubleValueUtilTest {
 
+    public static final Class<?> TEST_CLASS = DoubleValueUtil.class;
+
     public static class correctのテスト {
 
         @Test
@@ -113,17 +115,14 @@ final class DoubleValueUtilTest {
             double[] v = { Double.MAX_VALUE, Double.MAX_VALUE * 0.5 };
             assertThat(average(v), is(Double.MAX_VALUE * 0.75));
         }
-
-        /**
-         * {@link DoubleValueUtil#average(double[], double)} をコールするショートカット. <br>
-         * 内部で absMax(double[]) を計算する.
-         */
-        private static double average(double[] v) {
-            return DoubleValueUtil.average(v, absMax(v));
-        }
     }
 
-    public static class rmsのテスト {
+    public static class rmsとstdのテスト {
+
+        /*
+         * rms メソッドのテストは陽に実行しない.
+         * 全て std のテストの成功で以って, 完了とする.
+         */
 
         @Test
         public void test_空はNaN() {
@@ -147,15 +146,6 @@ final class DoubleValueUtilTest {
         public void test_巨大数() {
             double[] v = { Double.MAX_VALUE, Double.MAX_VALUE * 0.5 };
             assertThat(std(v), is(Double.MAX_VALUE * 0.25));
-        }
-
-        /**
-         * {@link DoubleValueUtil#rms(double[], double)} をコールするショートカット. <br>
-         * ただし, 標準偏差の計算として, centerを省略.
-         */
-        private static double std(double[] v) {
-            double absMax = absMax(v);
-            return DoubleValueUtil.rms(v, average(v, absMax), absMax);
         }
     }
 }

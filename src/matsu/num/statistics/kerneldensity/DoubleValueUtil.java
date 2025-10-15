@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.10.14
+ * 2025.10.15
  */
 package matsu.num.statistics.kerneldensity;
 
@@ -91,6 +91,23 @@ final class DoubleValueUtil {
      * 無限大を含む場合は結果は不定である. <br>
      * 空の場合は NaN が返る.
      * 
+     * <p>
+     * このメソッドは, 次と等価である. <br>
+     * {@code return average(v, absMax(v));}
+     * </p>
+     * 
+     * @param v 配列
+     * @return vの要素の平均
+     */
+    static double average(double[] v) {
+        return average(v, absMax(v));
+    }
+
+    /**
+     * 安定化用のabsMaxを陽に与えて, 配列の平均値を計算する. <br>
+     * 無限大を含む場合は結果は不定である. <br>
+     * 空の場合は NaN が返る.
+     * 
      * @param v 配列
      * @param absMax absMax(v)
      * @return vの要素の平均
@@ -152,8 +169,33 @@ final class DoubleValueUtil {
     }
 
     /**
-     * 与えた配列の, center に対する二乗平均平方根 (RMS) を計算する. <br>
-     * RMSの性質上, 有限の値しか含まない場合であっても, 無限大が返る場合がある
+     * 与えた配列の center に対する二乗平均平方根 (RMS) を計算する. <br>
+     * 有限の値しか含まない場合であっても, 無限大が返る場合がある
+     * (巨大要素と center が逆符号の場合). <br>
+     * 無限大を含む場合は結果は不定である. <br>
+     * 空の場合は NaN が返る.
+     * 
+     * <p>
+     * center に average を与えた場合は, (n で割るタイプの) 標準偏差が返る.
+     * </p>
+     * 
+     * <p>
+     * このメソッドは, 次と等価である. <br>
+     * {@code return rms(v, center, absMax(v));}
+     * </p>
+     * 
+     * @param v 配列
+     * @param center 中心
+     * @param absMax absMax(v)
+     * @return vの要素の center に対する RMS
+     */
+    static double rms(double[] v, double center) {
+        return rms(v, center, absMax(v));
+    }
+
+    /**
+     * 安定化用のabsMaxを陽に与えて, 配列の center に対する二乗平均平方根 (RMS) を計算する. <br>
+     * 有限の値しか含まない場合であっても, 無限大が返る場合がある
      * (巨大要素と center が逆符号の場合). <br>
      * 無限大を含む場合は結果は不定である. <br>
      * 空の場合は NaN が返る.
@@ -211,5 +253,26 @@ final class DoubleValueUtil {
             sum += mdiff * mdiff;
         }
         return Math.sqrt((sum / v.length)) * largeCoeff;
+    }
+
+    /**
+     * 与えた配列の (n で割るタイプの) 標準偏差を計算する. <br>
+     * 有限の値しか含まない場合であっても, 無限大が返る場合がある
+     * (巨大要素と平均が逆符号の場合). <br>
+     * 無限大を含む場合は結果は不定である. <br>
+     * 空の場合は NaN が返る.
+     * 
+     * <p>
+     * このメソッドは, 次と等価である. <br>
+     * {@code double absMax = absMax(v);} <br>
+     * {@code return rms(v, average(v, absMax), absMax);}
+     * </p>
+     * 
+     * @param v 配列
+     * @return vの要素の (n で割るタイプの) 標準偏差
+     */
+    static double std(double[] v) {
+        double absMax = absMax(v);
+        return rms(v, average(v, absMax), absMax);
     }
 }
