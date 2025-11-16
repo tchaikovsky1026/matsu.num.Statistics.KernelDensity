@@ -61,6 +61,18 @@ public final class Range {
     }
 
     /**
+     * この区間の半幅を返す.
+     * 
+     * @return 半幅
+     */
+    public double halfWidth() {
+        double out = max - min;
+        return Double.isFinite(out)
+                ? 0.5 * out
+                : 0.5 * max - 0.5 * min;
+    }
+
+    /**
      * 自身と与えられたインスタンスが等価かどうかを判定する.
      * 
      * <p>
