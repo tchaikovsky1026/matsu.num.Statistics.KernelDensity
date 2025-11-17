@@ -41,31 +41,4 @@ final class GaussianFilterComputationTest {
             assertThat(sumTotal, is(closeTo(1d, 1E-15)));
         }
     }
-
-    public static class フィルタの変換のテスト {
-
-        @Test(expected = IllegalArgumentException.class)
-        public void test_サイズが不適の場合はIAEx() {
-            double[] filter = { 1, 2 };
-            toConvolutionFilter(filter, 2);
-        }
-
-        @Test
-        public void test_フィルタ拡張のテスト_ジャストサイズ() {
-            double[] filter = { 1, 2, 3, 4 };
-            assertThat(
-                    toConvolutionFilter(filter, 7),
-                    is(
-                            new double[] { 1, 2, 3, 4, 4, 3, 2 }));
-        }
-
-        @Test
-        public void test_フィルタ拡張のテスト_サイズ余り() {
-            double[] filter = { 1, 2, 3, 4 };
-            assertThat(
-                    toConvolutionFilter(filter, 10),
-                    is(
-                            new double[] { 1, 2, 3, 4, 0, 0, 0, 4, 3, 2 }));
-        }
-    }
 }

@@ -10,8 +10,6 @@
  */
 package matsu.num.statistics.kerneldensity;
 
-import java.util.Arrays;
-
 /**
  * Gaussian フィルタの生成器.
  * 
@@ -79,53 +77,5 @@ final class GaussianFilterComputation {
         }
 
         return filter;
-    }
-
-    /**
-     * {@link #compute(double)} で得られたフィルタを,
-     * 巡回畳み込み向けに変換する. <br>
-     * 巡回畳み込みの信号サイズを入力する.
-     * 
-     * <p>
-     * 結果の形式は, {@link #compute(double)} の戻り値に対して, <br>
-     * {@code filter[0], filter[1], ... , filter[length - 1], 0, ... , 0,
-     * filter[length - 1], filter[length - 2], ... , filter[1]} <br>
-     * となる.
-     * </p>
-     * 
-     * <p>
-     * {@code size} は{@code 2 * filter.length - 1} 以上でなければならない.
-     * </p>
-     * 
-     * <p>
-     * <i>
-     * このメソッドは, GaussianFilterComputation というクラス名からは不適切と思われる. <br>
-     * クラス構造の再設計が望まれる.
-     * </i>
-     * </p>
-     * 
-     * @param filter フィルタ
-     * @param size 信号サイズ
-     * @return フィルタ
-     * @throws IllegalArgumentException
-     *             filter がサイズ0の場合,
-     *             size が不適切な場合
-     * @throws NullPointerException 引数がnullの場合
-     * @see #compute(double)
-     */
-    static double[] toConvolutionFilter(double[] filter, int size) {
-        if (filter.length == 0) {
-            throw new IllegalArgumentException("filter is empty");
-        }
-        if (size < 2 * filter.length - 1) {
-            throw new IllegalArgumentException("size < 2 * filter.length - 1");
-        }
-
-        double[] out = Arrays.copyOf(filter, size);
-        for (int i = 1; i < filter.length; i++) {
-            out[out.length - i] = filter[i];
-        }
-
-        return out;
     }
 }

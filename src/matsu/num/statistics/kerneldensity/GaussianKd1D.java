@@ -71,12 +71,9 @@ public final class GaussianKd1D implements KernelDensity1D {
         final double[] filterOneSide = GaussianFilterComputation.compute(resolution / bandWidth);
 
         final Mesh1D mesh1d = new Mesh1D(range, resolution, filterOneSide.length, source);
-        final double[] filterForConvolution =
-                GaussianFilterComputation.toConvolutionFilter(
-                        filterOneSide, mesh1d.weight.length);
 
         double[] result = mesh1d.reduceSize(
-                new NaiveCyclicConvolution().compute(filterForConvolution, mesh1d.weight));
+                new FilterConvolution(filterOneSide).compute(mesh1d.weight));
 
         return new KdeGrid1dDto(mesh1d.x, result);
     }
