@@ -61,7 +61,7 @@ public final class GaussianKd1D implements KernelDensity1D {
      * @throws NullPointerException {@inheritDoc }
      */
     @Override
-    public KdeGrid1dDto compute(Range range) {
+    public KdeGrid1dDto evaluateIn(Range range) {
         // resolution (空間分解能) は, カーネルバンド幅基準とrangeの最大分割数基準で算出, 正である.
         final double resolution = Math.max(
                 range.halfWidth() / (MAX_MESH * 0.5d),
