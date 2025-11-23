@@ -218,7 +218,11 @@ public final class GaussianKd1D implements KernelDensity1D {
         /**
          * 標準の空間分解能を表すシングルトンインスタンス.
          */
-        STANDARD(0.25d);
+        STANDARD(0.25d),
+        /**
+         * 高いの空間分解能を表すシングルトンインスタンス.
+         */
+        HIGH(0.1d);
 
         /**
          * 分解能スケール.
