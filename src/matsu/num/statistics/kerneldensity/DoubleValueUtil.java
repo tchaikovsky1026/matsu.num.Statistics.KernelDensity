@@ -46,7 +46,7 @@ final class DoubleValueUtil {
     }
 
     /**
-     * double 配列がソート済みかどうかを変底する. <br>
+     * double 配列がソート済みかどうかを判定する. <br>
      * 基準は, {@code Double.compare(v1,v2) <= 0}
      * 
      * @param v 配列
