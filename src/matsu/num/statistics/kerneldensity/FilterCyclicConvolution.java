@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.11.17
+ * 2025.11.23
  */
 package matsu.num.statistics.kerneldensity;
 
@@ -14,11 +14,12 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * フィルタを使用して畳み込みを行うクラス.
+ * フィルタを使用して畳み込みを行うクラス. <br>
+ * 範囲外について, 巡回畳み込みとする.
  * 
  * @author Matsuura Y.
  */
-final class FilterConvolution {
+final class FilterCyclicConvolution {
 
     private final double[] filter;
 
@@ -40,7 +41,7 @@ final class FilterConvolution {
      * @param filter フィルタ
      * @throws NullPointerException 引数がnullの場合
      */
-    FilterConvolution(double[] filter) {
+    FilterCyclicConvolution(double[] filter) {
         this.filter = Objects.requireNonNull(filter);
 
         if (this.filter.length == 0) {
@@ -65,7 +66,7 @@ final class FilterConvolution {
         if (size < 2 * filter.length - 1) {
             throw new IllegalArgumentException("size < 2 * filter.length - 1");
         }
-        
+
         // フィルタを両側化し, サイズをsignalに合わせる
         double[] filterForConvolution = Arrays.copyOf(filter, size);
         for (int i = 1; i < filter.length; i++) {

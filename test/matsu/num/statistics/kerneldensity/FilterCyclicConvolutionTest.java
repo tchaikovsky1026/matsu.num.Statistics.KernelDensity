@@ -15,19 +15,19 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 /**
- * {@link FilterConvolution} のテスト.
+ * {@link FilterCyclicConvolution} のテスト.
  */
 @RunWith(Enclosed.class)
-final class FilterConvolutionTest {
+final class FilterCyclicConvolutionTest {
 
     public static class フィルタの適用のテスト {
 
-        private FilterConvolution filterConvolution;
+        private FilterCyclicConvolution filterConvolution;
 
         @Before
         public void before_片側サイズ4のフィルタを生成する() {
             double[] filter = { 1d, 1d / 2, 1d / 4, 1d / 8 };
-            filterConvolution = new FilterConvolution(filter);
+            filterConvolution = new FilterCyclicConvolution(filter);
         }
 
         @Test(expected = IllegalArgumentException.class)
