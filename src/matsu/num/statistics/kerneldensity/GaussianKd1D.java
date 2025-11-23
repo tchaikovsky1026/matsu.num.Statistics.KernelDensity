@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.11.16
+ * 2025.11.23
  */
 package matsu.num.statistics.kerneldensity;
 
@@ -15,6 +15,18 @@ import java.util.function.ToDoubleFunction;
 
 /**
  * ガウシアンをカーネル関数とする, 1次元のカーネル密度推定.
+ * 
+ * <p>
+ * {@link GaussianKd1D} によるカーネル密度推定では,
+ * {@link GaussianKd1D.BandWidthRule BandWidthRule}
+ * と
+ * {@link GaussianKd1D.ResolutionRule ResolutionRule}
+ * をオプションとして指定する. <br>
+ * {@link GaussianKd1D.BandWidthRule BandWidthRule}
+ * は, カーネル関数のバンド幅の計算に関するルールである. <br>
+ * {@link GaussianKd1D.ResolutionRule ResolutionRule}
+ * は, 結果出力の分解能に関するルールである.
+ * </p>
  * 
  * @author Matsuura Y.
  */
@@ -41,8 +53,8 @@ public final class GaussianKd1D implements KernelDensity1D {
      * 引数は, {@link Factory#createOf(double[])} の契約を満たした状態で渡される.
      * 
      * <p>
-     * 配列は内部でコピーされないので,
-     * 呼び出しもとでコピーを取るべきである.
+     * 配列はこのコンストラクタ内部ではコピーされない. <br>
+     * 配列の要素が変更される可能性がある場合, 呼び出しもとでコピーを取らなければならない.
      * </p>
      */
     private GaussianKd1D(double[] source, GaussianKd1D.Factory factory) {
@@ -116,8 +128,8 @@ public final class GaussianKd1D implements KernelDensity1D {
          * 
          * <p>
          * デフォルトルールは,
-         * {@link BandWidthRule#SCOTT_RULE},
-         * {@link ResolutionRule#STANDARD}
+         * {@link BandWidthRule#SCOTT_RULE BandWidthRule.SCOTT_RULE},
+         * {@link ResolutionRule#STANDARD ResolutionRule.STANDARD}
          * である.
          * </p>
          * 
@@ -153,7 +165,7 @@ public final class GaussianKd1D implements KernelDensity1D {
     public static enum BandWidthRule {
 
         /**
-         * Scott のルールを表す定数.
+         * Scott のルールを表すシングルトンインスタンス.
          */
         SCOTT_RULE(da -> Math.min(
                 DoubleValueUtil.std(da) / Math.pow(da.length, 0.2),
@@ -197,14 +209,14 @@ public final class GaussianKd1D implements KernelDensity1D {
      * <i>
      * 将来のバージョンで列挙定数が追加される可能性がある. <br>
      * {@code switch} 文 &middot; 式で使用する場合は,
-     * {@code default} 節を必ず記述すること.
+     * 将来の拡張に備えて {@code default} 節を必ず記述すること.
      * </i>
      * </p>
      */
     public static enum ResolutionRule {
 
         /**
-         * 標準の空間分解能を表す定数.
+         * 標準の空間分解能を表すシングルトンインスタンス.
          */
         STANDARD(0.25d);
 
