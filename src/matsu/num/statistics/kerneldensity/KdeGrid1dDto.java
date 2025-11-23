@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.10.14
+ * 2025.11.23
  */
 package matsu.num.statistics.kerneldensity;
 
@@ -26,12 +26,19 @@ import java.util.Arrays;
 public final class KdeGrid1dDto {
 
     /**
-     * 結果の <i>x</i> の列.
+     * 結果のサイズを表す {@code int} 値.
+     */
+    public final int size;
+
+    /**
+     * 結果の <i>x</i> の列. <br>
+     * 長さは {@link #size} に一致する.
      */
     public final double[] x;
 
     /**
-     * 結果の確率値の列.
+     * 結果の確率値の列. <br>
+     * 長さは {@link #size} に一致する.
      */
     public final double[] density;
 
@@ -53,6 +60,8 @@ public final class KdeGrid1dDto {
         super();
 
         assert isValid(x, density) : "isValid(x, density)";
+
+        this.size = x.length;
         this.x = x;
         this.density = density;
     }
