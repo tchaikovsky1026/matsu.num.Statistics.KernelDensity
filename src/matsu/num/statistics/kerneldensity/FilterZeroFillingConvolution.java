@@ -6,11 +6,10 @@
  */
 
 /*
- * 2025.11.23
+ * 2025.11.24
  */
 package matsu.num.statistics.kerneldensity;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -67,18 +66,20 @@ final class FilterZeroFillingConvolution {
             throw new IllegalArgumentException("signal is empty");
         }
 
-        // フィルタのテール部のサイズ分だけ0で拡張する
-        int extendSize = filter.length - 1;
-        double[] extendSignal = new double[signal.length + extendSize * 2];
-        System.arraycopy(signal, 0, extendSignal, extendSize, signal.length);
+        // 素朴にフィルタによる畳み込みを実行する
+        double[] out = new double[size];
+        for (int j = 0; j < signal.length; j++) {
+            double v = signal[j];
 
-        // フィルタを両側化し, サイズをextendedSignalに合わせる
-        double[] filterForConvolution = Arrays.copyOf(filter, extendSignal.length);
-        for (int i = 1; i < filter.length; i++) {
-            filterForConvolution[filterForConvolution.length - i] = filter[i];
+            out[j] += v * filter[0];
+            for (int i = 1, len = Math.min(filter.length, signal.length - j); i < len; i++) {
+                out[j + i] += v * filter[i];
+            }
+            for (int i = 1, len = Math.min(filter.length, j + 1); i < len; i++) {
+                out[j - i] += v * filter[i];
+            }
         }
 
-        double[] conv = new NaiveCyclicConvolution().compute(filterForConvolution, extendSignal);
-        return Arrays.copyOfRange(conv, extendSize, conv.length - extendSize);
+        return out;
     }
 }
