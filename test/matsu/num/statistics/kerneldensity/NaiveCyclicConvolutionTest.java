@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
  * {@link NaiveCyclicConvolution} のテスト.
  */
 @RunWith(Enclosed.class)
+@Deprecated
 final class NaiveCyclicConvolutionTest {
 
     public static class 巡回畳み込みのテスト {
