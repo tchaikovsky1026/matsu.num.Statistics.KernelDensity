@@ -29,7 +29,9 @@ package matsu.num.statistics.kerneldensity;
  * </p>
  * 
  * @author Matsuura Y.
+ * @deprecated このクラスは使用されていない
  */
+@Deprecated
 final class NaiveCyclicConvolution {
 
     /**
