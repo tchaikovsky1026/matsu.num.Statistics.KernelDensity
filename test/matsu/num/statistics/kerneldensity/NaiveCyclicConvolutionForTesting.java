@@ -14,28 +14,17 @@ package matsu.num.statistics.kerneldensity;
  * 素朴な実装における巡回畳み込みを扱う.
  * 
  * <p>
- * 以下, メモである.
- * </p>
- * 
- * <p>
- * カーネル密度推定で適切な窓関数を使う場合, フィルタサイズはそこまで大きくならない. <br>
- * したがって, 素朴な実装でも問題ない可能性は十分ある. <br>
- * ただし, 素朴な実装の場合, フィルタに合わせて信号を切り出す必要がないので,
- * この実装は不要になるかもしれない.
- * </p>
- * 
- * <p>
- * この実装は実用的でないかもしれないが, テスト用として維持する意義はあると思われる.
+ * テスト用である.
  * </p>
  * 
  * @author Matsuura Y.
  */
-final class NaiveCyclicConvolution {
+final class NaiveCyclicConvolutionForTesting {
 
     /**
      * インスタンスを生成する.
      */
-    NaiveCyclicConvolution() {
+    NaiveCyclicConvolutionForTesting() {
     }
 
     /**

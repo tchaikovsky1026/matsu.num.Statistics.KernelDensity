@@ -16,6 +16,8 @@ import static org.hamcrest.Matchers.*;
 
 import java.util.Arrays;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -25,6 +27,8 @@ import org.junit.runner.RunWith;
  */
 @RunWith(Enclosed.class)
 final class GaussianFilterComputationTest {
+
+    public static final Class<?> TEST_CLASS = GaussianFilterComputation.class;
 
     public static class フィルタ計算のテスト {
 
@@ -39,6 +43,37 @@ final class GaussianFilterComputationTest {
             double sumTotal = 2 * Arrays.stream(filter).sum() - filter[0];
 
             assertThat(sumTotal, is(closeTo(1d, 1E-15)));
+        }
+    }
+
+    public static class フィルタ内容の確認表示 {
+
+        @BeforeClass
+        public static void before_printヘッダ() {
+            System.out.println(TEST_CLASS.getName() + ":");
+        }
+
+        @Test
+        public void test_分解能_0_25_フィルタ() {
+            double resolutionScale = 0.25;
+            double[] filter = compute(resolutionScale);
+            System.out.println(
+                    "resolutionScale = %s, filter.length = %s".formatted(
+                            resolutionScale, filter.length));
+        }
+
+        @Test
+        public void test_分解能_0_1_フィルタ() {
+            double resolutionScale = 0.1;
+            double[] filter = compute(resolutionScale);
+            System.out.println(
+                    "resolutionScale = %s, filter.length = %s".formatted(
+                            resolutionScale, filter.length));
+        }
+
+        @AfterClass
+        public static void after_printフッタ() {
+            System.out.println();
         }
     }
 }

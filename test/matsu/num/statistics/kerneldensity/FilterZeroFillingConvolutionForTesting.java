@@ -6,19 +6,23 @@
  */
 
 /*
- * 2025.11.17
+ * 2025.11.23
  */
 package matsu.num.statistics.kerneldensity;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * フィルタを使用して畳み込みを行うクラス.
+ * フィルタを使用して畳み込みを行うクラス. <br>
+ * 範囲外について, 0埋めしたものとして計算する.
+ * 
+ * <p>
+ * このクラスはテスト用に用意されている.
+ * </p>
  * 
  * @author Matsuura Y.
  */
-final class FilterConvolution {
+final class FilterZeroFillingConvolutionForTesting {
 
     private final double[] filter;
 
@@ -40,7 +44,7 @@ final class FilterConvolution {
      * @param filter フィルタ
      * @throws NullPointerException 引数がnullの場合
      */
-    FilterConvolution(double[] filter) {
+    FilterZeroFillingConvolutionForTesting(double[] filter) {
         this.filter = Objects.requireNonNull(filter);
 
         if (this.filter.length == 0) {
@@ -50,10 +54,10 @@ final class FilterConvolution {
 
     /**
      * 与えたシグナルに対して, フィルタによる畳み込みを適用する. <br>
-     * 畳み込みは巡畳み込みで行う.
+     * 畳み込みは外部に0埋めして行う.
      * 
      * <p>
-     * {@code signal.length} は {@code 2 * filter.length - 1} 以上でなければならない.
+     * シグナルサイズは1以上でなければならない.
      * </p>
      * 
      * @param signal シグナル
@@ -62,16 +66,24 @@ final class FilterConvolution {
     double[] compute(double[] signal) {
         int size = signal.length;
 
-        if (size < 2 * filter.length - 1) {
-            throw new IllegalArgumentException("size < 2 * filter.length - 1");
-        }
-        
-        // フィルタを両側化し, サイズをsignalに合わせる
-        double[] filterForConvolution = Arrays.copyOf(filter, size);
-        for (int i = 1; i < filter.length; i++) {
-            filterForConvolution[filterForConvolution.length - i] = filter[i];
+        if (size == 0) {
+            throw new IllegalArgumentException("signal is empty");
         }
 
-        return new NaiveCyclicConvolution().compute(filterForConvolution, signal);
+        // 素朴にフィルタによる畳み込みを実行する
+        double[] out = new double[size];
+        for (int j = 0; j < signal.length; j++) {
+            double v = signal[j];
+
+            out[j] += v * filter[0];
+            for (int i = 1, len = Math.min(filter.length, signal.length - j); i < len; i++) {
+                out[j + i] += v * filter[i];
+            }
+            for (int i = 1, len = Math.min(filter.length, j + 1); i < len; i++) {
+                out[j - i] += v * filter[i];
+            }
+        }
+
+        return out;
     }
 }
