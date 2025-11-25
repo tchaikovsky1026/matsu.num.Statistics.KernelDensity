@@ -10,7 +10,7 @@
  */
 package matsu.num.statistics.kerneldensity;
 
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * 巡回畳み込みを効率的に実行するインターフェース.
@@ -72,8 +72,8 @@ public interface EffectiveCyclicConvolution {
      * </p>
      * 
      * <p>
-     * 戻り値の {@link Function} は,
-     * {@link Function#apply(Object) apply(g)}
+     * 戻り値の {@link UnaryOperator} は,
+     * {@link UnaryOperator#apply(Object) apply(g)}
      * メソッドのコールにより畳み込み: (<i>f</i>*<i>g</i>) を計算する. <br>
      * コールしたときに
      * {@code f.length == g.length}
@@ -83,7 +83,7 @@ public interface EffectiveCyclicConvolution {
      * @implSpec
      *               メソッドの説明に従って実装しなければならない. <br>
      *               すなわち, 引数のチェックを必ず行い, 不適切の場合は例外をスローしなければならない. <br>
-     *               戻り値となる {@link Function} の実装において,
+     *               戻り値となる {@link UnaryOperator} の実装において,
      *               引数 <i>f</i> をコピーする必要は無い
      *               (モジュール内での利用においては <i>f</i> は変更されないことを保証する).
      * 
@@ -93,7 +93,7 @@ public interface EffectiveCyclicConvolution {
      *             長さが大きすぎる場合
      * @throws NullPointerException 引数に null が含まれる場合
      */
-    public abstract Function<double[], double[]> applyPartial(double[] f);
+    public abstract UnaryOperator<double[]> applyPartial(double[] f);
 
     /**
      * 与えた <i>f</i>, <i>g</i> について, 巡回畳み込みを計算する. <br>
