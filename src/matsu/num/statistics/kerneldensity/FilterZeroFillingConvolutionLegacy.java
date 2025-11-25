@@ -17,8 +17,10 @@ import java.util.Objects;
  * 範囲外について, 0埋めしたものとして計算する.
  * 
  * @author Matsuura Y.
+ * @deprecated レガシーなクラスである. 新しいクラスを整備しなければならない.
  */
-final class FilterZeroFillingConvolution {
+@Deprecated
+final class FilterZeroFillingConvolutionLegacy {
 
     private final double[] filter;
 
@@ -40,7 +42,7 @@ final class FilterZeroFillingConvolution {
      * @param filter フィルタ
      * @throws NullPointerException 引数がnullの場合
      */
-    FilterZeroFillingConvolution(double[] filter) {
+    FilterZeroFillingConvolutionLegacy(double[] filter) {
         this.filter = Objects.requireNonNull(filter);
 
         if (this.filter.length == 0) {

@@ -91,7 +91,7 @@ public final class GaussianKd1D implements KernelDensity1D {
          * ・・・範囲外を0埋めして計算するものとする.
          */
         double[] result = mesh1d.reduceSize(
-                new FilterZeroFillingConvolution(filterOneSide).compute(mesh1d.weight));
+                new FilterZeroFillingConvolutionLegacy(filterOneSide).compute(mesh1d.weight));
 
         return new KdeGrid1dDto(mesh1d.x, result);
     }

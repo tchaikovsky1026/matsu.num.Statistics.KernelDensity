@@ -15,19 +15,20 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 /**
- * {@link FilterZeroFillingConvolution} のテスト.
+ * {@link FilterZeroFillingConvolutionLegacy} のテスト.
  */
 @RunWith(Enclosed.class)
-final class FilterZeroFillingConvolutionTest {
+@Deprecated
+final class FilterZeroFillingConvolutionLegacyTest {
 
     public static class フィルタの適用のテスト {
 
-        private FilterZeroFillingConvolution filterConvolution;
+        private FilterZeroFillingConvolutionLegacy filterConvolution;
 
         @Before
         public void before_片側サイズ4のフィルタを生成する() {
             double[] filter = { 1d, 1d / 2, 1d / 4, 1d / 8 };
-            filterConvolution = new FilterZeroFillingConvolution(filter);
+            filterConvolution = new FilterZeroFillingConvolutionLegacy(filter);
         }
 
         @Test(expected = IllegalArgumentException.class)
