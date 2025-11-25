@@ -38,7 +38,7 @@ import java.util.function.Function;
  * 
  * @author Matsuura Y.
  */
-interface EffectiveCyclicConvolution {
+public interface EffectiveCyclicConvolution {
 
     /**
      * 畳み込みのシグナルとして受け入れ可能なサイズについて,

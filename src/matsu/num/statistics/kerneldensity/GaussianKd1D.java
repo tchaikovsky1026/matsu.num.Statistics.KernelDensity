@@ -39,6 +39,7 @@ public final class GaussianKd1D implements KernelDensity1D {
 
     private final BandWidthRule bandWidthRule;
     private final ResolutionRule resolutionRule;
+    private final FilterZeroFillingConvolution convolution;
 
     private final double[] source;
 
@@ -62,6 +63,7 @@ public final class GaussianKd1D implements KernelDensity1D {
 
         this.bandWidthRule = factory.bandWidthRule;
         this.resolutionRule = factory.resolutionRule;
+        this.convolution = new FilterZeroFillingConvolution(factory.effectiveCyclicConvolution);
 
         this.source = source;
         this.bandWidth = Math.max(
@@ -91,7 +93,7 @@ public final class GaussianKd1D implements KernelDensity1D {
          * ・・・範囲外を0埋めして計算するものとする.
          */
         double[] result = mesh1d.reduceSize(
-                new FilterZeroFillingConvolutionLegacy(filterOneSide).compute(mesh1d.weight));
+                convolution.compute(filterOneSide, mesh1d.weight));
 
         return new KdeGrid1dDto(mesh1d.x, result);
     }
@@ -103,17 +105,20 @@ public final class GaussianKd1D implements KernelDensity1D {
 
         private final BandWidthRule bandWidthRule;
         private final ResolutionRule resolutionRule;
+        private final EffectiveCyclicConvolution effectiveCyclicConvolution;
 
         /**
          * 唯一の非公開コンストラクタ.
          * 
          * @throws NullPointerException 引数にnullが含まれる場合
          */
-        private Factory(BandWidthRule bandWidthRule, ResolutionRule resolutionRule) {
+        private Factory(BandWidthRule bandWidthRule, ResolutionRule resolutionRule,
+                EffectiveCyclicConvolution effectiveCyclicConvolution) {
             super();
 
             this.bandWidthRule = Objects.requireNonNull(bandWidthRule);
             this.resolutionRule = Objects.requireNonNull(resolutionRule);
+            this.effectiveCyclicConvolution = effectiveCyclicConvolution;
         }
 
         /**
@@ -154,7 +159,23 @@ public final class GaussianKd1D implements KernelDensity1D {
          * @throws NullPointerException 引数にnullが含まれる場合
          */
         public static Factory of(BandWidthRule bandWidthRule, ResolutionRule resolutionRule) {
-            return new Factory(bandWidthRule, resolutionRule);
+            return of(bandWidthRule, resolutionRule, null);
+        }
+
+        /**
+         * 計算資源, 推定ルールを与えて {@link Factory GaussianKd1D.Factory} を構築する.
+         * 
+         * @param bandWidthRule バンド幅に関するルール
+         * @param resolutionRule 空間分解能に関するルール
+         * @param effectiveCyclicConvolution EffectiveCyclicConvolution
+         *            (nullを許容)
+         * @return 指定したルールを持つファクトリ
+         * @throws NullPointerException 引数にnullが含まれる場合
+         *             (effectiveCyclicConvolution を除く)
+         */
+        public static Factory of(BandWidthRule bandWidthRule, ResolutionRule resolutionRule,
+                EffectiveCyclicConvolution effectiveCyclicConvolution) {
+            return new Factory(bandWidthRule, resolutionRule, effectiveCyclicConvolution);
         }
     }
 

@@ -26,17 +26,6 @@ final class FilterZeroFillingConvolution {
     private final EffectiveFilterZeroFillingConvolution effectiveConvolution;
 
     /**
-     * 最低限のコンストラクタ.
-     * 
-     * <p>
-     * {@code this(null)} に一致.
-     * </p>
-     */
-    FilterZeroFillingConvolution() {
-        this(null);
-    }
-
-    /**
      * {@link EffectiveCyclicConvolution}
      * を与えて, 効率的な0埋め畳み込みを構築する.
      * 
