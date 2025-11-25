@@ -20,12 +20,11 @@ import matsu.num.statistics.kerneldensity.GaussianKd1D.ResolutionRule;
  * {@link GaussianKd1D} の実行のサンプル.
  * 
  * <p>
- * 正式版リリース前に削除される予定.
+ * プロダクトコードには含めない.
  * </p>
  * 
  * @author Matsuura Y.
  */
-@Deprecated(forRemoval = true)
 final class GaussianKd1DExecutionSample {
 
     public static void main(String[] args) {
@@ -37,10 +36,11 @@ final class GaussianKd1DExecutionSample {
                 .flatMapToDouble(arr -> Arrays.stream(arr))
                 .toArray();
 
-        KdeGrid1dDto result = GaussianKd1D.Factory.of(
-                BandWidthRule.SCOTT_RULE, ResolutionRule.HIGH)
+        KdeGrid1dDto result = GaussianKd1D.Factory
+                .of(BandWidthRule.SCOTT_RULE, ResolutionRule.STANDARD)
+                .withConvolutionBy(new EffectiveCyclicConvolutionStubForTesting())
                 .createOf(src)
-                .evaluateIn(Range.of(-10d, 10d));
+                .evaluateIn(Range.of(-100d, 100d));
 
         System.out.println("x\tdensity\tcum");
         int size = result.size;
