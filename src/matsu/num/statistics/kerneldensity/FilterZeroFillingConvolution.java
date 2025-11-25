@@ -6,9 +6,11 @@
  */
 
 /*
- * 2025.11.24
+ * 2025.11.25
  */
 package matsu.num.statistics.kerneldensity;
+
+import static matsu.num.statistics.kerneldensity.EffectiveFilterZeroFillingConvolution.*;
 
 import java.util.Objects;
 
@@ -20,10 +22,32 @@ import java.util.Objects;
  */
 final class FilterZeroFillingConvolution {
 
-    private final double[] filter;
+    private final NaiveFilterZeroFillingConvolution naiveConvolution;
+    private final EffectiveFilterZeroFillingConvolution effectiveConvolution;
 
     /**
-     * フィルタを入れて, 畳み込み器を生成する.
+     * {@link EffectiveCyclicConvolution}
+     * を与えて, 効率的な0埋め畳み込みを構築する.
+     * 
+     * <p>
+     * {@code null} を与えても良い. <br>
+     * この場合, 計算効率は低下する.
+     * </p>
+     * 
+     * @param cyclicConvolution nullも許容される
+     */
+    FilterZeroFillingConvolution(EffectiveCyclicConvolution cyclicConvolution) {
+        super();
+        this.naiveConvolution = new NaiveFilterZeroFillingConvolution();
+        this.effectiveConvolution =
+                Objects.isNull(cyclicConvolution)
+                        ? null
+                        : new EffectiveFilterZeroFillingConvolution(cyclicConvolution);
+    }
+
+    /**
+     * 与えたシグナルに対して, フィルタによる畳み込みを適用する. <br>
+     * 畳み込みは外部に0埋めして行う.
      * 
      * <p>
      * フィルタは片側の値を配列でを与える. <br>
@@ -34,52 +58,31 @@ final class FilterZeroFillingConvolution {
      * </p>
      * 
      * <p>
-     * {@code filter.length} は 1 以上でなければならない.
+     * {@code filter.length}, {@code signal.length} は1以上でなければならない.
      * </p>
      * 
      * @param filter フィルタ
-     * @throws NullPointerException 引数がnullの場合
-     */
-    FilterZeroFillingConvolution(double[] filter) {
-        this.filter = Objects.requireNonNull(filter);
-
-        if (this.filter.length == 0) {
-            throw new IllegalArgumentException("filter is empty");
-        }
-    }
-
-    /**
-     * 与えたシグナルに対して, フィルタによる畳み込みを適用する. <br>
-     * 畳み込みは外部に0埋めして行う.
-     * 
-     * <p>
-     * シグナルサイズは1以上でなければならない.
-     * </p>
-     * 
      * @param signal シグナル
      * @return 畳み込みの結果
+     * @throws IllegalArgumentException filter または signal が長さ0の場合
+     * @throws NullPointerException 引数がnullの場合
      */
-    double[] compute(double[] signal) {
-        int size = signal.length;
+    double[] compute(double[] filter, double[] signal) {
 
-        if (size == 0) {
+        if (filter.length == 0) {
+            throw new IllegalArgumentException("filter is empty");
+        }
+
+        if (signal.length == 0) {
             throw new IllegalArgumentException("signal is empty");
         }
 
-        // 素朴にフィルタによる畳み込みを実行する
-        double[] out = new double[size];
-        for (int j = 0; j < signal.length; j++) {
-            double v = signal[j];
-
-            out[j] += v * filter[0];
-            for (int i = 1, len = Math.min(filter.length, signal.length - j); i < len; i++) {
-                out[j + i] += v * filter[i];
-            }
-            for (int i = 1, len = Math.min(filter.length, j + 1); i < len; i++) {
-                out[j - i] += v * filter[i];
-            }
+        if (Objects.nonNull(effectiveConvolution)
+                && filter.length >= MIN_FILTER_SIZE_FOR_EFFECTIVE
+                && signal.length >= MIN_SIGNAL_SIZE_FOR_EFFECTIVE) {
+            return effectiveConvolution.compute(filter, signal);
         }
-
-        return out;
+        return naiveConvolution.compute(filter, signal);
     }
+
 }

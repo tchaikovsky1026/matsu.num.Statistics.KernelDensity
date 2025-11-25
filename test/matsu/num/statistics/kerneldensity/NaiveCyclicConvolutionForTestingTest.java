@@ -14,11 +14,10 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 /**
- * {@link NaiveCyclicConvolution} のテスト.
+ * {@link NaiveCyclicConvolutionForTesting} のテスト.
  */
 @RunWith(Enclosed.class)
-@Deprecated
-final class NaiveCyclicConvolutionTest {
+final class NaiveCyclicConvolutionForTestingTest {
 
     public static class 巡回畳み込みのテスト {
 
@@ -27,7 +26,7 @@ final class NaiveCyclicConvolutionTest {
             double[] f = {};
             double[] g = {};
 
-            assertThat(new NaiveCyclicConvolution().compute(f, g), is(new double[] {}));
+            assertThat(new NaiveCyclicConvolutionForTesting().compute(f, g), is(new double[] {}));
         }
 
         @Test
@@ -36,7 +35,7 @@ final class NaiveCyclicConvolutionTest {
             double[] g = { 3, 2, 1, -1, 4 };
             double[] expected = { 3, 19, 12, -4, -3 };
 
-            assertThat(new NaiveCyclicConvolution().compute(f, g), is(expected));
+            assertThat(new NaiveCyclicConvolutionForTesting().compute(f, g), is(expected));
         }
     }
 }
