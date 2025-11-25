@@ -100,6 +100,14 @@ public final class GaussianKd1D implements KernelDensity1D {
 
     /**
      * {@link GaussianKd1D} のファクトリを扱う.
+     * 
+     * <p>
+     * {@link GaussianKd1D} は,
+     * {@link EffectiveCyclicConvolution} のインスタンスをインジェクションすることで高速に動作する. <br>
+     * このファクトリは, インジェクションを
+     * {@link #withConvolutionBy(EffectiveCyclicConvolution)}
+     * メソッドにより行う.
+     * </p>
      */
     public static final class Factory implements KernelDensity1D.Factory {
 
@@ -135,6 +143,20 @@ public final class GaussianKd1D implements KernelDensity1D {
         }
 
         /**
+         * オプションである {@link EffectiveCyclicConvolution}
+         * を与えたものに変更し, 新しいインスタンスとして返す. <br>
+         * {@code null} を与えた場合,
+         * {@link EffectiveCyclicConvolution} を使用しない動作となる.
+         * 
+         * @param other インジェクションするインスタンス
+         *            ({@code null} を許容)
+         * @return 置き換えられた新しい {@code Factory} インスタンス
+         */
+        public Factory withConvolutionBy(EffectiveCyclicConvolution other) {
+            return new Factory(bandWidthRule, resolutionRule, other);
+        }
+
+        /**
          * デフォルトルールの {@link Factory GaussianKd1D.Factory} を返す.
          * 
          * <p>
@@ -159,23 +181,7 @@ public final class GaussianKd1D implements KernelDensity1D {
          * @throws NullPointerException 引数にnullが含まれる場合
          */
         public static Factory of(BandWidthRule bandWidthRule, ResolutionRule resolutionRule) {
-            return of(bandWidthRule, resolutionRule, null);
-        }
-
-        /**
-         * 計算資源, 推定ルールを与えて {@link Factory GaussianKd1D.Factory} を構築する.
-         * 
-         * @param bandWidthRule バンド幅に関するルール
-         * @param resolutionRule 空間分解能に関するルール
-         * @param effectiveCyclicConvolution EffectiveCyclicConvolution
-         *            (nullを許容)
-         * @return 指定したルールを持つファクトリ
-         * @throws NullPointerException 引数にnullが含まれる場合
-         *             (effectiveCyclicConvolution を除く)
-         */
-        public static Factory of(BandWidthRule bandWidthRule, ResolutionRule resolutionRule,
-                EffectiveCyclicConvolution effectiveCyclicConvolution) {
-            return new Factory(bandWidthRule, resolutionRule, effectiveCyclicConvolution);
+            return new Factory(bandWidthRule, resolutionRule, null);
         }
     }
 
