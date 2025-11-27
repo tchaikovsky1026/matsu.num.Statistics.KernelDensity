@@ -18,6 +18,7 @@ import java.util.Arrays;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -46,6 +47,7 @@ final class GaussianFilterComputationTest {
         }
     }
 
+    @Ignore
     public static class フィルタ内容の確認表示 {
 
         @BeforeClass
