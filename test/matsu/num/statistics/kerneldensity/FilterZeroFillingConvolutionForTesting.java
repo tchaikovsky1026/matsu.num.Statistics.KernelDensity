@@ -22,7 +22,7 @@ import java.util.Objects;
  * 
  * @author Matsuura Y.
  */
-final class FilterZeroFillingConvolutionForTesting {
+public final class FilterZeroFillingConvolutionForTesting {
 
     private final double[] filter;
 
@@ -44,7 +44,7 @@ final class FilterZeroFillingConvolutionForTesting {
      * @param filter フィルタ
      * @throws NullPointerException 引数がnullの場合
      */
-    FilterZeroFillingConvolutionForTesting(double[] filter) {
+    public FilterZeroFillingConvolutionForTesting(double[] filter) {
         this.filter = Objects.requireNonNull(filter);
 
         if (this.filter.length == 0) {
@@ -63,7 +63,7 @@ final class FilterZeroFillingConvolutionForTesting {
      * @param signal シグナル
      * @return 畳み込みの結果
      */
-    double[] compute(double[] signal) {
+    public double[] compute(double[] signal) {
         int size = signal.length;
 
         if (size == 0) {
