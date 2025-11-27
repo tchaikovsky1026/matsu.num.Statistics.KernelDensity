@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.11.25
+ * 2025.11.27
  */
 package matsu.num.statistics.kerneldensity;
 
@@ -26,12 +26,12 @@ final class EffectiveFilterZeroFillingConvolution {
     /**
      * 高効率な畳み込みを実行する場合の, フィルタの最低サイズの目安.
      */
-    static final int MIN_FILTER_SIZE_FOR_EFFECTIVE = 10;
+    static final int MIN_FILTER_SIZE_FOR_EFFECTIVE = 20;
 
     /**
-     * 高効率な畳み込みを実行する場合の, シグナルの最低サイズの目安.
+     * 高効率な畳み込みを実行する場合の, (filter * signal)の最低サイズの目安.
      */
-    static final int MIN_SIGNAL_SIZE_FOR_EFFECTIVE = 50;
+    static final long MIN_FILTER_TIMES_SIGNAL_SIZE_FOR_EFFECTIVE = 50_000L;
 
     /**
      * 高効率な巡回畳み込み.
