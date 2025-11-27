@@ -30,7 +30,14 @@ import java.util.stream.StreamSupport;
  */
 final class NaiveFilterZeroFillingConvolutionParallelizable {
 
+    /**
+     * 並列実行に適する場合の, フィルタの最低サイズ.
+     */
     private static final int MIN_FILTER_SIZE_IN_PARALLEL = 20;
+
+    /**
+     * 並列実行に適する場合の, (フィルタ*シグナル)の最低サイズ.
+     */
     private static final long MIN_FILTER_TIMES_SIGNAL_SIZE_IN_PARALLEL = 50_000L;
 
     /**
@@ -38,6 +45,34 @@ final class NaiveFilterZeroFillingConvolutionParallelizable {
      */
     NaiveFilterZeroFillingConvolutionParallelizable() {
         super();
+    }
+
+    /**
+     * 並列化すべきかどうかを判定する.
+     * 不要なので公開しない.
+     */
+    private boolean shouldParallelize(double[] filter, double[] signal) {
+        return filter.length >= MIN_FILTER_SIZE_IN_PARALLEL
+                && (long) filter.length * signal.length >= MIN_FILTER_TIMES_SIGNAL_SIZE_IN_PARALLEL;
+    }
+
+    /**
+     * 並列化を自動判定して {@link #compute(double[], double[], boolean)} メソッドを実行する.
+     * 
+     * <p>
+     * 例外のスロー条件は {@link #compute(double[], double[], boolean)} メソッドに従う.
+     * </p>
+     * 
+     * @param filter フィルタ
+     * @param signal シグナル
+     * @return 畳み込みの結果
+     * @throws IllegalArgumentException
+     *             {@link #compute(double[], double[], boolean)} を見よ.
+     * @throws NullPointerException see
+     *             {@link #compute(double[], double[], boolean)} を見よ.
+     */
+    double[] compute(double[] filter, double[] signal) {
+        return compute(filter, signal, shouldParallelize(filter, signal));
     }
 
     /**
@@ -53,17 +88,22 @@ final class NaiveFilterZeroFillingConvolutionParallelizable {
      * </p>
      * 
      * <p>
+     * この処理は並列計算でき, それをするかどうかは引数 {@code parallel} で指定する.
+     * </p>
+     * 
+     * <p>
      * {@code filter.length} は 1 以上でなければならない. <br>
      * シグナルサイズは1以上でなければならない.
      * </p>
      * 
      * @param filter フィルタ
      * @param signal シグナル
+     * @param parallel 並列計算するかどうか
      * @return 畳み込みの結果
      * @throws IllegalArgumentException 引数が不適の場合
      * @throws NullPointerException 引数がnullの場合
      */
-    double[] compute(double[] filter, double[] signal) {
+    double[] compute(double[] filter, double[] signal, boolean parallel) {
         if (filter.length == 0) {
             throw new IllegalArgumentException("filter is empty");
         }
@@ -76,7 +116,7 @@ final class NaiveFilterZeroFillingConvolutionParallelizable {
          * j の範囲を複数の分割し, double[] を複数得て, 最後に総和を計算する.
          * 総和の計算効率を考えると, spliteratorからストリームを生成し, parallelに処理するのが良い.
          */
-        return new ConvolutionExecution(filter, signal).compute();
+        return new ConvolutionExecution(filter, signal).compute(parallel);
     }
 
     /**
@@ -93,9 +133,7 @@ final class NaiveFilterZeroFillingConvolutionParallelizable {
             this.signal = signal;
         }
 
-        double[] compute() {
-            boolean parallel = filter.length >= MIN_FILTER_SIZE_IN_PARALLEL
-                    && (long) filter.length * signal.length >= MIN_FILTER_TIMES_SIGNAL_SIZE_IN_PARALLEL;
+        double[] compute(boolean parallel) {
 
             // 以下のストリームにより並列操作を実現する
             return StreamSupport.stream(new IntRangeSpliterator(0, signal.length), parallel)

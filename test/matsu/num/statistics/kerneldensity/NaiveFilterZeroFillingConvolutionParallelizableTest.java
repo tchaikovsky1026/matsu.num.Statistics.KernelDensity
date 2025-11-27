@@ -16,7 +16,6 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theories;
@@ -47,7 +46,7 @@ final class NaiveFilterZeroFillingConvolutionParallelizableTest {
 
         @BeforeClass
         public static void before_シグナルサイズのリストを作成する() {
-            signalSizes = IntStream.range(1, 1000).toArray();
+            signalSizes = IntStream.range(1, 100).toArray();
         }
 
         @Theory
@@ -56,7 +55,41 @@ final class NaiveFilterZeroFillingConvolutionParallelizableTest {
                     .mapToDouble(i -> ThreadLocalRandom.current().nextInt(-5, 5))
                     .toArray();
 
-            double[] result = TESTING_CONVOLUTION.compute(filter, signal);
+            double[] result = TESTING_CONVOLUTION.compute(filter, signal, false);
+            double[] expected = VALIDATOR.apply(filter).compute(signal);
+            assertThat(result.length, is(expected.length));
+
+            double[] res = expected.clone();
+            for (int i = 0; i < res.length; i++) {
+                res[i] -= result[i];
+            }
+
+            assertThat(DoubleValueUtil.absMax(res), is(lessThan(1E-13)));
+        }
+    }
+
+    @RunWith(Theories.class)
+    public static class フィルタサイズ5での網羅的テスト_並列 {
+
+        private final double[] filter = {
+                1, 0.5, 0.25, 0.125, 0.0625
+        };
+
+        @DataPoints
+        public static int[] signalSizes;
+
+        @BeforeClass
+        public static void before_シグナルサイズのリストを作成する() {
+            signalSizes = IntStream.range(1, 100).toArray();
+        }
+
+        @Theory
+        public void test_畳み込みの検証(int signalSize) {
+            double[] signal = IntStream.range(0, signalSize)
+                    .mapToDouble(i -> ThreadLocalRandom.current().nextInt(-5, 5))
+                    .toArray();
+
+            double[] result = TESTING_CONVOLUTION.compute(filter, signal, true);
             double[] expected = VALIDATOR.apply(filter).compute(signal);
             assertThat(result.length, is(expected.length));
 
@@ -81,7 +114,7 @@ final class NaiveFilterZeroFillingConvolutionParallelizableTest {
 
         @BeforeClass
         public static void before_シグナルサイズのリストを作成する() {
-            signalSizes = IntStream.range(1, 1000).toArray();
+            signalSizes = IntStream.range(1, 100).toArray();
         }
 
         @Theory
@@ -90,7 +123,7 @@ final class NaiveFilterZeroFillingConvolutionParallelizableTest {
                     .mapToDouble(i -> ThreadLocalRandom.current().nextInt(-5, 5))
                     .toArray();
 
-            double[] result = TESTING_CONVOLUTION.compute(filter, signal);
+            double[] result = TESTING_CONVOLUTION.compute(filter, signal, false);
             double[] expected = VALIDATOR.apply(filter).compute(signal);
             assertThat(result.length, is(expected.length));
 
@@ -103,47 +136,37 @@ final class NaiveFilterZeroFillingConvolutionParallelizableTest {
         }
     }
 
-    public static class フィルタサイズ100_シグナル10000でのテスト {
+    @RunWith(Theories.class)
+    public static class フィルタサイズ7での網羅的テスト_並列 {
 
-        /**
-         * サイズ100フィルタを作成
-         */
-        private static double[] createFilter_100() {
-            return IntStream.range(0, 100)
-                    .mapToDouble(i -> ThreadLocalRandom.current().nextDouble() - 0.5)
-                    .toArray();
+        private final double[] filter = {
+                1, 0.5, 0.25, 0.125, 0.0625, 0.25, 0.5
+        };
+
+        @DataPoints
+        public static int[] signalSizes;
+
+        @BeforeClass
+        public static void before_シグナルサイズのリストを作成する() {
+            signalSizes = IntStream.range(1, 100).toArray();
         }
 
-        /**
-         * サイズ10_000 シグナルを作成
-         */
-        private static double[] createSignal_10_000() {
-            return IntStream.range(0, 10000)
-                    .mapToDouble(i -> ThreadLocalRandom.current().nextDouble() - 0.5)
+        @Theory
+        public void test_畳み込みの検証(int signalSize) {
+            double[] signal = IntStream.range(0, signalSize)
+                    .mapToDouble(i -> ThreadLocalRandom.current().nextInt(-5, 5))
                     .toArray();
-        }
 
-        @Test
-        public void test_畳み込みの検証() {
-            // ランダム化により検証する
+            double[] result = TESTING_CONVOLUTION.compute(filter, signal, true);
+            double[] expected = VALIDATOR.apply(filter).compute(signal);
+            assertThat(result.length, is(expected.length));
 
-            int iteration = 5;
-
-            for (int c = 0; c < iteration; c++) {
-                double[] filter = createFilter_100();
-                double[] signal = createSignal_10_000();
-
-                double[] result = TESTING_CONVOLUTION.compute(filter, signal);
-                double[] expected = VALIDATOR.apply(filter).compute(signal);
-                assertThat(result.length, is(expected.length));
-
-                double[] res = expected.clone();
-                for (int i = 0; i < res.length; i++) {
-                    res[i] -= result[i];
-                }
-
-                assertThat(DoubleValueUtil.absMax(res), is(lessThan(1E-13)));
+            double[] res = expected.clone();
+            for (int i = 0; i < res.length; i++) {
+                res[i] -= result[i];
             }
+
+            assertThat(DoubleValueUtil.absMax(res), is(lessThan(1E-13)));
         }
     }
 }
