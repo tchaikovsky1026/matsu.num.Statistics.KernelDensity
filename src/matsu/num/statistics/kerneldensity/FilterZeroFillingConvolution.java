@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.11.25
+ * 2025.11.27
  */
 package matsu.num.statistics.kerneldensity;
 
@@ -22,7 +22,7 @@ import java.util.Objects;
  */
 final class FilterZeroFillingConvolution {
 
-    private final NaiveFilterZeroFillingConvolution naiveConvolution;
+    private final NaiveFilterZeroFillingConvolutionParallelizable naiveConvolution;
     private final EffectiveFilterZeroFillingConvolution effectiveConvolution;
 
     /**
@@ -38,7 +38,7 @@ final class FilterZeroFillingConvolution {
      */
     FilterZeroFillingConvolution(EffectiveCyclicConvolution cyclicConvolution) {
         super();
-        this.naiveConvolution = new NaiveFilterZeroFillingConvolution();
+        this.naiveConvolution = new NaiveFilterZeroFillingConvolutionParallelizable();
         this.effectiveConvolution =
                 Objects.isNull(cyclicConvolution)
                         ? null

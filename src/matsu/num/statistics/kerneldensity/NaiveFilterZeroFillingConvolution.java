@@ -14,7 +14,9 @@ package matsu.num.statistics.kerneldensity;
  * 素朴な実装による, フィルタ畳み込み.
  * 
  * @author Matsuura Y.
+ * @deprecated プロダクトコードから使用されていない.
  */
+@Deprecated
 final class NaiveFilterZeroFillingConvolution {
 
     /**
@@ -44,10 +46,16 @@ final class NaiveFilterZeroFillingConvolution {
      * @param filter フィルタ
      * @param signal シグナル
      * @return 畳み込みの結果
+     * @throws IllegalArgumentException 引数が不適の場合
+     * @throws NullPointerException 引数がnullの場合
      */
     double[] compute(double[] filter, double[] signal) {
-        assert filter.length >= 1;
-        assert signal.length >= 1;
+        if (filter.length == 0) {
+            throw new IllegalArgumentException("filter is empty");
+        }
+        if (signal.length == 0) {
+            throw new IllegalArgumentException("signal is empty");
+        }
 
         int size = signal.length;
 
