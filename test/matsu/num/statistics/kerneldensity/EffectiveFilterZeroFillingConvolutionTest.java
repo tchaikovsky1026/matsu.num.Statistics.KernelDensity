@@ -45,7 +45,8 @@ final class EffectiveFilterZeroFillingConvolutionTest {
 
         @BeforeClass
         public static void before_シグナルサイズのリストを作成する() {
-            signalSizes = IntStream.range(1, 100).toArray();
+            // 畳み込み区間のtupleが複数区間になるようにシグナルサイズの範囲を決める
+            signalSizes = IntStream.range(1, 200).toArray();
         }
 
         @Theory
@@ -79,7 +80,8 @@ final class EffectiveFilterZeroFillingConvolutionTest {
 
         @BeforeClass
         public static void before_シグナルサイズのリストを作成する() {
-            signalSizes = IntStream.range(1, 100).toArray();
+            // 畳み込み区間のtupleが複数区間になるようにシグナルサイズの範囲を決める
+            signalSizes = IntStream.range(1, 200).toArray();
         }
 
         @Theory
@@ -113,7 +115,8 @@ final class EffectiveFilterZeroFillingConvolutionTest {
 
         @BeforeClass
         public static void before_シグナルサイズのリストを作成する() {
-            signalSizes = IntStream.range(1, 100).toArray();
+            // 畳み込み区間のtupleが複数区間になるようにシグナルサイズの範囲を決める
+            signalSizes = IntStream.range(1, 200).toArray();
         }
 
         @Theory
@@ -147,7 +150,8 @@ final class EffectiveFilterZeroFillingConvolutionTest {
 
         @BeforeClass
         public static void before_シグナルサイズのリストを作成する() {
-            signalSizes = IntStream.range(1, 100).toArray();
+            // 畳み込み区間のtupleが複数区間になるようにシグナルサイズの範囲を決める
+            signalSizes = IntStream.range(1, 200).toArray();
         }
 
         @Theory
