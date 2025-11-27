@@ -10,8 +10,6 @@
  */
 package matsu.num.statistics.kerneldensity;
 
-import static matsu.num.statistics.kerneldensity.EffectiveFilterZeroFillingConvolution.*;
-
 import java.util.Objects;
 
 /**
@@ -78,10 +76,10 @@ final class FilterZeroFillingConvolution {
         }
 
         if (Objects.nonNull(effectiveConvolution)
-                && filter.length >= MIN_FILTER_SIZE_FOR_EFFECTIVE
-                && signal.length >= MIN_SIGNAL_SIZE_FOR_EFFECTIVE) {
+                && effectiveConvolution.shouldBeUsed(filter, signal)) {
             return effectiveConvolution.compute(filter, signal);
         }
+
         return naiveConvolution.compute(filter, signal);
     }
 
