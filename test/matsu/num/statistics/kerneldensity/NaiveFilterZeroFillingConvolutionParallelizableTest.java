@@ -11,6 +11,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.stream.IntStream;
@@ -46,7 +48,20 @@ final class NaiveFilterZeroFillingConvolutionParallelizableTest {
 
         @BeforeClass
         public static void before_シグナルサイズのリストを作成する() {
-            signalSizes = IntStream.range(1, 100).toArray();
+            ArrayList<Integer> sizeList = new ArrayList<>(
+                    IntStream.range(1, 100)
+                            .mapToObj(Integer::valueOf)
+                            .toList());
+
+            // IntRangeSpliteratorのtrySplitが作動するように特殊ケースを追加
+            sizeList.addAll(
+                    Arrays.stream(new int[] { 1000, 1200, 4000 })
+                            .mapToObj(Integer::valueOf)
+                            .toList());
+
+            signalSizes = sizeList.stream()
+                    .mapToInt(Integer::intValue)
+                    .toArray();
         }
 
         @Theory
@@ -80,7 +95,20 @@ final class NaiveFilterZeroFillingConvolutionParallelizableTest {
 
         @BeforeClass
         public static void before_シグナルサイズのリストを作成する() {
-            signalSizes = IntStream.range(1, 100).toArray();
+            ArrayList<Integer> sizeList = new ArrayList<>(
+                    IntStream.range(1, 100)
+                            .mapToObj(Integer::valueOf)
+                            .toList());
+
+            // IntRangeSpliteratorのtrySplitが作動するように特殊ケースを追加
+            sizeList.addAll(
+                    Arrays.stream(new int[] { 1000, 1200, 4000 })
+                            .mapToObj(Integer::valueOf)
+                            .toList());
+
+            signalSizes = sizeList.stream()
+                    .mapToInt(Integer::intValue)
+                    .toArray();
         }
 
         @Theory
@@ -114,7 +142,20 @@ final class NaiveFilterZeroFillingConvolutionParallelizableTest {
 
         @BeforeClass
         public static void before_シグナルサイズのリストを作成する() {
-            signalSizes = IntStream.range(1, 100).toArray();
+            ArrayList<Integer> sizeList = new ArrayList<>(
+                    IntStream.range(1, 100)
+                            .mapToObj(Integer::valueOf)
+                            .toList());
+
+            // IntRangeSpliteratorのtrySplitが作動するように特殊ケースを追加
+            sizeList.addAll(
+                    Arrays.stream(new int[] { 1000, 1200, 4000 })
+                            .mapToObj(Integer::valueOf)
+                            .toList());
+
+            signalSizes = sizeList.stream()
+                    .mapToInt(Integer::intValue)
+                    .toArray();
         }
 
         @Theory
@@ -148,7 +189,20 @@ final class NaiveFilterZeroFillingConvolutionParallelizableTest {
 
         @BeforeClass
         public static void before_シグナルサイズのリストを作成する() {
-            signalSizes = IntStream.range(1, 100).toArray();
+            ArrayList<Integer> sizeList = new ArrayList<>(
+                    IntStream.range(1, 100)
+                            .mapToObj(Integer::valueOf)
+                            .toList());
+
+            // IntRangeSpliteratorのtrySplitが作動するように特殊ケースを追加
+            sizeList.addAll(
+                    Arrays.stream(new int[] { 1000, 1200, 4000 })
+                            .mapToObj(Integer::valueOf)
+                            .toList());
+
+            signalSizes = sizeList.stream()
+                    .mapToInt(Integer::intValue)
+                    .toArray();
         }
 
         @Theory
