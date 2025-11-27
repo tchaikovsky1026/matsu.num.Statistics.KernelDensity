@@ -76,9 +76,7 @@ final class FilterZeroFillingConvolution {
         }
 
         if (Objects.nonNull(effectiveConvolution)
-                && filter.length >= EffectiveFilterZeroFillingConvolution.MIN_FILTER_SIZE_FOR_EFFECTIVE
-                && (long) signal.length
-                        * filter.length >= EffectiveFilterZeroFillingConvolution.MIN_FILTER_TIMES_SIGNAL_SIZE_FOR_EFFECTIVE) {
+                && effectiveConvolution.shouldBeUsed(filter, signal)) {
             return effectiveConvolution.compute(filter, signal);
         }
 

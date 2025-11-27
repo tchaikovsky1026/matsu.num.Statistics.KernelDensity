@@ -54,7 +54,41 @@ final class EffectiveFilterZeroFillingConvolutionTest {
                     .mapToDouble(i -> ThreadLocalRandom.current().nextInt(-5, 5))
                     .toArray();
 
-            double[] result = TESTING_CONVOLUTION.compute(filter, signal);
+            double[] result = TESTING_CONVOLUTION.compute(filter, signal, false);
+            double[] expected = VALIDATOR.apply(filter).compute(signal);
+            assertThat(result.length, is(expected.length));
+
+            double[] res = expected.clone();
+            for (int i = 0; i < res.length; i++) {
+                res[i] -= result[i];
+            }
+
+            assertThat(DoubleValueUtil.absMax(res), is(lessThan(1E-13)));
+        }
+    }
+
+    @RunWith(Theories.class)
+    public static class フィルタサイズ5での網羅的テスト_並列 {
+
+        private final double[] filter = {
+                1, 0.5, 0.25, 0.125, 0.0625
+        };
+
+        @DataPoints
+        public static int[] signalSizes;
+
+        @BeforeClass
+        public static void before_シグナルサイズのリストを作成する() {
+            signalSizes = IntStream.range(1, 100).toArray();
+        }
+
+        @Theory
+        public void test_畳み込みの検証(int signalSize) {
+            double[] signal = IntStream.range(0, signalSize)
+                    .mapToDouble(i -> ThreadLocalRandom.current().nextInt(-5, 5))
+                    .toArray();
+
+            double[] result = TESTING_CONVOLUTION.compute(filter, signal, true);
             double[] expected = VALIDATOR.apply(filter).compute(signal);
             assertThat(result.length, is(expected.length));
 
@@ -88,7 +122,41 @@ final class EffectiveFilterZeroFillingConvolutionTest {
                     .mapToDouble(i -> ThreadLocalRandom.current().nextInt(-5, 5))
                     .toArray();
 
-            double[] result = TESTING_CONVOLUTION.compute(filter, signal);
+            double[] result = TESTING_CONVOLUTION.compute(filter, signal, false);
+            double[] expected = VALIDATOR.apply(filter).compute(signal);
+            assertThat(result.length, is(expected.length));
+
+            double[] res = expected.clone();
+            for (int i = 0; i < res.length; i++) {
+                res[i] -= result[i];
+            }
+
+            assertThat(DoubleValueUtil.absMax(res), is(lessThan(1E-13)));
+        }
+    }
+
+    @RunWith(Theories.class)
+    public static class フィルタサイズ7での網羅的テスト_並列 {
+
+        private final double[] filter = {
+                1, 0.5, 0.25, 0.125, 0.0625, 0.25, 0.5
+        };
+
+        @DataPoints
+        public static int[] signalSizes;
+
+        @BeforeClass
+        public static void before_シグナルサイズのリストを作成する() {
+            signalSizes = IntStream.range(1, 100).toArray();
+        }
+
+        @Theory
+        public void test_畳み込みの検証(int signalSize) {
+            double[] signal = IntStream.range(0, signalSize)
+                    .mapToDouble(i -> ThreadLocalRandom.current().nextInt(-5, 5))
+                    .toArray();
+
+            double[] result = TESTING_CONVOLUTION.compute(filter, signal, true);
             double[] expected = VALIDATOR.apply(filter).compute(signal);
             assertThat(result.length, is(expected.length));
 

@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 /**
  * 効率的な実装による, フィルタ畳み込み.
@@ -26,12 +27,12 @@ final class EffectiveFilterZeroFillingConvolution {
     /**
      * 高効率な畳み込みを実行する場合の, フィルタの最低サイズの目安.
      */
-    static final int MIN_FILTER_SIZE_FOR_EFFECTIVE = 20;
+    private static final int MIN_FILTER_SIZE_FOR_EFFECTIVE = 20;
 
     /**
      * 高効率な畳み込みを実行する場合の, (filter * signal)の最低サイズの目安.
      */
-    static final long MIN_FILTER_TIMES_SIGNAL_SIZE_FOR_EFFECTIVE = 50_000L;
+    private static final long MIN_FILTER_TIMES_SIGNAL_SIZE_FOR_EFFECTIVE = 50_000L;
 
     /**
      * 高効率な巡回畳み込み.
@@ -49,6 +50,34 @@ final class EffectiveFilterZeroFillingConvolution {
     }
 
     /**
+     * このクラスの計算方法を使用すべきかどうかを判定する.
+     */
+    boolean shouldBeUsed(double[] filter, double[] signal) {
+        return filter.length >= MIN_FILTER_SIZE_FOR_EFFECTIVE
+                && (long) filter.length * signal.length >= MIN_FILTER_TIMES_SIGNAL_SIZE_FOR_EFFECTIVE;
+    }
+
+    /**
+     * 並列化を自動判定して {@link #compute(double[], double[], boolean)} メソッドを実行する.
+     * 
+     * <p>
+     * 例外のスロー条件は {@link #compute(double[], double[], boolean)} メソッドに従う.
+     * </p>
+     * 
+     * @param filter フィルタ
+     * @param signal シグナル
+     * @return 畳み込みの結果
+     * @throws IllegalArgumentException
+     *             {@link #compute(double[], double[], boolean)} を見よ.
+     * @throws NullPointerException see
+     *             {@link #compute(double[], double[], boolean)} を見よ.
+     */
+    double[] compute(double[] filter, double[] signal) {
+        // 常に並列化
+        return compute(filter, signal, true);
+    }
+
+    /**
      * 与えたシグナルに対して, フィルタによる畳み込みを適用する. <br>
      * 畳み込みは外部に0埋めして行う.
      * 
@@ -61,17 +90,22 @@ final class EffectiveFilterZeroFillingConvolution {
      * </p>
      * 
      * <p>
+     * この処理は並列計算でき, それをするかどうかは引数 {@code parallel} で指定する.
+     * </p>
+     * 
+     * <p>
      * {@code filter.length} は 1 以上でなければならない. <br>
      * シグナルサイズは1以上でなければならない.
      * </p>
      * 
      * @param filter フィルタ
      * @param signal シグナル
+     * @param parallel 並列計算するかどうか
      * @return 畳み込みの結果
      * @throws IllegalArgumentException 引数が不適の場合
      * @throws NullPointerException 引数がnullの場合
      */
-    double[] compute(final double[] filter, final double[] signal) {
+    double[] compute(final double[] filter, final double[] signal, boolean parallel) {
         if (filter.length == 0) {
             throw new IllegalArgumentException("filter is empty");
         }
@@ -79,7 +113,7 @@ final class EffectiveFilterZeroFillingConvolution {
             throw new IllegalArgumentException("signal is empty");
         }
 
-        return new ConvolutionExecution(filter, signal).compute();
+        return new ConvolutionExecution(filter, signal).compute(parallel);
     }
 
     /**
@@ -131,7 +165,7 @@ final class EffectiveFilterZeroFillingConvolution {
         /**
          * 畳み込みを計算する.
          */
-        double[] compute() {
+        double[] compute(boolean parallel) {
 
             // タプルの作成: [start, subListEfficientLength]
             //   subListEfficientLength: サブリストの正味の長さ　(最終結果に残す長さ), 
@@ -152,7 +186,12 @@ final class EffectiveFilterZeroFillingConvolution {
              * 2.
              * flatMapとtoArrayにより, 部分結果を結合する
              */
-            return tupleOfStartAndSubListEfficientLength.parallelStream()
+            Stream<int[]> stream = tupleOfStartAndSubListEfficientLength.stream();
+            if (parallel) {
+                stream = stream.parallel();
+            }
+
+            return stream
                     .map(tuple -> {
                         int start = tuple[0];
                         int subListEfficientLength = tuple[1];
