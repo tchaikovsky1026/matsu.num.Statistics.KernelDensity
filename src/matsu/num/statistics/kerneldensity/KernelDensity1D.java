@@ -76,9 +76,14 @@ public interface KernelDensity1D {
      * {@link KernelDensity1D.Factory} の具層クラスの属性 (フィールド) として扱われる.
      * </p>
      * 
+     * <p>
+     * このインターフェースのサブタイプはイミュータブルで関数的である.
+     * </p>
+     * 
      * @implSpec
      *               このインターフェースはモジュール内で実装されるために用意されており,
-     *               モジュール外では実装してはいけない.
+     *               モジュール外では実装してはいけない. <br>
+     *               モジュール内で実装する場合でも, イミュータブルで関数的でなければならない.
      */
     public static interface Factory {
 

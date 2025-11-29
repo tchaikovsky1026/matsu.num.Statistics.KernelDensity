@@ -10,13 +10,15 @@
  */
 package matsu.num.statistics.kerneldensity;
 
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * {@link EffectiveCyclicConvolution} のスタブ.
  * 
  * <p>
- * このクラスはテストのために用意したものであり, "効率的"な実装になっていない.
+ * このクラスはテストのために用意したものであり, "効率的"な実装になっていない
+ * (実装規約に従っていない). <br>
+ * 決してプロダクトコードに含んではならない.
  * </p>
  * 
  * @author Matsuura Y.
@@ -54,7 +56,7 @@ public final class EffectiveCyclicConvolutionStubForTesting implements Effective
      * @throws NullPointerException {@inheritDoc}
      */
     @Override
-    public Function<double[], double[]> applyPartial(double[] f) {
+    public UnaryOperator<double[]> applyPartial(double[] f) {
         final int size = f.length;
 
         // 引数の検証
@@ -75,7 +77,7 @@ public final class EffectiveCyclicConvolutionStubForTesting implements Effective
      * {@link EffectiveCyclicConvolutionStubForTesting#applyPartial(double[])}
      * の戻り値の実装.
      */
-    private static final class PartialApplyImpl implements Function<double[], double[]> {
+    private static final class PartialApplyImpl implements UnaryOperator<double[]> {
 
         private final double[] f;
 

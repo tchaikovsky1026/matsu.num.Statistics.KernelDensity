@@ -10,7 +10,7 @@
  */
 package matsu.num.statistics.kerneldensity;
 
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * 巡回畳み込みを効率的に実行するインターフェース.
@@ -22,9 +22,9 @@ import java.util.function.Function;
  * </p>
  * 
  * <p>
- * シグナルの片方が固定されているようなケースで巡回畳み込みを行うことに対応するため,
+ * シグナルの片方が固定されているようなケースに対応するため,
  * このインターフェースは, 明示的な {@link #apply(double[], double[])} のほかに,
- * f を先に定めてカリー化した関数を返す {@link #applyPartial(double[])} を用意する.
+ * シグナル <i>f</i> を先に定めてカリー化した関数を返す {@link #applyPartial(double[])} を用意する.
  * </p>
  * 
  * <p>
@@ -55,7 +55,7 @@ public interface EffectiveCyclicConvolution {
     public abstract int calcAcceptableSize(int lower);
 
     /**
-     * 畳み込みの片方のシグナル f を与えて,
+     * 畳み込みの片方のシグナル <i>f</i> を与えて,
      * {@code g -> (f*g)}
      * という関数を返す.
      * 
@@ -72,30 +72,31 @@ public interface EffectiveCyclicConvolution {
      * </p>
      * 
      * <p>
-     * 戻り値の {@link Function} は,
-     * {@link Function#apply(Object) apply(double[] g)}
-     * メソッドのコールにより畳み込み: (f*g) を計算する. <br>
+     * 戻り値の {@link UnaryOperator} は,
+     * {@link UnaryOperator#apply(Object) apply(g)}
+     * メソッドのコールにより畳み込み: (<i>f</i>*<i>g</i>) を計算する. <br>
      * コールしたときに
      * {@code f.length == g.length}
      * が {@code true} でない場合は例外 ({@link IllegalArgumentException}) がスローされる.
      * </p>
      * 
-     * @param f f
-     * @return {@code g -> (f*g)} なる関数
-     * 
      * @implSpec
-     *               戻り値となる {@link Function} の実装において,
-     *               引数 f をコピーする必要は無い
-     *               (モジュール内での利用においては f は変更されないことを保証する).
+     *               メソッドの説明に従って実装しなければならない. <br>
+     *               すなわち, 引数のチェックを必ず行い, 不適切の場合は例外をスローしなければならない. <br>
+     *               戻り値となる {@link UnaryOperator} の実装において,
+     *               引数 <i>f</i> をコピーする必要は無い
+     *               (モジュール内での利用においては <i>f</i> は変更されないことを保証する).
      * 
+     * @param f <i>f</i>
+     * @return {@code g -> (f*g)} なる関数
      * @throws IllegalArgumentException 引数の長さが受け入れ可能でない場合,
      *             長さが大きすぎる場合
      * @throws NullPointerException 引数に null が含まれる場合
      */
-    public abstract Function<double[], double[]> applyPartial(double[] f);
+    public abstract UnaryOperator<double[]> applyPartial(double[] f);
 
     /**
-     * 与えた f, g について, 巡回畳み込みを計算する. <br>
+     * 与えた <i>f</i>, <i>g</i> について, 巡回畳み込みを計算する. <br>
      * 計算コストは O(NlogN) 程度である.
      * 
      * <p>
@@ -105,7 +106,7 @@ public interface EffectiveCyclicConvolution {
      * </p>
      * 
      * <p>
-     * 与える f, g の長さは同一かつ, 受け入れ可能でなければならない. <br>
+     * 与える <i>f</i>, <i>g</i> の長さは同一かつ, 受け入れ可能でなければならない. <br>
      * すなわち, <br>
      * {@code f.length == g.length
      *  && f.length == calcAcceptableSize(f.length)} <br>
@@ -113,15 +114,21 @@ public interface EffectiveCyclicConvolution {
      * </p>
      * 
      * <p>
-     * 与えられる f, g はサイズは, 2<sup>25</sup>までは必ず対応している. <br>
+     * 与えられる <i>f</i>, <i>g</i> はサイズは, 2<sup>25</sup>までは必ず対応している. <br>
      * (これ以上の長さが与えられても, 直ちに例外をスローするわけではない.)
      * </p>
      * 
-     * @param f f
-     * @param g g
+     * @implSpec
+     *               メソッドの説明に従って実装しなければならない. <br>
+     *               デフォルト実装は, <br>
+     *               {@code return this.applyPartial(f).apply(g);} <br>
+     *               であり, 多くの場合はデフォルト実装で十分である.
+     * 
+     * @param f <i>f</i>
+     * @param g <i>g</i>
      * @return 畳み込みの結果
      * @throws IllegalArgumentException 引数の長さが受け入れ可能でない場合,
-     *             f と g の長さが異なる場合,
+     *             <i>f</i> と <i>g</i> の長さが異なる場合,
      *             長さが大きすぎる場合
      * @throws NullPointerException 引数に null が含まれる場合
      */

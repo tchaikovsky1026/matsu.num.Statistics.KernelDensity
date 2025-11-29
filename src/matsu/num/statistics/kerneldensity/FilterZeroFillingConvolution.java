@@ -6,11 +6,9 @@
  */
 
 /*
- * 2025.11.25
+ * 2025.11.27
  */
 package matsu.num.statistics.kerneldensity;
-
-import static matsu.num.statistics.kerneldensity.EffectiveFilterZeroFillingConvolution.*;
 
 import java.util.Objects;
 
@@ -22,7 +20,7 @@ import java.util.Objects;
  */
 final class FilterZeroFillingConvolution {
 
-    private final NaiveFilterZeroFillingConvolution naiveConvolution;
+    private final NaiveFilterZeroFillingConvolutionParallelizable naiveConvolution;
     private final EffectiveFilterZeroFillingConvolution effectiveConvolution;
 
     /**
@@ -38,7 +36,7 @@ final class FilterZeroFillingConvolution {
      */
     FilterZeroFillingConvolution(EffectiveCyclicConvolution cyclicConvolution) {
         super();
-        this.naiveConvolution = new NaiveFilterZeroFillingConvolution();
+        this.naiveConvolution = new NaiveFilterZeroFillingConvolutionParallelizable();
         this.effectiveConvolution =
                 Objects.isNull(cyclicConvolution)
                         ? null
@@ -78,10 +76,10 @@ final class FilterZeroFillingConvolution {
         }
 
         if (Objects.nonNull(effectiveConvolution)
-                && filter.length >= MIN_FILTER_SIZE_FOR_EFFECTIVE
-                && signal.length >= MIN_SIGNAL_SIZE_FOR_EFFECTIVE) {
+                && effectiveConvolution.shouldBeUsed(filter, signal)) {
             return effectiveConvolution.compute(filter, signal);
         }
+
         return naiveConvolution.compute(filter, signal);
     }
 
