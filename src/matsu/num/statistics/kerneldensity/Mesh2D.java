@@ -131,19 +131,19 @@ final class Mesh2D {
 
             if (0 <= j && j < extendX.length
                     && 0 <= k && k < extendY.length) {
-                weight[j][k] = w_jk;
+                weight[j][k] += w_jk;
             }
             if (0 <= j && j < extendX.length
                     && -1 <= k && k < extendY.length - 1) {
-                weight[j][k + 1] = w_jkp1;
+                weight[j][k + 1] += w_jkp1;
             }
             if (-1 <= j && j < extendX.length - 1
                     && 0 <= k && k < extendY.length) {
-                weight[j + 1][k] = w_jp1k;
+                weight[j + 1][k] += w_jp1k;
             }
             if (-1 <= j && j < extendX.length - 1
                     && -1 <= k && k < extendY.length - 1) {
-                weight[j + 1][k + 1] = w_jp1kp1;
+                weight[j + 1][k + 1] += w_jp1kp1;
             }
         }
         // 総和が1になるように正規化
@@ -154,6 +154,24 @@ final class Mesh2D {
                 weight_j[k] /= source.size;
             }
         }
+
+        assert isNormalized(weight);
+    }
+
+    /**
+     * テスト用, {@code assert} でのみ実行される. <br>
+     * 引数が規格化されているかどうか検証する.
+     */
+    private static boolean isNormalized(double[][] weight) {
+        double sum = 0d;
+
+        for (double[] weight_j : weight) {
+            for (double w : weight_j) {
+                sum += w;
+            }
+        }
+        double acceptance = 1E-12;
+        return Math.abs(sum - 1d) <= acceptance;
     }
 
     /**

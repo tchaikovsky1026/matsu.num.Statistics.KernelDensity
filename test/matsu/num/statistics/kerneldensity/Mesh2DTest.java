@@ -100,12 +100,16 @@ final class Mesh2DTest {
         @Test
         public void test_weightのテスト() {
 
-            // データ数2のソースを構築
-            Kde2DSourceDto source = new Kde2DSourceDto(2);
+            // データ数2のソースを重複させて構築
+            Kde2DSourceDto source = new Kde2DSourceDto(4);
             source.x[0] = 0.5d;
             source.y[0] = 0.25d;
             source.x[1] = 1.125d;
             source.y[1] = 0.125d;
+            source.x[2] = 0.5d;
+            source.y[2] = 0.25d;
+            source.x[3] = 1.125d;
+            source.y[3] = 0.125d;
 
             Mesh2D mesh2d = new Mesh2D(
                     rangeX, rangeY, resolutionX, resolutionY, extSize, source);
