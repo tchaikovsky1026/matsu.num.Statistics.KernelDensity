@@ -88,12 +88,7 @@ public final class GaussianKd1D implements KernelDensity1D {
 
         final Mesh1D mesh1d = new Mesh1D(range, resolution, filterOneSide.length - 1, source);
 
-        /*
-         * Issue: 以下の, フィルタによる畳み込み演算を, 外部リソースを使える形に変更する.
-         * 入力：片側フィルタ, 拡張された信号
-         * 出力:フィルタにより畳込められた結果
-         * ・・・範囲外を0埋めして計算するものとする.
-         */
+        // 範囲外を0埋めしてフィルタ畳み込みを行い, 端をカット
         double[] result = mesh1d.reduceSize(
                 convolution.compute(filterOneSide, mesh1d.weight));
 
