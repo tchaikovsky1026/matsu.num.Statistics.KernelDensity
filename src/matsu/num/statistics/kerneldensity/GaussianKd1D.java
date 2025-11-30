@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.11.23
+ * 2025.11.30
  */
 package matsu.num.statistics.kerneldensity;
 
@@ -68,7 +68,7 @@ public final class GaussianKd1D implements KernelDensity1D {
         this.source = source;
         this.bandWidth = Math.max(
                 bandWidthRule.computeBandwidth(source),
-                Double.MIN_NORMAL);
+                1E-300);
     }
 
     /**
@@ -76,15 +76,17 @@ public final class GaussianKd1D implements KernelDensity1D {
      */
     @Override
     public KdeGrid1dDto evaluateIn(Range range) {
-        // resolution (空間分解能) は, カーネルバンド幅基準とrangeの最大分割数基準で算出, 正である.
-        final double resolution = Math.max(
-                range.halfWidth() / (MAX_MESH * 0.5d),
-                bandWidth * resolutionRule.resolutionScale);
+        // resolutionScale のデフォルトは定数だが, 範囲が広すぎる場合は粗くする.
+        final double resolutionScale =
+                Math.max(
+                        resolutionRule.resolutionScale,
+                        range.halfWidth() / (MAX_MESH * 0.5d * bandWidth));
+        final double resolution = bandWidth * resolutionScale;
 
         // bandWidth と resolution から, フィルタを計算する.
-        final double[] filterOneSide = GaussianFilterComputation.compute(resolution / bandWidth);
+        final double[] filterOneSide = GaussianFilterComputation.compute(resolutionScale);
 
-        final Mesh1D mesh1d = new Mesh1D(range, resolution, filterOneSide.length, source);
+        final Mesh1D mesh1d = new Mesh1D(range, resolution, filterOneSide.length - 1, source);
 
         /*
          * Issue: 以下の, フィルタによる畳み込み演算を, 外部リソースを使える形に変更する.

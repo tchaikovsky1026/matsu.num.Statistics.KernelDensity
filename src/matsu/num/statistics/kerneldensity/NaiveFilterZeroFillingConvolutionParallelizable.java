@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.11.24
+ * 2025.11.30
  */
 package matsu.num.statistics.kerneldensity;
 
@@ -72,7 +72,7 @@ final class NaiveFilterZeroFillingConvolutionParallelizable {
      *             {@link #compute(double[], double[], boolean)} を見よ.
      */
     double[] compute(double[] filter, double[] signal) {
-        return compute(filter, signal, shouldParallelize(filter, signal));
+        return this.applyPartial(filter).compute(signal);
     }
 
     /**
@@ -104,83 +104,148 @@ final class NaiveFilterZeroFillingConvolutionParallelizable {
      * @throws NullPointerException 引数がnullの場合
      */
     double[] compute(double[] filter, double[] signal, boolean parallel) {
-        if (filter.length == 0) {
-            throw new IllegalArgumentException("filter is empty");
-        }
-        if (signal.length == 0) {
-            throw new IllegalArgumentException("signal is empty");
-        }
-
-        /*
-         * 以下について, 並列化を試みる.
-         * j の範囲を複数の分割し, double[] を複数得て, 最後に総和を計算する.
-         * 総和の計算効率を考えると, spliteratorからストリームを生成し, parallelに処理するのが良い.
-         */
-        return new ConvolutionExecution(filter, signal).compute(parallel);
+        return this.applyPartial(filter).compute(signal, parallel);
     }
 
     /**
-     * フィルタ畳み込みの実体.
+     * 与えたフィルタにより, {@link PartialApplied} を構築する.
+     * 
+     * <p>
+     * 引数はコピーされないので, 書き換えられないことを呼び出しもとで保証すること. <br>
+     * 例外スローなどの条件は, {@code compute} メソッドに従う.
+     * </p>
      */
-    private final class ConvolutionExecution {
-
-        private final double[] filter;
-        private final double[] signal;
-
-        ConvolutionExecution(double[] filter, double[] signal) {
-            super();
-            this.filter = filter;
-            this.signal = signal;
+    PartialApplied applyPartial(double[] filter) {
+        if (filter.length == 0) {
+            throw new IllegalArgumentException("filter is empty");
         }
 
-        double[] compute(boolean parallel) {
+        return new PartialApplied(filter);
+    }
 
-            // 以下のストリームにより並列操作を実現する
-            return StreamSupport.stream(new IntRangeSpliterator(0, signal.length), parallel)
-                    .map(this::computeEach)
-                    .collect(new DoubleArraySumCollector());
+    /**
+     * フィルタを属性として持ち,
+     * {@code signal -> (フィルタ畳み込み結果)}
+     * という変換を表す.
+     */
+    final class PartialApplied {
+
+        private final double[] filter;
+
+        /**
+         * 非公開コンストラクタ.
+         * 引数チェックは行われていない.
+         */
+        private PartialApplied(double[] filter) {
+            super();
+            this.filter = filter;
         }
 
         /**
-         * シグナルの, 区間: [start, end) の範囲だけ非ゼロとみなしたときの,
-         * フィルタ畳み込みを計算する. <br>
-         * start: inclusive, end: exclusive <br>
-         * 畳み込みの結果は LocalSparce配列として表現する.
+         * 与えたシグナルに対して, フィルタによる畳み込みを適用する. <br>
+         * 畳み込みは外部に0埋めして行う.
          * 
-         * @param range 区間, range[0] = start, range[1] = end
-         * @return 畳み込み結果
+         * <p>
+         * 仕様などの条件は,
+         * {@link NaiveFilterZeroFillingConvolutionParallelizable#compute(double[], double[]) }
+         * に従う.
+         * </p>
+         * 
+         * @param signal シグナル
+         * @return 畳み込みの結果
+         * @throws IllegalArgumentException 引数が不適の場合
+         * @throws NullPointerException 引数がnullの場合
          */
-        private LocalSparceDoubleArray computeEach(int[] range) {
-            int start = range[0];
-            int end = range[1];
+        double[] compute(double[] signal) {
+            return compute(signal, shouldParallelize(filter, signal));
+        }
 
-            /*
-             * 素朴にフィルタによる畳み込みを実行する.
-             * 
-             * signalの [start,end)の範囲が非零として畳み込みをした場合,
-             * 前方向に (filter.length - 1) だけ拡張されるため,
-             * 結果の非零は max(0, start - filter.length + 1) が
-             * 開始位置 (inclusive) となる.
-             * また, 後方向に (filter.length - 1) だけ拡張されるため,
-             * 結果の非零は min(signal.length, end + filter.length - 1) が
-             * 終了位置 (exclusive) となる.
-             */
-            int offset = Math.max(0, start - filter.length + 1);
-            int size = Math.min(signal.length, end + filter.length - 1) - offset;
-            double[] out = new double[size];
-            for (int j = start; j < end; j++) {
-                double v = signal[j];
+        /**
+         * 与えたシグナルに対して, フィルタによる畳み込みを適用する. <br>
+         * 畳み込みは外部に0埋めして行う.
+         * 
+         * <p>
+         * 仕様などの条件は,
+         * {@link NaiveFilterZeroFillingConvolutionParallelizable#compute(double[], double[], boolean) }
+         * に従う.
+         * </p>
+         * 
+         * @param signal シグナル
+         * @param parallel 並列計算するかどうか
+         * @return 畳み込みの結果
+         * @throws IllegalArgumentException 引数が不適の場合
+         * @throws NullPointerException 引数がnullの場合
+         */
+        double[] compute(double[] signal, boolean parallel) {
 
-                out[j - offset] += v * filter[0];
-                for (int i = 1, len = Math.min(filter.length, signal.length - j); i < len; i++) {
-                    out[j + i - offset] += v * filter[i];
-                }
-                for (int i = 1, len = Math.min(filter.length, j + 1); i < len; i++) {
-                    out[j - i - offset] += v * filter[i];
-                }
+            if (signal.length == 0) {
+                throw new IllegalArgumentException("signal is empty");
             }
 
-            return new LocalSparceDoubleArray(offset, out);
+            return new ConvolutionExecution(signal).compute(parallel);
+        }
+
+        /**
+         * フィルタ畳み込みの実体.
+         */
+        private final class ConvolutionExecution {
+
+            private final double[] signal;
+
+            ConvolutionExecution(double[] signal) {
+                super();
+                this.signal = signal;
+            }
+
+            double[] compute(boolean parallel) {
+
+                // 以下のストリームにより並列操作を実現する
+                return StreamSupport.stream(new IntRangeSpliterator(0, signal.length), parallel)
+                        .map(this::computeEach)
+                        .collect(new DoubleArraySumCollector());
+            }
+
+            /**
+             * シグナルの, 区間: [start, end) の範囲だけ非ゼロとみなしたときの,
+             * フィルタ畳み込みを計算する. <br>
+             * start: inclusive, end: exclusive <br>
+             * 畳み込みの結果は LocalSparce配列として表現する.
+             * 
+             * @param range 区間, range[0] = start, range[1] = end
+             * @return 畳み込み結果
+             */
+            private LocalSparceDoubleArray computeEach(int[] range) {
+                int start = range[0];
+                int end = range[1];
+
+                /*
+                 * 素朴にフィルタによる畳み込みを実行する.
+                 * 
+                 * signalの [start,end)の範囲が非零として畳み込みをした場合,
+                 * 前方向に (filter.length - 1) だけ拡張されるため,
+                 * 結果の非零は max(0, start - filter.length + 1) が
+                 * 開始位置 (inclusive) となる.
+                 * また, 後方向に (filter.length - 1) だけ拡張されるため,
+                 * 結果の非零は min(signal.length, end + filter.length - 1) が
+                 * 終了位置 (exclusive) となる.
+                 */
+                int offset = Math.max(0, start - filter.length + 1);
+                int size = Math.min(signal.length, end + filter.length - 1) - offset;
+                double[] out = new double[size];
+                for (int j = start; j < end; j++) {
+                    double v = signal[j];
+
+                    out[j - offset] += v * filter[0];
+                    for (int i = 1, len = Math.min(filter.length, signal.length - j); i < len; i++) {
+                        out[j + i - offset] += v * filter[i];
+                    }
+                    for (int i = 1, len = Math.min(filter.length, j + 1); i < len; i++) {
+                        out[j - i - offset] += v * filter[i];
+                    }
+                }
+
+                return new LocalSparceDoubleArray(offset, out);
+            }
         }
     }
 
