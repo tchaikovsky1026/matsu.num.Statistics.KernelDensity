@@ -6,11 +6,12 @@
  */
 
 /*
- * 2025.11.27
+ * 2025.11.30
  */
 package matsu.num.statistics.kerneldensity;
 
 import java.util.Objects;
+import java.util.function.UnaryOperator;
 
 /**
  * フィルタを使用して畳み込みを行うクラス. <br>
@@ -66,21 +67,70 @@ final class FilterZeroFillingConvolution {
      * @throws NullPointerException 引数がnullの場合
      */
     double[] compute(double[] filter, double[] signal) {
+        return this.applyPartial(filter).apply(signal);
+    }
 
+    /**
+     * フィルタを与えて,
+     * {@code signal -> (フィルタ畳み込み結果)}
+     * という関数を返す.
+     * 
+     * <p>
+     * 引数はコピーされないので, 書き換えられないことを呼び出しもとで保証すること. <br>
+     * 例外スローなどの条件は, {@link #compute(double[], double[])} に従う.
+     * </p>
+     * 
+     */
+    UnaryOperator<double[]> applyPartial(double[] filter) {
         if (filter.length == 0) {
             throw new IllegalArgumentException("filter is empty");
         }
 
-        if (signal.length == 0) {
-            throw new IllegalArgumentException("signal is empty");
-        }
-
-        if (Objects.nonNull(effectiveConvolution)
-                && effectiveConvolution.shouldBeUsed(filter, signal)) {
-            return effectiveConvolution.compute(filter, signal);
-        }
-
-        return naiveConvolution.compute(filter, signal);
+        return new PartialApplied(filter);
     }
 
+    /**
+     * {@link FilterZeroFillingConvolution#applyPartial(double[])}
+     * の戻り値の実装.
+     */
+    private final class PartialApplied implements UnaryOperator<double[]> {
+
+        private final double[] filter;
+        private final NaiveFilterZeroFillingConvolutionParallelizable.PartialApplied naiveConvolutionPartial;
+        private final EffectiveFilterZeroFillingConvolution.PartialApplied effectiveConvolutionPartial;
+
+        /**
+         * 非公開コンストラクタ.
+         * 引数チェックは行われていない.
+         */
+        PartialApplied(double[] filter) {
+            super();
+
+            assert filter.length > 0;
+            this.filter = filter;
+            this.naiveConvolutionPartial = naiveConvolution.applyPartial(filter);
+            this.effectiveConvolutionPartial =
+                    Objects.nonNull(effectiveConvolution)
+                            ? effectiveConvolution.applyPartial(filter)
+                            : null;
+        }
+
+        /**
+         * filterConvolution(filter, signal)
+         * を計算する.
+         */
+        @Override
+        public double[] apply(double[] signal) {
+            if (signal.length == 0) {
+                throw new IllegalArgumentException("signal is empty");
+            }
+
+            if (Objects.nonNull(effectiveConvolutionPartial)
+                    && EffectiveFilterZeroFillingConvolution.shouldBeUsed(filter, signal)) {
+                return effectiveConvolutionPartial.compute(signal);
+            }
+
+            return naiveConvolutionPartial.compute(signal);
+        }
+    }
 }
