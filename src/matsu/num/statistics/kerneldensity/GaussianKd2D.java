@@ -12,41 +12,47 @@ package matsu.num.statistics.kerneldensity;
 
 import java.util.Objects;
 import java.util.function.ToDoubleFunction;
+import java.util.function.UnaryOperator;
 
 /**
  * ガウシアンをカーネル関数とする, 1次元のカーネル密度推定.
  * 
  * <p>
- * {@link GaussianKd1D} によるカーネル密度推定では,
- * {@link GaussianKd1D.BandWidthRule BandWidthRule}
+ * {@link GaussianKd2D} によるカーネル密度推定では,
+ * {@link GaussianKd2D.BandWidthRule BandWidthRule}
  * と
- * {@link GaussianKd1D.ResolutionRule ResolutionRule}
+ * {@link GaussianKd2D.ResolutionRule ResolutionRule}
  * をオプションとして指定する. <br>
- * {@link GaussianKd1D.BandWidthRule BandWidthRule}
+ * {@link GaussianKd2D.BandWidthRule BandWidthRule}
  * は, カーネル関数のバンド幅の計算に関するルールである. <br>
- * {@link GaussianKd1D.ResolutionRule ResolutionRule}
+ * {@link GaussianKd2D.ResolutionRule ResolutionRule}
  * は, 結果出力の分解能に関するルールである.
  * </p>
  * 
  * @author Matsuura Y.
  */
-public final class GaussianKd1D implements KernelDensity1D {
+public final class GaussianKd2D implements KernelDensity2D {
 
     /**
-     * 結果出力のメッシュの最大値(概算).
+     * 結果出力のメッシュの各軸方向の最大値(概算).
      */
-    private static final int MAX_MESH = 10_000;
+    private static final int MAX_MESH = 2_000;
 
     private final BandWidthRule bandWidthRule;
     private final ResolutionRule resolutionRule;
     private final FilterZeroFillingConvolution convolution;
 
-    private final double[] source;
+    private final Kde2DSourceDto source;
 
     /**
-     * カーネルバンド幅, Double.MIN_NORMAL以上である.
+     * Xのカーネルバンド幅, Double.MIN_NORMAL以上である.
      */
-    private final double bandWidth;
+    private final double bandWidthX;
+
+    /**
+     * Yのカーネルバンド幅, Double.MIN_NORMAL以上である.
+     */
+    private final double bandWidthY;
 
     /**
      * 非公開の唯一のコンストラクタ. <br>
@@ -58,7 +64,7 @@ public final class GaussianKd1D implements KernelDensity1D {
      * 配列の要素が変更される可能性がある場合, 呼び出しもとでコピーを取らなければならない.
      * </p>
      */
-    private GaussianKd1D(double[] source, GaussianKd1D.Factory factory) {
+    private GaussianKd2D(Kde2DSourceDto source, GaussianKd2D.Factory factory) {
         super();
 
         this.bandWidthRule = factory.bandWidthRule;
@@ -66,8 +72,11 @@ public final class GaussianKd1D implements KernelDensity1D {
         this.convolution = new FilterZeroFillingConvolution(factory.effectiveCyclicConvolution);
 
         this.source = source;
-        this.bandWidth = Math.max(
-                bandWidthRule.computeBandwidth(source),
+        this.bandWidthX = Math.max(
+                bandWidthRule.computeBandwidth(source.x),
+                1E-300);
+        this.bandWidthY = Math.max(
+                bandWidthRule.computeBandwidth(source.y),
                 1E-300);
     }
 
@@ -75,38 +84,66 @@ public final class GaussianKd1D implements KernelDensity1D {
      * @throws NullPointerException {@inheritDoc }
      */
     @Override
-    public KdeGrid1dDto evaluateIn(Range range) {
+    public KdeGrid2dDto evaluateIn(Range rangeX, Range rangeY) {
         // resolutionScale のデフォルトは定数だが, 範囲が広すぎる場合は粗くする.
-        final double resolutionScale =
+        final double filterResolutionScale =
                 Math.max(
                         resolutionRule.resolutionScale,
-                        range.halfWidth() / (MAX_MESH * 0.5d * bandWidth));
-        final double resolution = bandWidth * resolutionScale;
+                        Math.max(
+                                rangeX.halfWidth() / (MAX_MESH * 0.5d * bandWidthX),
+                                rangeY.halfWidth() / (MAX_MESH * 0.5d * bandWidthY)));
+        final double resolutionX = bandWidthX * filterResolutionScale;
+        final double resolutionY = bandWidthY * filterResolutionScale;
 
-        // bandWidth と resolution から, フィルタを計算する.
-        final double[] filterOneSide = GaussianFilterComputation.compute(resolutionScale);
+        // フィルタを計算し, フィルタ畳み込みを用意
+        final double[] filterOneSide = GaussianFilterComputation.compute(filterResolutionScale);
+        UnaryOperator<double[]> convToSignal = convolution.applyPartial(filterOneSide);
 
-        final Mesh1D mesh1d = new Mesh1D(range, resolution, filterOneSide.length - 1, source);
+        final Mesh2D mesh2d = new Mesh2D(
+                rangeX, rangeY, resolutionX, resolutionY, filterOneSide.length - 1, source);
+        final double[][] weight = mesh2d.weight;
+        final int lenX = mesh2d.extendX.length;
+        final int lenY = mesh2d.extendY.length;
 
-        // 範囲外を0埋めしてフィルタ畳み込みを行い, 端をカット
-        double[] result = mesh1d.reduceSize(
-                convolution.compute(filterOneSide, mesh1d.weight));
+        // y方向にConv
+        double[][] convY = new double[lenX][];
+        for (int j = 0; j < lenX; j++) {
+            convY[j] = convToSignal.apply(weight[j]);
+        }
 
-        return new KdeGrid1dDto(mesh1d.x, result);
+        // 転置 -> x方向にConv -> 転置
+        double[][] convXY = new double[lenX][lenY];
+        for (int k = 0; k < lenY; k++) {
+            // y:k についてx方向を配列化
+            double[] signal_k = new double[lenX];
+            for (int j = 0; j < lenX; j++) {
+                signal_k[j] = convY[j][k];
+            }
+
+            // y:k のconv
+            double[] convX_k = convToSignal.apply(signal_k);
+
+            // (x,y) 配列に代入
+            for (int j = 0; j < lenX; j++) {
+                convXY[j][k] = convX_k[j];
+            }
+        }
+
+        return new KdeGrid2dDto(mesh2d.x, mesh2d.y, mesh2d.reduceSize(convXY));
     }
 
     /**
-     * {@link GaussianKd1D} のファクトリを扱う.
+     * {@link GaussianKd2D} のファクトリを扱う.
      * 
      * <p>
-     * {@link GaussianKd1D} は,
+     * {@link GaussianKd2D} は,
      * {@link EffectiveCyclicConvolution} のインスタンスをインジェクションすることで高速に動作する. <br>
      * このファクトリは, インジェクションを
      * {@link #withConvolutionBy(EffectiveCyclicConvolution)}
      * メソッドにより行う.
      * </p>
      */
-    public static final class Factory implements KernelDensity1D.Factory {
+    public static final class Factory implements KernelDensity2D.Factory {
 
         private final BandWidthRule bandWidthRule;
         private final ResolutionRule resolutionRule;
@@ -131,12 +168,12 @@ public final class GaussianKd1D implements KernelDensity1D {
          * @throws NullPointerException {@inheritDoc }
          */
         @Override
-        public GaussianKd1D createOf(double[] source) {
-            double[] srcCopy = source.clone();
-            if (!KernelDensity1D.Factory.validateSource(srcCopy)) {
+        public GaussianKd2D createOf(Kde2DSourceDto source) {
+            Kde2DSourceDto srcCopy = source.copy();
+            if (!KernelDensity2D.Factory.validateSource(srcCopy)) {
                 throw new IllegalArgumentException("illegal: source is invalid");
             }
-            return new GaussianKd1D(srcCopy, this);
+            return new GaussianKd2D(srcCopy, this);
         }
 
         /**
@@ -183,7 +220,7 @@ public final class GaussianKd1D implements KernelDensity1D {
     }
 
     /**
-     * ガウシアン1次元のカーネル密度推定での, バンド幅の設定ルールを扱う列挙型.
+     * ガウシアン2次元のカーネル密度推定での, バンド幅の設定ルールを扱う列挙型.
      * 
      * <p>
      * <i>
@@ -198,7 +235,7 @@ public final class GaussianKd1D implements KernelDensity1D {
          * Scott のルールを表すシングルトンインスタンス.
          */
         SCOTT_RULE(da -> Math.min(
-                DoubleValueUtil.std(da) / Math.pow(da.length, 0.2),
+                DoubleValueUtil.std(da) / Math.pow(da.length, 1d / 6),
                 Double.MAX_VALUE));
 
         /**
@@ -233,7 +270,7 @@ public final class GaussianKd1D implements KernelDensity1D {
     }
 
     /**
-     * ガウシアン1次元のカーネル密度推定での, 計算の空間分解能を扱う列挙型.
+     * ガウシアン2次元のカーネル密度推定での, 計算の空間分解能を扱う列挙型.
      * 
      * <p>
      * <i>
@@ -248,17 +285,17 @@ public final class GaussianKd1D implements KernelDensity1D {
         /**
          * 標準の空間分解能を表すシングルトンインスタンス.
          */
-        STANDARD(0.25d),
+        STANDARD(0.375d),
 
         /**
          * 低い空間分解能を表すシングルトンインスタンス.
          */
-        LOW(0.5d),
+        LOW(0.75d),
 
         /**
          * 高い空間分解能を表すシングルトンインスタンス.
          */
-        HIGH(0.1d);
+        HIGH(0.15d);
 
         /**
          * 分解能スケール.
