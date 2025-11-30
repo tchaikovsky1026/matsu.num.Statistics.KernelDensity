@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.11.27
+ * 2025.11.30
  */
 package matsu.num.statistics.kerneldensity;
 
@@ -52,7 +52,7 @@ final class EffectiveFilterZeroFillingConvolution {
     /**
      * このクラスの計算方法を使用すべきかどうかを判定する.
      */
-    boolean shouldBeUsed(double[] filter, double[] signal) {
+    static boolean shouldBeUsed(double[] filter, double[] signal) {
         return filter.length >= MIN_FILTER_SIZE_FOR_EFFECTIVE
                 && (long) filter.length * signal.length >= MIN_FILTER_TIMES_SIGNAL_SIZE_FOR_EFFECTIVE;
     }
@@ -73,8 +73,7 @@ final class EffectiveFilterZeroFillingConvolution {
      *             {@link #compute(double[], double[], boolean)} を見よ.
      */
     double[] compute(double[] filter, double[] signal) {
-        // 常に並列化
-        return compute(filter, signal, true);
+        return this.applyPartial(filter).compute(signal);
     }
 
     /**
@@ -106,14 +105,84 @@ final class EffectiveFilterZeroFillingConvolution {
      * @throws NullPointerException 引数がnullの場合
      */
     double[] compute(final double[] filter, final double[] signal, boolean parallel) {
+        return this.applyPartial(filter).compute(signal, parallel);
+    }
+
+    /**
+     * 与えたフィルタにより, {@link PartialApplied} を構築する.
+     * 
+     * <p>
+     * 引数はコピーされないので, 書き換えられないことを呼び出しもとで保証すること. <br>
+     * 例外スローなどの条件は, {@code compute} メソッドに従う.
+     * </p>
+     */
+    PartialApplied applyPartial(double[] filter) {
         if (filter.length == 0) {
             throw new IllegalArgumentException("filter is empty");
         }
-        if (signal.length == 0) {
-            throw new IllegalArgumentException("signal is empty");
+
+        return new PartialApplied(filter);
+    }
+
+    /**
+     * {@link EffectiveFilterZeroFillingConvolution#applyPartial(double[])}
+     * の戻り値の実装.
+     */
+    final class PartialApplied {
+
+        private final ConvolutionExecution convolution;
+
+        /**
+         * 非公開コンストラクタ.
+         * 引数チェックは行われていない.
+         */
+        private PartialApplied(double[] filter) {
+            super();
+            this.convolution = new ConvolutionExecution(filter);
         }
 
-        return new ConvolutionExecution(filter, signal).compute(parallel);
+        /**
+         * 与えたシグナルに対して, フィルタによる畳み込みを適用する. <br>
+         * 畳み込みは外部に0埋めして行う.
+         * 
+         * <p>
+         * 仕様などの条件は,
+         * {@link EffectiveFilterZeroFillingConvolution#compute(double[], double[]) }
+         * に従う.
+         * </p>
+         * 
+         * @param signal シグナル
+         * @return 畳み込みの結果
+         * @throws IllegalArgumentException 引数が不適の場合
+         * @throws NullPointerException 引数がnullの場合
+         */
+        double[] compute(double[] signal) {
+            return compute(signal, true);
+        }
+
+        /**
+         * 与えたシグナルに対して, フィルタによる畳み込みを適用する. <br>
+         * 畳み込みは外部に0埋めして行う.
+         * 
+         * <p>
+         * 仕様などの条件は,
+         * {@link EffectiveFilterZeroFillingConvolution#compute(double[], double[], boolean) }
+         * に従う.
+         * </p>
+         * 
+         * @param signal シグナル
+         * @param parallel 並列計算するかどうか
+         * @return 畳み込みの結果
+         * @throws IllegalArgumentException 引数が不適の場合
+         * @throws NullPointerException 引数がnullの場合
+         */
+        double[] compute(double[] signal, boolean parallel) {
+            if (signal.length == 0) {
+                throw new IllegalArgumentException("signal is empty");
+            }
+
+            return convolution.compute(signal, parallel);
+        }
     }
 
     /**
@@ -139,8 +208,6 @@ final class EffectiveFilterZeroFillingConvolution {
          * フィルタとの畳み込みを行い, 中央のsubListLength分を取り出す.
          */
 
-        private final double[] signal;
-
         private final int convolutionSize;
         private final int extendSize;
         private final int subListLength;
@@ -151,8 +218,7 @@ final class EffectiveFilterZeroFillingConvolution {
          * 唯一のコンストラクタ. <br>
          * filter,signalは必ず正当である.
          */
-        ConvolutionExecution(final double[] filter, final double[] signal) {
-            this.signal = signal;
+        ConvolutionExecution(final double[] filter) {
 
             convolutionSize = cyclicConvolution.calcAcceptableSize(filter.length * 6);
             extendSize = filter.length - 1;
@@ -165,7 +231,7 @@ final class EffectiveFilterZeroFillingConvolution {
         /**
          * 畳み込みを計算する.
          */
-        double[] compute(boolean parallel) {
+        double[] compute(double[] signal, boolean parallel) {
 
             // タプルの作成: [start, subListEfficientLength]
             //   subListEfficientLength: サブリストの正味の長さ　(最終結果に残す長さ), 
@@ -195,7 +261,7 @@ final class EffectiveFilterZeroFillingConvolution {
                     .map(tuple -> {
                         int start = tuple[0];
                         int subListEfficientLength = tuple[1];
-                        return computeSubListConvolution(start, subListEfficientLength);
+                        return computeSubListConvolution(start, subListEfficientLength, signal);
                     })
                     .flatMapToDouble(d -> Arrays.stream(d))
                     .toArray();
@@ -205,11 +271,12 @@ final class EffectiveFilterZeroFillingConvolution {
          * 区間: [start, start + subListEfficientLength)
          * の部分のフィルタ畳み込み結果を計算する.
          */
-        private double[] computeSubListConvolution(int start, int subListEfficientLength) {
+        private double[] computeSubListConvolution(
+                int start, int subListEfficientLength, double[] signal) {
 
             // 長さがconvolutionSizeのシグナルを得る
             double[] partialConvolutionSignal = cutSignal(
-                    start - extendSize, start + subListLength + extendSize);
+                    start - extendSize, start + subListLength + extendSize, signal);
             double[] partialOut = partialAppliedConv.apply(partialConvolutionSignal);
             // 必要部分の切り出し
             double[] cutPartialOut =
@@ -222,7 +289,7 @@ final class EffectiveFilterZeroFillingConvolution {
          * シグナルから [fromInclusive, toExclusive) を切り出した配列を得る. <br>
          * シグナルの範囲外は0埋めされる.
          */
-        private double[] cutSignal(int fromInclusive, int toExclusive) {
+        private double[] cutSignal(int fromInclusive, int toExclusive, double[] signal) {
 
             double[] out = new double[toExclusive - fromInclusive];
             int startInclusive = Math.max(fromInclusive, 0);

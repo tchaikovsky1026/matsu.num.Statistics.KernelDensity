@@ -97,6 +97,7 @@ final class FilterZeroFillingConvolution {
 
         private final double[] filter;
         private final NaiveFilterZeroFillingConvolutionParallelizable.PartialApplied naiveConvolutionPartial;
+        private final EffectiveFilterZeroFillingConvolution.PartialApplied effectiveConvolutionPartial;
 
         /**
          * 非公開コンストラクタ.
@@ -108,6 +109,10 @@ final class FilterZeroFillingConvolution {
             assert filter.length > 0;
             this.filter = filter;
             this.naiveConvolutionPartial = naiveConvolution.applyPartial(filter);
+            this.effectiveConvolutionPartial =
+                    Objects.nonNull(effectiveConvolution)
+                            ? effectiveConvolution.applyPartial(filter)
+                            : null;
         }
 
         /**
@@ -120,14 +125,12 @@ final class FilterZeroFillingConvolution {
                 throw new IllegalArgumentException("signal is empty");
             }
 
-            if (Objects.nonNull(effectiveConvolution)
-                    && effectiveConvolution.shouldBeUsed(filter, signal)) {
-                return effectiveConvolution.compute(filter, signal);
+            if (Objects.nonNull(effectiveConvolutionPartial)
+                    && EffectiveFilterZeroFillingConvolution.shouldBeUsed(filter, signal)) {
+                return effectiveConvolutionPartial.compute(signal);
             }
 
             return naiveConvolutionPartial.compute(signal);
         }
-
     }
-
 }
