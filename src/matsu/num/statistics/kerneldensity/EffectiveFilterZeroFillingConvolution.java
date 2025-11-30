@@ -125,8 +125,9 @@ final class EffectiveFilterZeroFillingConvolution {
     }
 
     /**
-     * {@link EffectiveFilterZeroFillingConvolution#applyPartial(double[])}
-     * の戻り値の実装.
+     * フィルタを属性として持ち,
+     * {@code signal -> (フィルタ畳み込み結果)}
+     * という変換を表す.
      */
     final class PartialApplied {
 
@@ -183,134 +184,154 @@ final class EffectiveFilterZeroFillingConvolution {
 
             return convolution.compute(signal, parallel);
         }
-    }
-
-    /**
-     * フィルタ畳み込みの実体.
-     */
-    private final class ConvolutionExecution {
-
-        /*
-         * フィルタ畳み込みを巡回畳み込みを用いて実現する.
-         * 
-         * 巡回畳み込みに還元するには, フィルタサイズの3倍以上の信号に分割しなければならない.
-         * ここでは, フィルタサイズの6倍以上の長さを畳み込みサイズ(convolutionSize)とする.
-         * (オーバーラップは半分程度になる).
-         * 
-         * 
-         * signalのフィルタ畳み込みのうち, ある区間(subList)の結果は,
-         * フィルタが有限であるため, subListの前後に(filter.length - 1) だけ拡張した区間の信号を考えれば十分である.
-         * 巡回畳み込みで生じるエイリアシングはこの拡張部分にのみ生じるので, そこをカットすればよい.
-         * よって,
-         * subListLength = convolutionSize - extendSize * 2
-         * が, 値を得られるサブリストの長さとなる (extendSize = filter.length - 1).
-         * 信号をsubListLengthで分割し, 両側に拡張した範囲(convolutionSize)でsignalから取り出す.
-         * フィルタとの畳み込みを行い, 中央のsubListLength分を取り出す.
-         */
-
-        private final int convolutionSize;
-        private final int extendSize;
-        private final int subListLength;
-
-        private final Function<double[], double[]> partialAppliedConv;
 
         /**
-         * 唯一のコンストラクタ. <br>
-         * filter,signalは必ず正当である.
+         * フィルタ畳み込みの実体.
          */
-        ConvolutionExecution(final double[] filter) {
-
-            convolutionSize = cyclicConvolution.calcAcceptableSize(filter.length * 6);
-            extendSize = filter.length - 1;
-            subListLength = convolutionSize - extendSize * 2;
-
-            partialAppliedConv =
-                    cyclicConvolution.applyPartial(toConvolutionFilter(filter, convolutionSize));
-        }
-
-        /**
-         * 畳み込みを計算する.
-         */
-        double[] compute(double[] signal, boolean parallel) {
-
-            // タプルの作成: [start, subListEfficientLength]
-            //   subListEfficientLength: サブリストの正味の長さ　(最終結果に残す長さ), 
-            //   普通はsubListLengthと同等だが, 信号の末尾まで行く場合は短くなる
-            List<int[]> tupleOfStartAndSubListEfficientLength =
-                    new ArrayList<>(signal.length / subListLength);
-            for (int start = 0; start < signal.length; start += subListLength) {
-                int subListEfficientLength = Math.min(signal.length - start, subListLength);
-                tupleOfStartAndSubListEfficientLength.add(new int[] { start, subListEfficientLength });
-            }
+        private final class ConvolutionExecution {
 
             /*
-             * 以下の処理を並列化に処理する.
+             * フィルタ畳み込みを巡回畳み込みを用いて実現する.
              * 
-             * 1.
-             * 区間: [start, start + subListEfficientLength)
-             * の部分のフィルタ畳み込み結果を計算する.
-             * 2.
-             * flatMapとtoArrayにより, 部分結果を結合する
+             * 巡回畳み込みに還元するには, フィルタサイズの3倍以上の信号に分割しなければならない.
+             * ここでは, フィルタサイズの6倍以上の長さを畳み込みサイズ(convolutionSize)とする.
+             * (オーバーラップは半分程度になる).
+             * 
+             * 
+             * signalのフィルタ畳み込みのうち, ある区間(subList)の結果は,
+             * フィルタが有限であるため, subListの前後に(filter.length - 1)
+             * だけ拡張した区間の信号を考えれば十分である.
+             * 巡回畳み込みで生じるエイリアシングはこの拡張部分にのみ生じるので, そこをカットすればよい.
+             * よって,
+             * subListLength = convolutionSize - extendSize * 2
+             * が, 値を得られるサブリストの長さとなる (extendSize = filter.length - 1).
+             * 信号をsubListLengthで分割し, 両側に拡張した範囲(convolutionSize)でsignalから取り出す.
+             * フィルタとの畳み込みを行い, 中央のsubListLength分を取り出す.
              */
-            Stream<int[]> stream = tupleOfStartAndSubListEfficientLength.stream();
-            if (parallel) {
-                stream = stream.parallel();
+
+            private final int convolutionSize;
+            private final int extendSize;
+            private final int subListLength;
+
+            private final Function<double[], double[]> partialAppliedConv;
+
+            ConvolutionExecution(final double[] filter) {
+
+                convolutionSize = cyclicConvolution.calcAcceptableSize(filter.length * 6);
+                extendSize = filter.length - 1;
+                subListLength = convolutionSize - extendSize * 2;
+
+                partialAppliedConv =
+                        cyclicConvolution.applyPartial(toConvolutionFilter(filter, convolutionSize));
             }
 
-            return stream
-                    .map(tuple -> {
-                        int start = tuple[0];
-                        int subListEfficientLength = tuple[1];
-                        return computeSubListConvolution(start, subListEfficientLength, signal);
-                    })
-                    .flatMapToDouble(d -> Arrays.stream(d))
-                    .toArray();
-        }
-
-        /**
-         * 区間: [start, start + subListEfficientLength)
-         * の部分のフィルタ畳み込み結果を計算する.
-         */
-        private double[] computeSubListConvolution(
-                int start, int subListEfficientLength, double[] signal) {
-
-            // 長さがconvolutionSizeのシグナルを得る
-            double[] partialConvolutionSignal = cutSignal(
-                    start - extendSize, start + subListLength + extendSize, signal);
-            double[] partialOut = partialAppliedConv.apply(partialConvolutionSignal);
-            // 必要部分の切り出し
-            double[] cutPartialOut =
-                    Arrays.copyOfRange(partialOut, extendSize, extendSize + subListEfficientLength);
-
-            return cutPartialOut;
-        }
-
-        /**
-         * シグナルから [fromInclusive, toExclusive) を切り出した配列を得る. <br>
-         * シグナルの範囲外は0埋めされる.
-         */
-        private double[] cutSignal(int fromInclusive, int toExclusive, double[] signal) {
-
-            double[] out = new double[toExclusive - fromInclusive];
-            int startInclusive = Math.max(fromInclusive, 0);
-            int endExclusive = Math.min(signal.length, toExclusive);
-            System.arraycopy(
-                    signal, startInclusive, out, startInclusive - fromInclusive, endExclusive - startInclusive);
-
-            return out;
-        }
-
-        /**
-         * 与えたフィルタ(片側)を, 畳み込み用に変換する.
-         */
-        private static double[] toConvolutionFilter(double[] filterOneSide, int convolutionSize) {
-            double[] out = Arrays.copyOf(filterOneSide, convolutionSize);
-
-            for (int i = 1; i < filterOneSide.length; i++) {
-                out[convolutionSize - i] = filterOneSide[i];
+            /**
+             * 畳み込みを計算する.
+             */
+            double[] compute(double[] signal, boolean parallel) {
+                return new ExecutionInner(signal).compute(parallel);
             }
 
-            return out;
+            /**
+             * 与えたフィルタ(片側)を, 畳み込み用に変換する.
+             */
+            private static double[] toConvolutionFilter(double[] filterOneSide, int convolutionSize) {
+                double[] out = Arrays.copyOf(filterOneSide, convolutionSize);
+
+                for (int i = 1; i < filterOneSide.length; i++) {
+                    out[convolutionSize - i] = filterOneSide[i];
+                }
+
+                return out;
+            }
+
+            /**
+             * 計算用内部クラス.
+             */
+            private final class ExecutionInner {
+
+                private final double[] signal;
+
+                /**
+                 * 唯一のコンストラクタ. <br>
+                 * filter,signalは必ず正当である.
+                 */
+                ExecutionInner(final double[] signal) {
+                    this.signal = signal;
+                }
+
+                /**
+                 * 畳み込みを計算する.
+                 */
+                double[] compute(boolean parallel) {
+
+                    // タプルの作成: [start, subListEfficientLength]
+                    //   subListEfficientLength: サブリストの正味の長さ　(最終結果に残す長さ), 
+                    //   普通はsubListLengthと同等だが, 信号の末尾まで行く場合は短くなる
+                    List<int[]> tupleOfStartAndSubListEfficientLength =
+                            new ArrayList<>(signal.length / subListLength);
+                    for (int start = 0; start < signal.length; start += subListLength) {
+                        int subListEfficientLength = Math.min(signal.length - start, subListLength);
+                        tupleOfStartAndSubListEfficientLength.add(new int[] { start, subListEfficientLength });
+                    }
+
+                    /*
+                     * 以下の処理を並列化に処理する.
+                     * 
+                     * 1.
+                     * 区間: [start, start + subListEfficientLength)
+                     * の部分のフィルタ畳み込み結果を計算する.
+                     * 2.
+                     * flatMapとtoArrayにより, 部分結果を結合する
+                     */
+                    Stream<int[]> stream = tupleOfStartAndSubListEfficientLength.stream();
+                    if (parallel) {
+                        stream = stream.parallel();
+                    }
+
+                    return stream
+                            .map(tuple -> {
+                                int start = tuple[0];
+                                int subListEfficientLength = tuple[1];
+                                return computeSubListConvolution(start, subListEfficientLength);
+                            })
+                            .flatMapToDouble(d -> Arrays.stream(d))
+                            .toArray();
+                }
+
+                /**
+                 * 区間: [start, start + subListEfficientLength)
+                 * の部分のフィルタ畳み込み結果を計算する.
+                 */
+                private double[] computeSubListConvolution(
+                        int start, int subListEfficientLength) {
+
+                    // 長さがconvolutionSizeのシグナルを得る
+                    double[] partialConvolutionSignal = cutSignal(
+                            start - extendSize, start + subListLength + extendSize);
+                    double[] partialOut = partialAppliedConv.apply(partialConvolutionSignal);
+                    // 必要部分の切り出し
+                    double[] cutPartialOut =
+                            Arrays.copyOfRange(partialOut, extendSize, extendSize + subListEfficientLength);
+
+                    return cutPartialOut;
+                }
+
+                /**
+                 * シグナルから [fromInclusive, toExclusive) を切り出した配列を得る. <br>
+                 * シグナルの範囲外は0埋めされる.
+                 */
+                private double[] cutSignal(int fromInclusive, int toExclusive) {
+
+                    double[] out = new double[toExclusive - fromInclusive];
+                    int startInclusive = Math.max(fromInclusive, 0);
+                    int endExclusive = Math.min(signal.length, toExclusive);
+                    System.arraycopy(
+                            signal, startInclusive, out, startInclusive - fromInclusive, endExclusive - startInclusive);
+
+                    return out;
+                }
+            }
         }
     }
 }

@@ -72,7 +72,7 @@ final class FilterZeroFillingConvolution {
 
     /**
      * フィルタを与えて,
-     * {@code signal -> (フィルタ畳み込み)}
+     * {@code signal -> (フィルタ畳み込み結果)}
      * という関数を返す.
      * 
      * <p>
