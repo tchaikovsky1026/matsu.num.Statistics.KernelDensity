@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.11.24
+ * 2025.11.30
  */
 package matsu.num.statistics.kerneldensity;
 
@@ -72,7 +72,7 @@ final class NaiveFilterZeroFillingConvolutionParallelizable {
      *             {@link #compute(double[], double[], boolean)} を見よ.
      */
     double[] compute(double[] filter, double[] signal) {
-        return compute(filter, signal, shouldParallelize(filter, signal));
+        return this.applyPartial(filter).compute(signal);
     }
 
     /**
@@ -104,19 +104,90 @@ final class NaiveFilterZeroFillingConvolutionParallelizable {
      * @throws NullPointerException 引数がnullの場合
      */
     double[] compute(double[] filter, double[] signal, boolean parallel) {
+        return this.applyPartial(filter).compute(signal, parallel);
+    }
+
+    /**
+     * 与えたフィルタにより, {@link PartialApplied} を構築する.
+     * 
+     * <p>
+     * 引数はコピーされないので, 書き換えられないことを呼び出しもとで保証すること. <br>
+     * 例外スローなどの条件は, {@code compute} メソッドに従う.
+     * </p>
+     */
+    PartialApplied applyPartial(double[] filter) {
         if (filter.length == 0) {
             throw new IllegalArgumentException("filter is empty");
         }
-        if (signal.length == 0) {
-            throw new IllegalArgumentException("signal is empty");
+
+        return new PartialApplied(filter);
+    }
+
+    /**
+     * {@link NaiveFilterZeroFillingConvolutionParallelizable#applyPartial(double[])}
+     * の戻り値の実装.
+     */
+    final class PartialApplied {
+
+        private final double[] filter;
+
+        /**
+         * 非公開コンストラクタ.
+         * 引数チェックは行われていない.
+         */
+        private PartialApplied(double[] filter) {
+            super();
+            this.filter = filter;
         }
 
-        /*
-         * 以下について, 並列化を試みる.
-         * j の範囲を複数の分割し, double[] を複数得て, 最後に総和を計算する.
-         * 総和の計算効率を考えると, spliteratorからストリームを生成し, parallelに処理するのが良い.
+        /**
+         * 与えたシグナルに対して, フィルタによる畳み込みを適用する. <br>
+         * 畳み込みは外部に0埋めして行う.
+         * 
+         * <p>
+         * 仕様などの条件は,
+         * {@link NaiveFilterZeroFillingConvolutionParallelizable#compute(double[], double[]) }
+         * に従う.
+         * </p>
+         * 
+         * @param signal シグナル
+         * @return 畳み込みの結果
+         * @throws IllegalArgumentException 引数が不適の場合
+         * @throws NullPointerException 引数がnullの場合
          */
-        return new ConvolutionExecution(filter, signal).compute(parallel);
+        double[] compute(double[] signal) {
+            return compute(signal, shouldParallelize(filter, signal));
+        }
+
+        /**
+         * 与えたシグナルに対して, フィルタによる畳み込みを適用する. <br>
+         * 畳み込みは外部に0埋めして行う.
+         * 
+         * <p>
+         * 仕様などの条件は,
+         * {@link NaiveFilterZeroFillingConvolutionParallelizable#compute(double[], double[], boolean) }
+         * に従う.
+         * </p>
+         * 
+         * @param signal シグナル
+         * @param parallel 並列計算するかどうか
+         * @return 畳み込みの結果
+         * @throws IllegalArgumentException 引数が不適の場合
+         * @throws NullPointerException 引数がnullの場合
+         */
+        double[] compute(double[] signal, boolean parallel) {
+
+            if (signal.length == 0) {
+                throw new IllegalArgumentException("signal is empty");
+            }
+
+            /*
+             * 以下について, 並列化を試みる.
+             * j の範囲を複数の分割し, double[] を複数得て, 最後に総和を計算する.
+             * 総和の計算効率を考えると, spliteratorからストリームを生成し, parallelに処理するのが良い.
+             */
+            return new ConvolutionExecution(filter, signal).compute(parallel);
+        }
     }
 
     /**

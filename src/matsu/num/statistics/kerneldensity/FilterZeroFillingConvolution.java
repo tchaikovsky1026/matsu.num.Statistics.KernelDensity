@@ -96,6 +96,7 @@ final class FilterZeroFillingConvolution {
     private final class PartialApplied implements UnaryOperator<double[]> {
 
         private final double[] filter;
+        private final NaiveFilterZeroFillingConvolutionParallelizable.PartialApplied naiveConvolutionPartial;
 
         /**
          * 非公開コンストラクタ.
@@ -106,6 +107,7 @@ final class FilterZeroFillingConvolution {
 
             assert filter.length > 0;
             this.filter = filter;
+            this.naiveConvolutionPartial = naiveConvolution.applyPartial(filter);
         }
 
         /**
@@ -123,7 +125,7 @@ final class FilterZeroFillingConvolution {
                 return effectiveConvolution.compute(filter, signal);
             }
 
-            return naiveConvolution.compute(filter, signal);
+            return naiveConvolutionPartial.compute(signal);
         }
 
     }
