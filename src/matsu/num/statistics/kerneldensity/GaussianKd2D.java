@@ -15,7 +15,7 @@ import java.util.function.ToDoubleFunction;
 import java.util.function.UnaryOperator;
 
 /**
- * ガウシアンをカーネル関数とする, 1次元のカーネル密度推定.
+ * ガウシアンをカーネル関数とする, 2次元のカーネル密度推定.
  * 
  * <p>
  * {@link GaussianKd2D} によるカーネル密度推定では,
