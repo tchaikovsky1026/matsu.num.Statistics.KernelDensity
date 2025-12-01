@@ -28,6 +28,10 @@ import java.util.function.ToDoubleFunction;
  * は, 結果出力の分解能に関するルールである.
  * </p>
  * 
+ * <p>
+ * {@link GaussianKd1D} の生成を行うのは, {@link GaussianKd1D.Factory} クラスのインスタンスである.
+ * </p>
+ * 
  * @author Matsuura Y.
  */
 public final class GaussianKd1D implements KernelDensity1D {
