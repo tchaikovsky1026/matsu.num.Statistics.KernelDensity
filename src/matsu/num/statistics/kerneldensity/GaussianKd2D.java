@@ -103,8 +103,9 @@ public final class GaussianKd2D implements KernelDensity2D {
         final double[] filterOneSide = GaussianFilterComputation.compute(filterResolutionScale);
         UnaryOperator<double[]> convToSignal = convolution.applyPartial(filterOneSide);
 
+        int extendSize = filterOneSide.length - 1;
         final Mesh2D mesh2d = new Mesh2D(
-                rangeX, rangeY, resolutionX, resolutionY, filterOneSide.length - 1, source);
+                rangeX, rangeY, resolutionX, resolutionY, extendSize, extendSize, source);
         final double[][] weight = mesh2d.weight;
         final int lenX = mesh2d.extendX.length;
         final int lenY = mesh2d.extendY.length;
