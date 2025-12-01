@@ -61,24 +61,48 @@ final class EffectiveFilterZeroFillingConvolution {
      * 並列化を自動判定して {@link #compute(double[], double[], boolean)} メソッドを実行する.
      * 
      * <p>
-     * 例外のスロー条件は {@link #compute(double[], double[], boolean)} メソッドに従う.
+     * 仕様は {@link #compute(double[], double[], boolean)} メソッドに従う.
      * </p>
      * 
      * @param filter フィルタ
      * @param signal シグナル
      * @return 畳み込みの結果
      * @throws IllegalArgumentException
-     *             {@link #compute(double[], double[], boolean)} を見よ.
+     *             {@link #compute(double[], double[], boolean)} の通り
      * @throws NullPointerException see
-     *             {@link #compute(double[], double[], boolean)} を見よ.
+     *             {@link #compute(double[], double[], boolean)} の通り
      */
     double[] compute(double[] filter, double[] signal) {
         return this.applyPartial(filter).compute(signal);
     }
 
     /**
-     * 与えたシグナルに対して, フィルタによる畳み込みを適用する. <br>
+     * 与えたフィルタ, シグナルに対して, フィルタによる畳み込みを適用する. <br>
      * 畳み込みは外部に0埋めして行う.
+     * 
+     * <p>
+     * 仕様は, <br>
+     * {@code applyPartial(filter).compute(signal, parallel)} <br>
+     * と同等である.
+     * </p>
+     * 
+     * @param filter フィルタ
+     * @param signal シグナル
+     * @param parallel 並列計算するかどうか
+     * @return 畳み込みの結果
+     * @throws IllegalArgumentException
+     *             {@link #applyPartial(double[])},
+     *             {@link PartialApplied#compute(double[], boolean)} の通り
+     * @throws NullPointerException
+     *             {@link #applyPartial(double[])},
+     *             {@link PartialApplied#compute(double[], boolean)} の通り
+     */
+    double[] compute(final double[] filter, final double[] signal, boolean parallel) {
+        return this.applyPartial(filter).compute(signal, parallel);
+    }
+
+    /**
+     * 与えたフィルタにより, {@link PartialApplied} を構築する.
      * 
      * <p>
      * フィルタは片側の値を配列でを与える. <br>
@@ -89,32 +113,12 @@ final class EffectiveFilterZeroFillingConvolution {
      * </p>
      * 
      * <p>
-     * この処理は並列計算でき, それをするかどうかは引数 {@code parallel} で指定する.
-     * </p>
-     * 
-     * <p>
-     * {@code filter.length} は 1 以上でなければならない. <br>
-     * シグナルサイズは1以上でなければならない.
+     * フィルタサイズは1以上でなければならない.
      * </p>
      * 
      * @param filter フィルタ
-     * @param signal シグナル
-     * @param parallel 並列計算するかどうか
-     * @return 畳み込みの結果
      * @throws IllegalArgumentException 引数が不適の場合
      * @throws NullPointerException 引数がnullの場合
-     */
-    double[] compute(final double[] filter, final double[] signal, boolean parallel) {
-        return this.applyPartial(filter).compute(signal, parallel);
-    }
-
-    /**
-     * 与えたフィルタにより, {@link PartialApplied} を構築する.
-     * 
-     * <p>
-     * 引数はコピーされないので, 書き換えられないことを呼び出しもとで保証すること. <br>
-     * 例外スローなどの条件は, {@code compute} メソッドに従う.
-     * </p>
      */
     PartialApplied applyPartial(double[] filter) {
         if (filter.length == 0) {
@@ -143,19 +147,18 @@ final class EffectiveFilterZeroFillingConvolution {
         }
 
         /**
-         * 与えたシグナルに対して, フィルタによる畳み込みを適用する. <br>
-         * 畳み込みは外部に0埋めして行う.
+         * 並列化を自動判定して {@link #compute(double[], boolean)} メソッドを実行する.
          * 
          * <p>
-         * 仕様などの条件は,
-         * {@link EffectiveFilterZeroFillingConvolution#compute(double[], double[]) }
-         * に従う.
+         * 仕様は {@link #compute(double[], boolean)} メソッドに従う.
          * </p>
          * 
          * @param signal シグナル
          * @return 畳み込みの結果
-         * @throws IllegalArgumentException 引数が不適の場合
-         * @throws NullPointerException 引数がnullの場合
+         * @throws IllegalArgumentException
+         *             {@link #compute(double[], boolean)} の通り
+         * @throws NullPointerException
+         *             {@link #compute(double[], boolean)} の通り
          */
         double[] compute(double[] signal) {
             return compute(signal, true);
@@ -166,9 +169,11 @@ final class EffectiveFilterZeroFillingConvolution {
          * 畳み込みは外部に0埋めして行う.
          * 
          * <p>
-         * 仕様などの条件は,
-         * {@link EffectiveFilterZeroFillingConvolution#compute(double[], double[], boolean) }
-         * に従う.
+         * この処理は並列計算でき, それをするかどうかは引数 {@code parallel} で指定する.
+         * </p>
+         * 
+         * <p>
+         * シグナルサイズは1以上でなければならない.
          * </p>
          * 
          * @param signal シグナル
