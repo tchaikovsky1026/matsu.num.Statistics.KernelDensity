@@ -40,7 +40,7 @@ public final class GaussianKd2D implements KernelDensity2D {
 
     private final BandWidthRule bandWidthRule;
     private final ResolutionRule resolutionRule;
-    private final FilterZeroFillingConvolution convolution;
+    private final FilterZeroFillingConvolutionFacade convolution;
 
     private final Kde2DSourceDto source;
 
@@ -69,7 +69,7 @@ public final class GaussianKd2D implements KernelDensity2D {
 
         this.bandWidthRule = factory.bandWidthRule;
         this.resolutionRule = factory.resolutionRule;
-        this.convolution = new FilterZeroFillingConvolution(factory.effectiveCyclicConvolution);
+        this.convolution = new FilterZeroFillingConvolutionFacade(factory.effectiveCyclicConvolution);
 
         this.source = source;
         this.bandWidthX = Math.max(

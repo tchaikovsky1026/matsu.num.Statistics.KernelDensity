@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.11.30
+ * 2025.12.1
  */
 package matsu.num.statistics.kerneldensity;
 
@@ -22,7 +22,8 @@ import java.util.stream.Stream;
  * 
  * @author Matsuura Y.
  */
-final class EffectiveFilterZeroFillingConvolution {
+final class EffectiveFilterZeroFillingConvolution
+        implements FilterZeroFillingConvolution {
 
     /**
      * 高効率な畳み込みを実行する場合の, フィルタの最低サイズの目安.
@@ -40,13 +41,15 @@ final class EffectiveFilterZeroFillingConvolution {
     private final EffectiveCyclicConvolution cyclicConvolution;
 
     /**
-     * 唯一のコンストラクタ.
+     * 非公開のコンストラクタ.
      *
-     * @param cyclicConvolution 巡回畳み込み
-     * @throws NullPointerException 引数が null の場合
+     * <p>
+     * {@code null} であってはいけない. <br>
+     * 引数は呼び出しもとでチェックすること.
+     * </p>
      */
-    EffectiveFilterZeroFillingConvolution(EffectiveCyclicConvolution cyclicConvolution) {
-        this.cyclicConvolution = Objects.requireNonNull(cyclicConvolution);
+    private EffectiveFilterZeroFillingConvolution(EffectiveCyclicConvolution cyclicConvolution) {
+        this.cyclicConvolution = cyclicConvolution;
     }
 
     /**
@@ -58,78 +61,39 @@ final class EffectiveFilterZeroFillingConvolution {
     }
 
     /**
-     * 並列化を自動判定して {@link #compute(double[], double[], boolean)} メソッドを実行する.
+     * 巡回畳み込みのインスタンスを与えて, このクラスのインスタンスを返す.
      * 
-     * <p>
-     * 例外のスロー条件は {@link #compute(double[], double[], boolean)} メソッドに従う.
-     * </p>
-     * 
-     * @param filter フィルタ
-     * @param signal シグナル
-     * @return 畳み込みの結果
-     * @throws IllegalArgumentException
-     *             {@link #compute(double[], double[], boolean)} を見よ.
-     * @throws NullPointerException see
-     *             {@link #compute(double[], double[], boolean)} を見よ.
+     * @param cyclicConvolution 巡回畳み込み
+     * @return インスタンス
+     * @throws NullPointerException 引数が null の場合
      */
-    double[] compute(double[] filter, double[] signal) {
-        return this.applyPartial(filter).compute(signal);
+    static FilterZeroFillingConvolution instanceOf(
+            EffectiveCyclicConvolution cyclicConvolution) {
+
+        return new EffectiveFilterZeroFillingConvolution(
+                Objects.requireNonNull(cyclicConvolution));
     }
 
     /**
-     * 与えたシグナルに対して, フィルタによる畳み込みを適用する. <br>
-     * 畳み込みは外部に0埋めして行う.
-     * 
-     * <p>
-     * フィルタは片側の値を配列でを与える. <br>
-     * 与えた配列に対して, <br>
-     * {@code filter[length - 1], ... , filter[1], filter[0] (center), filter[1], ... , filter[length - 1]}
-     * <br>
-     * となる.
-     * </p>
-     * 
-     * <p>
-     * この処理は並列計算でき, それをするかどうかは引数 {@code parallel} で指定する.
-     * </p>
-     * 
-     * <p>
-     * {@code filter.length} は 1 以上でなければならない. <br>
-     * シグナルサイズは1以上でなければならない.
-     * </p>
-     * 
-     * @param filter フィルタ
-     * @param signal シグナル
-     * @param parallel 並列計算するかどうか
-     * @return 畳み込みの結果
-     * @throws IllegalArgumentException 引数が不適の場合
-     * @throws NullPointerException 引数がnullの場合
+     * @throws IllegalArgumentException {@inheritDoc}
+     * @throws NullPointerException {@inheritDoc}
      */
-    double[] compute(final double[] filter, final double[] signal, boolean parallel) {
-        return this.applyPartial(filter).compute(signal, parallel);
-    }
+    @Override
+    public PartialApplied applyPartial(double[] filter) {
+        double[] filterCopy = filter.clone();
 
-    /**
-     * 与えたフィルタにより, {@link PartialApplied} を構築する.
-     * 
-     * <p>
-     * 引数はコピーされないので, 書き換えられないことを呼び出しもとで保証すること. <br>
-     * 例外スローなどの条件は, {@code compute} メソッドに従う.
-     * </p>
-     */
-    PartialApplied applyPartial(double[] filter) {
-        if (filter.length == 0) {
+        if (filterCopy.length == 0) {
             throw new IllegalArgumentException("filter is empty");
         }
 
-        return new PartialApplied(filter);
+        return new PartialApplied(filterCopy);
     }
 
     /**
-     * フィルタを属性として持ち,
-     * {@code signal -> (フィルタ畳み込み結果)}
-     * という変換を表す.
+     * {@link EffectiveFilterZeroFillingConvolution#applyPartial(double[])}
+     * の実装.
      */
-    final class PartialApplied {
+    private final class PartialApplied implements FilterZeroFillingConvolution.PartialApplied {
 
         private final ConvolutionExecution convolution;
 
@@ -143,41 +107,20 @@ final class EffectiveFilterZeroFillingConvolution {
         }
 
         /**
-         * 与えたシグナルに対して, フィルタによる畳み込みを適用する. <br>
-         * 畳み込みは外部に0埋めして行う.
-         * 
-         * <p>
-         * 仕様などの条件は,
-         * {@link EffectiveFilterZeroFillingConvolution#compute(double[], double[]) }
-         * に従う.
-         * </p>
-         * 
-         * @param signal シグナル
-         * @return 畳み込みの結果
-         * @throws IllegalArgumentException 引数が不適の場合
-         * @throws NullPointerException 引数がnullの場合
+         * @throws IllegalArgumentException {@inheritDoc}
+         * @throws NullPointerException {@inheritDoc}
          */
-        double[] compute(double[] signal) {
+        @Override
+        public double[] compute(double[] signal) {
             return compute(signal, true);
         }
 
         /**
-         * 与えたシグナルに対して, フィルタによる畳み込みを適用する. <br>
-         * 畳み込みは外部に0埋めして行う.
-         * 
-         * <p>
-         * 仕様などの条件は,
-         * {@link EffectiveFilterZeroFillingConvolution#compute(double[], double[], boolean) }
-         * に従う.
-         * </p>
-         * 
-         * @param signal シグナル
-         * @param parallel 並列計算するかどうか
-         * @return 畳み込みの結果
-         * @throws IllegalArgumentException 引数が不適の場合
-         * @throws NullPointerException 引数がnullの場合
+         * @throws IllegalArgumentException {@inheritDoc}
+         * @throws NullPointerException {@inheritDoc}
          */
-        double[] compute(double[] signal, boolean parallel) {
+        @Override
+        public double[] compute(double[] signal, boolean parallel) {
             if (signal.length == 0) {
                 throw new IllegalArgumentException("signal is empty");
             }

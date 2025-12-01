@@ -6,47 +6,29 @@
  */
 
 /*
- * 2025.11.30
+ * 2025.12.1
  */
 package matsu.num.statistics.kerneldensity;
 
-import java.util.Objects;
-import java.util.function.UnaryOperator;
-
 /**
- * フィルタを使用して畳み込みを行うクラス. <br>
- * 範囲外について, 0埋めしたものとして計算する.
+ * フィルタ畳み込みを表現するインターフェース.
+ * 
+ * <p>
+ * イミュータブルで関数的である.
+ * </p>
+ * 
+ * <p>
+ * パッケージ内に隠ぺいする.
+ * </p>
  * 
  * @author Matsuura Y.
  */
-final class FilterZeroFillingConvolution {
-
-    private final NaiveFilterZeroFillingConvolutionParallelizable naiveConvolution;
-    private final EffectiveFilterZeroFillingConvolution effectiveConvolution;
+interface FilterZeroFillingConvolution {
 
     /**
-     * {@link EffectiveCyclicConvolution}
-     * を与えて, 効率的な0埋め畳み込みを構築する.
-     * 
-     * <p>
-     * {@code null} を与えても良い. <br>
-     * この場合, 計算効率は低下する.
-     * </p>
-     * 
-     * @param cyclicConvolution nullも許容される
-     */
-    FilterZeroFillingConvolution(EffectiveCyclicConvolution cyclicConvolution) {
-        super();
-        this.naiveConvolution = new NaiveFilterZeroFillingConvolutionParallelizable();
-        this.effectiveConvolution =
-                Objects.isNull(cyclicConvolution)
-                        ? null
-                        : new EffectiveFilterZeroFillingConvolution(cyclicConvolution);
-    }
-
-    /**
-     * 与えたシグナルに対して, フィルタによる畳み込みを適用する. <br>
-     * 畳み込みは外部に0埋めして行う.
+     * 与えたフィルタにより, {@link PartialApplied}
+     * ({@code signal -> (フィルタ畳み込み結果)})
+     * を構築する.
      * 
      * <p>
      * フィルタは片側の値を配列でを与える. <br>
@@ -57,80 +39,71 @@ final class FilterZeroFillingConvolution {
      * </p>
      * 
      * <p>
-     * {@code filter.length}, {@code signal.length} は1以上でなければならない.
+     * フィルタサイズは1以上でなければならない.
      * </p>
-     * 
-     * @param filter フィルタ
-     * @param signal シグナル
-     * @return 畳み込みの結果
-     * @throws IllegalArgumentException filter または signal が長さ0の場合
-     * @throws NullPointerException 引数がnullの場合
-     */
-    double[] compute(double[] filter, double[] signal) {
-        return this.applyPartial(filter).apply(signal);
-    }
-
-    /**
-     * フィルタを与えて,
-     * {@code signal -> (フィルタ畳み込み結果)}
-     * という関数を返す.
      * 
      * <p>
-     * 引数はコピーされないので, 書き換えられないことを呼び出しもとで保証すること. <br>
-     * 例外スローなどの条件は, {@link #compute(double[], double[])} に従う.
+     * 引数の配列は, 内部で防御的コピーされるため, 呼び出しもとで書き換えてよい.
      * </p>
      * 
+     * @implSpec 引数をコピーすること.
+     * 
+     * @param filter フィルタ
+     * @return {@link PartialApplied} ({@code signal -> (フィルタ畳み込み結果)})
+     * @throws IllegalArgumentException 引数が不適の場合
+     * @throws NullPointerException 引数がnullの場合
      */
-    UnaryOperator<double[]> applyPartial(double[] filter) {
-        if (filter.length == 0) {
-            throw new IllegalArgumentException("filter is empty");
-        }
-
-        return new PartialApplied(filter);
-    }
+    public abstract PartialApplied applyPartial(double[] filter);
 
     /**
-     * {@link FilterZeroFillingConvolution#applyPartial(double[])}
-     * の戻り値の実装.
+     * フィルタを属性として持ち,
+     * {@code signal -> (フィルタ畳み込み結果)}
+     * という変換を表す.
+     * 
+     * <p>
+     * イミュータブルで関数的である.
+     * </p>
+     * 
+     * <p>
+     * パッケージ内に隠ぺいする.
+     * </p>
      */
-    private final class PartialApplied implements UnaryOperator<double[]> {
-
-        private final double[] filter;
-        private final NaiveFilterZeroFillingConvolutionParallelizable.PartialApplied naiveConvolutionPartial;
-        private final EffectiveFilterZeroFillingConvolution.PartialApplied effectiveConvolutionPartial;
+    public static interface PartialApplied {
 
         /**
-         * 非公開コンストラクタ.
-         * 引数チェックは行われていない.
+         * 並列化を自動判定して {@link #compute(double[], boolean)} メソッドを実行する.
+         * 
+         * <p>
+         * 仕様は {@link #compute(double[], boolean)} メソッドに従う.
+         * </p>
+         * 
+         * @param signal シグナル
+         * @return 畳み込みの結果
+         * @throws IllegalArgumentException
+         *             {@link #compute(double[], boolean)} の通り
+         * @throws NullPointerException
+         *             {@link #compute(double[], boolean)} の通り
          */
-        PartialApplied(double[] filter) {
-            super();
-
-            assert filter.length > 0;
-            this.filter = filter;
-            this.naiveConvolutionPartial = naiveConvolution.applyPartial(filter);
-            this.effectiveConvolutionPartial =
-                    Objects.nonNull(effectiveConvolution)
-                            ? effectiveConvolution.applyPartial(filter)
-                            : null;
-        }
+        public abstract double[] compute(double[] signal);
 
         /**
-         * filterConvolution(filter, signal)
-         * を計算する.
+         * 与えたシグナルに対して, フィルタによる畳み込みを適用する. <br>
+         * 畳み込みは外部に0埋めして行う.
+         * 
+         * <p>
+         * この処理は並列計算でき, それをするかどうかは引数 {@code parallel} で指定する.
+         * </p>
+         * 
+         * <p>
+         * シグナルサイズは1以上でなければならない.
+         * </p>
+         * 
+         * @param signal シグナル
+         * @param parallel 並列計算するかどうか
+         * @return 畳み込みの結果
+         * @throws IllegalArgumentException 引数が不適の場合
+         * @throws NullPointerException 引数がnullの場合
          */
-        @Override
-        public double[] apply(double[] signal) {
-            if (signal.length == 0) {
-                throw new IllegalArgumentException("signal is empty");
-            }
-
-            if (Objects.nonNull(effectiveConvolutionPartial)
-                    && EffectiveFilterZeroFillingConvolution.shouldBeUsed(filter, signal)) {
-                return effectiveConvolutionPartial.compute(signal);
-            }
-
-            return naiveConvolutionPartial.compute(signal);
-        }
+        public abstract double[] compute(double[] signal, boolean parallel);
     }
 }
