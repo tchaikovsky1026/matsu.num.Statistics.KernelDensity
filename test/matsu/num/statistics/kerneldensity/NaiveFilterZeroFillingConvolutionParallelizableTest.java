@@ -30,7 +30,7 @@ import org.junit.runner.RunWith;
 @RunWith(Enclosed.class)
 final class NaiveFilterZeroFillingConvolutionParallelizableTest {
 
-    private static final NaiveFilterZeroFillingConvolutionParallelizable TESTING_CONVOLUTION =
+    private static final FilterZeroFillingConvolution TESTING_CONVOLUTION =
             new NaiveFilterZeroFillingConvolutionParallelizable();
 
     private static final Function<double[], FilterZeroFillingConvolutionForTesting> VALIDATOR =

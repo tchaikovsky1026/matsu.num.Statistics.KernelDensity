@@ -6,7 +6,6 @@
  */
 package matsu.num.statistics.kerneldensity;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 
@@ -27,7 +26,7 @@ import org.junit.runner.RunWith;
 @RunWith(Enclosed.class)
 final class EffectiveFilterZeroFillingConvolutionTest {
 
-    private static final EffectiveFilterZeroFillingConvolution TESTING_CONVOLUTION =
+    private static final FilterZeroFillingConvolution TESTING_CONVOLUTION =
             new EffectiveFilterZeroFillingConvolution(new EffectiveCyclicConvolutionStubForTesting());
 
     private static final Function<double[], FilterZeroFillingConvolutionForTesting> VALIDATOR =

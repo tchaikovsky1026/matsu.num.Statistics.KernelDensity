@@ -21,8 +21,8 @@ import java.util.function.UnaryOperator;
  */
 final class FilterZeroFillingConvolutionFacade {
 
-    private final NaiveFilterZeroFillingConvolutionParallelizable naiveConvolution;
-    private final EffectiveFilterZeroFillingConvolution effectiveConvolution;
+    private final FilterZeroFillingConvolution naiveConvolution;
+    private final FilterZeroFillingConvolution effectiveConvolution;
 
     /**
      * {@link EffectiveCyclicConvolution}
@@ -87,8 +87,8 @@ final class FilterZeroFillingConvolutionFacade {
     private final class PartialApplied implements UnaryOperator<double[]> {
 
         private final double[] filter;
-        private final NaiveFilterZeroFillingConvolutionParallelizable.PartialApplied naiveConvolutionPartial;
-        private final EffectiveFilterZeroFillingConvolution.PartialApplied effectiveConvolutionPartial;
+        private final FilterZeroFillingConvolution.PartialApplied naiveConvolutionPartial;
+        private final FilterZeroFillingConvolution.PartialApplied effectiveConvolutionPartial;
 
         /**
          * 非公開コンストラクタ.
