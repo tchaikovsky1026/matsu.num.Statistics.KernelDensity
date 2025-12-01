@@ -148,6 +148,7 @@ final class Mesh2D {
         }
 
         // 全区間を網羅した場合が総和が1相当になるように正規化
+        // (実際は有限区間なので, 総和は1以下になる)
         for (int j = 0; j < weight.length; j++) {
             double[] weight_j = weight[j];
             for (int k = 0; k < weight_j.length; k++) {
