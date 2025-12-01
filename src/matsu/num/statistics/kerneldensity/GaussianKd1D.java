@@ -39,7 +39,7 @@ public final class GaussianKd1D implements KernelDensity1D {
 
     private final BandWidthRule bandWidthRule;
     private final ResolutionRule resolutionRule;
-    private final FilterZeroFillingConvolution convolution;
+    private final FilterZeroFillingConvolutionFacade convolution;
 
     private final double[] source;
 
@@ -63,7 +63,7 @@ public final class GaussianKd1D implements KernelDensity1D {
 
         this.bandWidthRule = factory.bandWidthRule;
         this.resolutionRule = factory.resolutionRule;
-        this.convolution = new FilterZeroFillingConvolution(factory.effectiveCyclicConvolution);
+        this.convolution = new FilterZeroFillingConvolutionFacade(factory.effectiveCyclicConvolution);
 
         this.source = source;
         this.bandWidth = Math.max(
@@ -90,7 +90,7 @@ public final class GaussianKd1D implements KernelDensity1D {
 
         // 範囲外を0埋めしてフィルタ畳み込みを行い, 端をカット
         double[] result = mesh1d.reduceSize(
-                convolution.compute(filterOneSide, mesh1d.weight));
+                convolution.applyPartial(filterOneSide).apply(mesh1d.weight));
 
         return new KdeGrid1dDto(mesh1d.x, result);
     }

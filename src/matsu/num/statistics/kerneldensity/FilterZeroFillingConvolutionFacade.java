@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.11.30
+ * 2025.12.1
  */
 package matsu.num.statistics.kerneldensity;
 
@@ -19,7 +19,7 @@ import java.util.function.UnaryOperator;
  * 
  * @author Matsuura Y.
  */
-final class FilterZeroFillingConvolution {
+final class FilterZeroFillingConvolutionFacade {
 
     private final NaiveFilterZeroFillingConvolutionParallelizable naiveConvolution;
     private final EffectiveFilterZeroFillingConvolution effectiveConvolution;
@@ -35,7 +35,7 @@ final class FilterZeroFillingConvolution {
      * 
      * @param cyclicConvolution nullも許容される
      */
-    FilterZeroFillingConvolution(EffectiveCyclicConvolution cyclicConvolution) {
+    FilterZeroFillingConvolutionFacade(EffectiveCyclicConvolution cyclicConvolution) {
         super();
         this.naiveConvolution = new NaiveFilterZeroFillingConvolutionParallelizable();
         this.effectiveConvolution =
@@ -45,8 +45,9 @@ final class FilterZeroFillingConvolution {
     }
 
     /**
-     * 与えたシグナルに対して, フィルタによる畳み込みを適用する. <br>
-     * 畳み込みは外部に0埋めして行う.
+     * フィルタを与えて,
+     * {@code signal -> (フィルタ畳み込み結果)}
+     * という関数を返す.
      * 
      * <p>
      * フィルタは片側の値を配列でを与える. <br>
@@ -57,29 +58,19 @@ final class FilterZeroFillingConvolution {
      * </p>
      * 
      * <p>
-     * {@code filter.length}, {@code signal.length} は1以上でなければならない.
+     * 引数はコピーされないので, 書き換えられないことを呼び出しもとで保証すること. <br>
+     * {@code filter.length} は1以上でなければならない.
+     * </p>
+     * 
+     * <p>
+     * 戻り値である関数 {@link UnaryOperator#apply(Object)} について, <br>
+     * {@code signal.length} は1以上でなければならない.
      * </p>
      * 
      * @param filter フィルタ
-     * @param signal シグナル
-     * @return 畳み込みの結果
-     * @throws IllegalArgumentException filter または signal が長さ0の場合
+     * @return {@code signal -> (フィルタ畳み込み結果)} という関数
+     * @throws IllegalArgumentException filter が長さ0の場合
      * @throws NullPointerException 引数がnullの場合
-     */
-    double[] compute(double[] filter, double[] signal) {
-        return this.applyPartial(filter).apply(signal);
-    }
-
-    /**
-     * フィルタを与えて,
-     * {@code signal -> (フィルタ畳み込み結果)}
-     * という関数を返す.
-     * 
-     * <p>
-     * 引数はコピーされないので, 書き換えられないことを呼び出しもとで保証すること. <br>
-     * 例外スローなどの条件は, {@link #compute(double[], double[])} に従う.
-     * </p>
-     * 
      */
     UnaryOperator<double[]> applyPartial(double[] filter) {
         if (filter.length == 0) {
@@ -90,7 +81,7 @@ final class FilterZeroFillingConvolution {
     }
 
     /**
-     * {@link FilterZeroFillingConvolution#applyPartial(double[])}
+     * {@link FilterZeroFillingConvolutionFacade#applyPartial(double[])}
      * の戻り値の実装.
      */
     private final class PartialApplied implements UnaryOperator<double[]> {
