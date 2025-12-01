@@ -64,7 +64,8 @@ final class FilterZeroFillingConvolutionFacade {
      * 
      * <p>
      * 戻り値である関数 {@link UnaryOperator#apply(Object)} について, <br>
-     * {@code signal.length} は1以上でなければならない.
+     * {@code signal.length} は1以上でなければならない
+     * (例外がスローされる).
      * </p>
      * 
      * @param filter フィルタ
@@ -107,7 +108,7 @@ final class FilterZeroFillingConvolutionFacade {
         }
 
         /**
-         * filterConvolution(filter, signal)
+         * filterConvolution(signal)
          * を計算する.
          */
         @Override
