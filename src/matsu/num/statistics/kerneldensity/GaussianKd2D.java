@@ -29,6 +29,10 @@ import java.util.function.UnaryOperator;
  * は, 結果出力の分解能に関するルールである.
  * </p>
  * 
+ * <p>
+ * {@link GaussianKd2D} の生成を行うのは, {@link GaussianKd2D.Factory} クラスのインスタンスである.
+ * </p>
+ * 
  * @author Matsuura Y.
  */
 public final class GaussianKd2D implements KernelDensity2D {
