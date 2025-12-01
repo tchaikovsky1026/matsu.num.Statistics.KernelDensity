@@ -72,6 +72,7 @@ final class EffectiveFilterZeroFillingConvolution {
      * @throws NullPointerException see
      *             {@link #compute(double[], double[], boolean)} の通り
      */
+    @Deprecated
     double[] compute(double[] filter, double[] signal) {
         return this.applyPartial(filter).compute(signal);
     }
@@ -97,6 +98,7 @@ final class EffectiveFilterZeroFillingConvolution {
      *             {@link #applyPartial(double[])},
      *             {@link PartialApplied#compute(double[], boolean)} の通り
      */
+    @Deprecated
     double[] compute(final double[] filter, final double[] signal, boolean parallel) {
         return this.applyPartial(filter).compute(signal, parallel);
     }

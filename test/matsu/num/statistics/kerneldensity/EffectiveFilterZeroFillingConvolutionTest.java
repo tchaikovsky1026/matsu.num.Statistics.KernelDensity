@@ -55,7 +55,7 @@ final class EffectiveFilterZeroFillingConvolutionTest {
                     .mapToDouble(i -> ThreadLocalRandom.current().nextInt(-5, 5))
                     .toArray();
 
-            double[] result = TESTING_CONVOLUTION.compute(filter, signal, false);
+            double[] result = TESTING_CONVOLUTION.applyPartial(filter).compute(signal, false);
             double[] expected = VALIDATOR.apply(filter).compute(signal);
             assertThat(result.length, is(expected.length));
 
@@ -90,7 +90,7 @@ final class EffectiveFilterZeroFillingConvolutionTest {
                     .mapToDouble(i -> ThreadLocalRandom.current().nextInt(-5, 5))
                     .toArray();
 
-            double[] result = TESTING_CONVOLUTION.compute(filter, signal, true);
+            double[] result = TESTING_CONVOLUTION.applyPartial(filter).compute(signal, true);
             double[] expected = VALIDATOR.apply(filter).compute(signal);
             assertThat(result.length, is(expected.length));
 
@@ -125,7 +125,7 @@ final class EffectiveFilterZeroFillingConvolutionTest {
                     .mapToDouble(i -> ThreadLocalRandom.current().nextInt(-5, 5))
                     .toArray();
 
-            double[] result = TESTING_CONVOLUTION.compute(filter, signal, false);
+            double[] result = TESTING_CONVOLUTION.applyPartial(filter).compute(signal, false);
             double[] expected = VALIDATOR.apply(filter).compute(signal);
             assertThat(result.length, is(expected.length));
 
@@ -160,7 +160,7 @@ final class EffectiveFilterZeroFillingConvolutionTest {
                     .mapToDouble(i -> ThreadLocalRandom.current().nextInt(-5, 5))
                     .toArray();
 
-            double[] result = TESTING_CONVOLUTION.compute(filter, signal, true);
+            double[] result = TESTING_CONVOLUTION.applyPartial(filter).compute(signal, true);
             double[] expected = VALIDATOR.apply(filter).compute(signal);
             assertThat(result.length, is(expected.length));
 
