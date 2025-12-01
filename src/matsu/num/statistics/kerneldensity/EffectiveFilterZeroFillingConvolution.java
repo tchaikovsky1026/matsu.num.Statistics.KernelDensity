@@ -58,52 +58,6 @@ final class EffectiveFilterZeroFillingConvolution {
     }
 
     /**
-     * 並列化を自動判定して {@link #compute(double[], double[], boolean)} メソッドを実行する.
-     * 
-     * <p>
-     * 仕様は {@link #compute(double[], double[], boolean)} メソッドに従う.
-     * </p>
-     * 
-     * @param filter フィルタ
-     * @param signal シグナル
-     * @return 畳み込みの結果
-     * @throws IllegalArgumentException
-     *             {@link #compute(double[], double[], boolean)} の通り
-     * @throws NullPointerException see
-     *             {@link #compute(double[], double[], boolean)} の通り
-     */
-    @Deprecated
-    double[] compute(double[] filter, double[] signal) {
-        return this.applyPartial(filter).compute(signal);
-    }
-
-    /**
-     * 与えたフィルタ, シグナルに対して, フィルタによる畳み込みを適用する. <br>
-     * 畳み込みは外部に0埋めして行う.
-     * 
-     * <p>
-     * 仕様は, <br>
-     * {@code applyPartial(filter).compute(signal, parallel)} <br>
-     * と同等である.
-     * </p>
-     * 
-     * @param filter フィルタ
-     * @param signal シグナル
-     * @param parallel 並列計算するかどうか
-     * @return 畳み込みの結果
-     * @throws IllegalArgumentException
-     *             {@link #applyPartial(double[])},
-     *             {@link PartialApplied#compute(double[], boolean)} の通り
-     * @throws NullPointerException
-     *             {@link #applyPartial(double[])},
-     *             {@link PartialApplied#compute(double[], boolean)} の通り
-     */
-    @Deprecated
-    double[] compute(final double[] filter, final double[] signal, boolean parallel) {
-        return this.applyPartial(filter).compute(signal, parallel);
-    }
-
-    /**
      * 与えたフィルタにより, {@link PartialApplied} を構築する.
      * 
      * <p>
