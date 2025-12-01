@@ -37,11 +37,11 @@ final class FilterZeroFillingConvolutionFacade {
      */
     FilterZeroFillingConvolutionFacade(EffectiveCyclicConvolution cyclicConvolution) {
         super();
-        this.naiveConvolution = new NaiveFilterZeroFillingConvolutionParallelizable();
+        this.naiveConvolution = NaiveFilterZeroFillingConvolutionParallelizable.instance();
         this.effectiveConvolution =
                 Objects.isNull(cyclicConvolution)
                         ? null
-                        : new EffectiveFilterZeroFillingConvolution(cyclicConvolution);
+                        : EffectiveFilterZeroFillingConvolution.instanceOf(cyclicConvolution);
     }
 
     /**

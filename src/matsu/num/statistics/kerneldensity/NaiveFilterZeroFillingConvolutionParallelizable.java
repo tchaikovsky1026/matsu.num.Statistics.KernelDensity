@@ -41,10 +41,19 @@ final class NaiveFilterZeroFillingConvolutionParallelizable
     private static final long MIN_FILTER_TIMES_SIGNAL_SIZE_IN_PARALLEL = 50_000L;
 
     /**
-     * 唯一のコンストラクタ.
+     * 非公開のコンストラクタ.
      */
-    NaiveFilterZeroFillingConvolutionParallelizable() {
+    private NaiveFilterZeroFillingConvolutionParallelizable() {
         super();
+    }
+
+    /**
+     * このクラスのインスタンスを返す.
+     * 
+     * @return インスタンス
+     */
+    static FilterZeroFillingConvolution instance() {
+        return new NaiveFilterZeroFillingConvolutionParallelizable();
     }
 
     /**

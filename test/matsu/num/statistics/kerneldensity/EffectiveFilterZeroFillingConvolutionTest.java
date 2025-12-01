@@ -27,7 +27,8 @@ import org.junit.runner.RunWith;
 final class EffectiveFilterZeroFillingConvolutionTest {
 
     private static final FilterZeroFillingConvolution TESTING_CONVOLUTION =
-            new EffectiveFilterZeroFillingConvolution(new EffectiveCyclicConvolutionStubForTesting());
+            EffectiveFilterZeroFillingConvolution.instanceOf(
+                    new EffectiveCyclicConvolutionStubForTesting());
 
     private static final Function<double[], FilterZeroFillingConvolutionForTesting> VALIDATOR =
             filter -> new FilterZeroFillingConvolutionForTesting(filter);

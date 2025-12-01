@@ -41,13 +41,15 @@ final class EffectiveFilterZeroFillingConvolution
     private final EffectiveCyclicConvolution cyclicConvolution;
 
     /**
-     * 唯一のコンストラクタ.
+     * 非公開のコンストラクタ.
      *
-     * @param cyclicConvolution 巡回畳み込み
-     * @throws NullPointerException 引数が null の場合
+     * <p>
+     * {@code null} であってはいけない. <br>
+     * 引数は呼び出しもとでチェックすること.
+     * </p>
      */
-    EffectiveFilterZeroFillingConvolution(EffectiveCyclicConvolution cyclicConvolution) {
-        this.cyclicConvolution = Objects.requireNonNull(cyclicConvolution);
+    private EffectiveFilterZeroFillingConvolution(EffectiveCyclicConvolution cyclicConvolution) {
+        this.cyclicConvolution = cyclicConvolution;
     }
 
     /**
@@ -56,6 +58,20 @@ final class EffectiveFilterZeroFillingConvolution
     static boolean shouldBeUsed(double[] filter, double[] signal) {
         return filter.length >= MIN_FILTER_SIZE_FOR_EFFECTIVE
                 && (long) filter.length * signal.length >= MIN_FILTER_TIMES_SIGNAL_SIZE_FOR_EFFECTIVE;
+    }
+
+    /**
+     * 巡回畳み込みのインスタンスを与えて, このクラスのインスタンスを返す.
+     * 
+     * @param cyclicConvolution 巡回畳み込み
+     * @return インスタンス
+     * @throws NullPointerException 引数が null の場合
+     */
+    static FilterZeroFillingConvolution instanceOf(
+            EffectiveCyclicConvolution cyclicConvolution) {
+
+        return new EffectiveFilterZeroFillingConvolution(
+                Objects.requireNonNull(cyclicConvolution));
     }
 
     /**
