@@ -6,14 +6,22 @@
  */
 
 /*
- * 2025.11.29
+ * 2025.12.1
  */
 package matsu.num.statistics.kerneldensity;
 
 import java.util.Arrays;
 
 /**
- * {@link KernelDensity2D} による結果を返すための結果転送用クラス.
+ * {@link KernelDensity2D} による2次元カーネル密度推定の結果を返すための転送用クラス.
+ * 
+ * <p>
+ * 2次元カーネル密度推定の結果は,
+ * (<i>x</i>, <i>y</i>, {@code density}) のような値である. <br>
+ * ここで, 確率値 {@code density} は連続確率変数の確率密度に対応するが,
+ * 単位は [x]<sup>-1</sup>[y]<sup>-1</sup> でなく, 無次元量である:
+ * 配列の (範囲外を含む) 全空間での {@code density} の総和が 1 になるような量である.
+ * </p>
  * 
  * <p>
  * 結果の転送にのみ使用される. <br>
