@@ -6,12 +6,12 @@
  */
 
 /*
- * 2025.11.29
+ * 2025.12.1
  */
 package matsu.num.statistics.kerneldensity;
 
 /**
- * 2次元のカーネル密度推定 ({@link KernelDensity2D}) のデータソースを表現するデータ転送用クラス.
+ * 2次元のカーネル密度推定 ({@link KernelDensity2D}) のデータソースを表現する転送用クラス.
  * 
  * <p>
  * データソース: <br>
