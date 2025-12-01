@@ -146,32 +146,15 @@ final class Mesh2D {
                 weight[j + 1][k + 1] += w_jp1kp1;
             }
         }
-        // 総和が1になるように正規化
-        // (実装は, この時点で総和が source.length であることを使っている)
+
+        // 全区間を網羅した場合が総和が1相当になるように正規化
+        // (実際は有限区間なので, 総和は1以下になる)
         for (int j = 0; j < weight.length; j++) {
             double[] weight_j = weight[j];
             for (int k = 0; k < weight_j.length; k++) {
                 weight_j[k] /= source.size;
             }
         }
-
-        assert isNormalized(weight);
-    }
-
-    /**
-     * テスト用, {@code assert} でのみ実行される. <br>
-     * 引数が規格化されているかどうか検証する.
-     */
-    private static boolean isNormalized(double[][] weight) {
-        double sum = 0d;
-
-        for (double[] weight_j : weight) {
-            for (double w : weight_j) {
-                sum += w;
-            }
-        }
-        double acceptance = 1E-12;
-        return Math.abs(sum - 1d) <= acceptance;
     }
 
     /**

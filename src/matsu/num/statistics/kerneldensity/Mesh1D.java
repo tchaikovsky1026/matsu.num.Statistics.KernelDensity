@@ -94,8 +94,9 @@ final class Mesh1D {
                 continue;
             }
         }
-        // 総和が1になるように正規化
-        // (実装は, この時点で総和が source.length であることを使っている)
+
+        // 全区間を網羅した場合が総和が1相当になるように正規化
+        // (実際は有限区間なので, 総和は1以下になる)
         for (int i = 0; i < weight.length; i++) {
             weight[i] /= source.length;
         }
