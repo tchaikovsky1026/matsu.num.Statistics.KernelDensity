@@ -37,7 +37,7 @@ final class GaussianKd1DExecutionSample {
                 .toArray();
 
         KdeGrid1dDto result = GaussianKd1D.Factory
-                .of(BandWidthRule.SCOTT_RULE, ResolutionRule.STANDARD)
+                .of(BandWidthRule.STANDARD, ResolutionRule.STANDARD)
                 .withConvolutionBy(new EffectiveCyclicConvolutionStubForTesting())
                 .createOf(src)
                 .evaluateIn(Range.of(-100d, 100d));

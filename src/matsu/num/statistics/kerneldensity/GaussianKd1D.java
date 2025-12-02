@@ -28,6 +28,10 @@ import java.util.function.ToDoubleFunction;
  * は, 結果出力の分解能に関するルールである.
  * </p>
  * 
+ * <p>
+ * {@link GaussianKd1D} の生成を行うのは, {@link GaussianKd1D.Factory} クラスのインスタンスである.
+ * </p>
+ * 
  * @author Matsuura Y.
  */
 public final class GaussianKd1D implements KernelDensity1D {
@@ -39,7 +43,7 @@ public final class GaussianKd1D implements KernelDensity1D {
 
     private final BandWidthRule bandWidthRule;
     private final ResolutionRule resolutionRule;
-    private final FilterZeroFillingConvolution convolution;
+    private final FilterZeroFillingConvolutionFacade convolution;
 
     private final double[] source;
 
@@ -63,7 +67,7 @@ public final class GaussianKd1D implements KernelDensity1D {
 
         this.bandWidthRule = factory.bandWidthRule;
         this.resolutionRule = factory.resolutionRule;
-        this.convolution = new FilterZeroFillingConvolution(factory.effectiveCyclicConvolution);
+        this.convolution = new FilterZeroFillingConvolutionFacade(factory.effectiveCyclicConvolution);
 
         this.source = source;
         this.bandWidth = Math.max(
@@ -90,7 +94,7 @@ public final class GaussianKd1D implements KernelDensity1D {
 
         // 範囲外を0埋めしてフィルタ畳み込みを行い, 端をカット
         double[] result = mesh1d.reduceSize(
-                convolution.compute(filterOneSide, mesh1d.weight));
+                convolution.applyPartial(filterOneSide).apply(mesh1d.weight));
 
         return new KdeGrid1dDto(mesh1d.x, result);
     }
@@ -158,7 +162,7 @@ public final class GaussianKd1D implements KernelDensity1D {
          * 
          * <p>
          * デフォルトルールは,
-         * {@link BandWidthRule#SCOTT_RULE BandWidthRule.SCOTT_RULE},
+         * {@link BandWidthRule#STANDARD BandWidthRule.SCOTT_RULE},
          * {@link ResolutionRule#STANDARD ResolutionRule.STANDARD}
          * である.
          * </p>
@@ -166,7 +170,7 @@ public final class GaussianKd1D implements KernelDensity1D {
          * @return デフォルトルールのファクトリ
          */
         public static Factory withDefaultRule() {
-            return of(BandWidthRule.SCOTT_RULE, ResolutionRule.STANDARD);
+            return of(BandWidthRule.STANDARD, ResolutionRule.STANDARD);
         }
 
         /**
@@ -195,9 +199,9 @@ public final class GaussianKd1D implements KernelDensity1D {
     public static enum BandWidthRule {
 
         /**
-         * Scott のルールを表すシングルトンインスタンス.
+         * 標準のバンド幅計算ルールを表すシングルトンインスタンス.
          */
-        SCOTT_RULE(da -> Math.min(
+        STANDARD(da -> Math.min(
                 DoubleValueUtil.std(da) / Math.pow(da.length, 0.2),
                 Double.MAX_VALUE));
 

@@ -29,6 +29,10 @@ import java.util.function.UnaryOperator;
  * は, 結果出力の分解能に関するルールである.
  * </p>
  * 
+ * <p>
+ * {@link GaussianKd2D} の生成を行うのは, {@link GaussianKd2D.Factory} クラスのインスタンスである.
+ * </p>
+ * 
  * @author Matsuura Y.
  */
 public final class GaussianKd2D implements KernelDensity2D {
@@ -36,11 +40,11 @@ public final class GaussianKd2D implements KernelDensity2D {
     /**
      * 結果出力のメッシュの各軸方向の最大値(概算).
      */
-    private static final int MAX_MESH = 2_000;
+    private static final int MAX_MESH = 500;
 
     private final BandWidthRule bandWidthRule;
     private final ResolutionRule resolutionRule;
-    private final FilterZeroFillingConvolution convolution;
+    private final FilterZeroFillingConvolutionFacade convolution;
 
     private final Kde2DSourceDto source;
 
@@ -69,7 +73,7 @@ public final class GaussianKd2D implements KernelDensity2D {
 
         this.bandWidthRule = factory.bandWidthRule;
         this.resolutionRule = factory.resolutionRule;
-        this.convolution = new FilterZeroFillingConvolution(factory.effectiveCyclicConvolution);
+        this.convolution = new FilterZeroFillingConvolutionFacade(factory.effectiveCyclicConvolution);
 
         this.source = source;
         this.bandWidthX = Math.max(
@@ -86,29 +90,38 @@ public final class GaussianKd2D implements KernelDensity2D {
     @Override
     public KdeGrid2dDto evaluateIn(Range rangeX, Range rangeY) {
         // resolutionScale のデフォルトは定数だが, 範囲が広すぎる場合は粗くする.
-        final double filterResolutionScale =
+        // XYは異なるフィルタを使用する: 片方の「粗さ」の影響がもう片方に伝播しないようにするため
+        final double filterResolutionScaleX =
                 Math.max(
                         resolutionRule.resolutionScale,
-                        Math.max(
-                                rangeX.halfWidth() / (MAX_MESH * 0.5d * bandWidthX),
-                                rangeY.halfWidth() / (MAX_MESH * 0.5d * bandWidthY)));
-        final double resolutionX = bandWidthX * filterResolutionScale;
-        final double resolutionY = bandWidthY * filterResolutionScale;
+                        rangeX.halfWidth() / (MAX_MESH * 0.5d * bandWidthX));
+
+        final double filterResolutionScaleY =
+                Math.max(
+                        resolutionRule.resolutionScale,
+                        rangeY.halfWidth() / (MAX_MESH * 0.5d * bandWidthY));
+
+        final double resolutionX = bandWidthX * filterResolutionScaleX;
+        final double resolutionY = bandWidthY * filterResolutionScaleY;
 
         // フィルタを計算し, フィルタ畳み込みを用意
-        final double[] filterOneSide = GaussianFilterComputation.compute(filterResolutionScale);
-        UnaryOperator<double[]> convToSignal = convolution.applyPartial(filterOneSide);
+        final double[] filterOneSideX = GaussianFilterComputation.compute(filterResolutionScaleX);
+        final double[] filterOneSideY = GaussianFilterComputation.compute(filterResolutionScaleY);
+        UnaryOperator<double[]> convToSignalX = convolution.applyPartial(filterOneSideX);
+        UnaryOperator<double[]> convToSignalY = convolution.applyPartial(filterOneSideY);
 
+        int extendSizeX = filterOneSideX.length - 1;
+        int extendSizeY = filterOneSideY.length - 1;
         final Mesh2D mesh2d = new Mesh2D(
-                rangeX, rangeY, resolutionX, resolutionY, filterOneSide.length - 1, source);
+                rangeX, rangeY, resolutionX, resolutionY, extendSizeX, extendSizeY, source);
         final double[][] weight = mesh2d.weight;
         final int lenX = mesh2d.extendX.length;
         final int lenY = mesh2d.extendY.length;
 
-        // y方向にConv
+        // 各Xについて, y方向にConv
         double[][] convY = new double[lenX][];
         for (int j = 0; j < lenX; j++) {
-            convY[j] = convToSignal.apply(weight[j]);
+            convY[j] = convToSignalY.apply(weight[j]);
         }
 
         // 転置 -> x方向にConv -> 転置
@@ -121,7 +134,7 @@ public final class GaussianKd2D implements KernelDensity2D {
             }
 
             // y:k のconv
-            double[] convX_k = convToSignal.apply(signal_k);
+            double[] convX_k = convToSignalX.apply(signal_k);
 
             // (x,y) 配列に代入
             for (int j = 0; j < lenX; j++) {
@@ -195,7 +208,7 @@ public final class GaussianKd2D implements KernelDensity2D {
          * 
          * <p>
          * デフォルトルールは,
-         * {@link BandWidthRule#SCOTT_RULE BandWidthRule.SCOTT_RULE},
+         * {@link BandWidthRule#STANDARD BandWidthRule.SCOTT_RULE},
          * {@link ResolutionRule#STANDARD ResolutionRule.STANDARD}
          * である.
          * </p>
@@ -203,7 +216,7 @@ public final class GaussianKd2D implements KernelDensity2D {
          * @return デフォルトルールのファクトリ
          */
         public static Factory withDefaultRule() {
-            return of(BandWidthRule.SCOTT_RULE, ResolutionRule.STANDARD);
+            return of(BandWidthRule.STANDARD, ResolutionRule.STANDARD);
         }
 
         /**
@@ -232,9 +245,9 @@ public final class GaussianKd2D implements KernelDensity2D {
     public static enum BandWidthRule {
 
         /**
-         * Scott のルールを表すシングルトンインスタンス.
+         * 標準のバンド幅計算ルールを表すシングルトンインスタンス.
          */
-        SCOTT_RULE(da -> Math.min(
+        STANDARD(da -> Math.min(
                 DoubleValueUtil.std(da) / Math.pow(da.length, 1d / 6),
                 Double.MAX_VALUE));
 
