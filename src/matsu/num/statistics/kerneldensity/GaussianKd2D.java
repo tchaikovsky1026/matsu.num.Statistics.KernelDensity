@@ -208,7 +208,7 @@ public final class GaussianKd2D implements KernelDensity2D {
          * 
          * <p>
          * デフォルトルールは,
-         * {@link BandWidthRule#SCOTT_RULE BandWidthRule.SCOTT_RULE},
+         * {@link BandWidthRule#STANDARD BandWidthRule.SCOTT_RULE},
          * {@link ResolutionRule#STANDARD ResolutionRule.STANDARD}
          * である.
          * </p>
@@ -216,7 +216,7 @@ public final class GaussianKd2D implements KernelDensity2D {
          * @return デフォルトルールのファクトリ
          */
         public static Factory withDefaultRule() {
-            return of(BandWidthRule.SCOTT_RULE, ResolutionRule.STANDARD);
+            return of(BandWidthRule.STANDARD, ResolutionRule.STANDARD);
         }
 
         /**
@@ -245,9 +245,9 @@ public final class GaussianKd2D implements KernelDensity2D {
     public static enum BandWidthRule {
 
         /**
-         * Scott のルールを表すシングルトンインスタンス.
+         * 標準のバンド幅計算ルールを表すシングルトンインスタンス.
          */
-        SCOTT_RULE(da -> Math.min(
+        STANDARD(da -> Math.min(
                 DoubleValueUtil.std(da) / Math.pow(da.length, 1d / 6),
                 Double.MAX_VALUE));
 

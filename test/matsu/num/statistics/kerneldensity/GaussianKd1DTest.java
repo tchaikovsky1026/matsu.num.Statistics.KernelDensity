@@ -38,7 +38,7 @@ final class GaussianKd1DTest {
             double[] source = createSource(size);
 
             GaussianKd1D.Factory
-                    .of(BandWidthRule.SCOTT_RULE, ResolutionRule.STANDARD)
+                    .of(BandWidthRule.STANDARD, ResolutionRule.STANDARD)
                     .withConvolutionBy(new EffectiveCyclicConvolutionStubForTesting())
                     .createOf(source)
                     .evaluateIn(Range.of(-5d, 5d));

@@ -10,11 +10,11 @@
  */
 package matsu.num.statistics.kerneldensity;
 
-import static matsu.num.statistics.kerneldensity.GaussianKd2D.BandWidthRule.*;
-import static matsu.num.statistics.kerneldensity.GaussianKd2D.ResolutionRule.*;
-
 import java.util.Arrays;
 import java.util.stream.IntStream;
+
+import matsu.num.statistics.kerneldensity.GaussianKd2D.BandWidthRule;
+import matsu.num.statistics.kerneldensity.GaussianKd2D.ResolutionRule;
 
 /**
  * {@link GaussianKd2D} の実行のサンプル.
@@ -49,7 +49,7 @@ final class GaussianKd2DExecutionSample {
         System.arraycopy(srcY, 0, src.y, 0, src.size);
 
         KdeGrid2dDto result = GaussianKd2D.Factory
-                .of(SCOTT_RULE, LOW)
+                .of(BandWidthRule.STANDARD, ResolutionRule.LOW)
                 .withConvolutionBy(new EffectiveCyclicConvolutionStubForTesting())
                 .createOf(src)
                 .evaluateIn(Range.of(-2d, 8d), Range.of(0d, 3d));
