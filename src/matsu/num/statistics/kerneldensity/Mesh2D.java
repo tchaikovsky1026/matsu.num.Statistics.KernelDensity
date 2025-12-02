@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.11.30
+ * 2025.12.1
  */
 package matsu.num.statistics.kerneldensity;
 
@@ -25,9 +25,14 @@ final class Mesh2D {
     private static final double[][] EMPTY_DOUBLE_DOUBLE_ARRAY = new double[0][];
 
     /**
-     * 拡張サイズ.
+     * X方向の拡張サイズ.
      */
-    final int extendSize;
+    final int extendSizeX;
+
+    /**
+     * Y方向の拡張サイズ.
+     */
+    final int extendSizeY;
 
     /**
      * メッシュのx座標.
@@ -73,10 +78,11 @@ final class Mesh2D {
      * @param extendSize 拡張サイズ (フィルタのための拡張)
      */
     Mesh2D(Range rangeX, Range rangeY, double resolutionX, double resolutionY,
-            int extendSize, Kde2DSourceDto source) {
+            int extendSizeX, int extendSizeY, Kde2DSourceDto source) {
         assert resolutionX > 0d;
         assert resolutionY > 0d;
-        assert extendSize >= 0;
+        assert extendSizeX >= 0;
+        assert extendSizeY >= 0;
 
         // range を resolution間隔で分割したメッシュ配列を構成する.
         this.x = DoubleStream
@@ -85,26 +91,27 @@ final class Mesh2D {
         this.y = DoubleStream
                 .iterate(rangeY.min(), v -> v <= rangeY.max(), v -> v + resolutionY)
                 .toArray();
-        this.extendSize = extendSize;
+        this.extendSizeX = extendSizeX;
+        this.extendSizeY = extendSizeY;
 
         // Issue: 以下は, メソッドに切り出すとよい.
         // xからextendedXを計算する, inf が現れる場合もある
-        this.extendX = new double[x.length + 2 * extendSize];
-        System.arraycopy(x, 0, extendX, extendSize, x.length);
-        for (int i = extendSize - 1; i >= 0; i--) {
+        this.extendX = new double[x.length + 2 * extendSizeX];
+        System.arraycopy(x, 0, extendX, extendSizeX, x.length);
+        for (int i = extendSizeX - 1; i >= 0; i--) {
             extendX[i] = extendX[i + 1] - resolutionX;
         }
-        for (int i = x.length + extendSize; i < extendX.length; i++) {
+        for (int i = x.length + extendSizeX; i < extendX.length; i++) {
             extendX[i] = extendX[i - 1] + resolutionX;
         }
 
         // yからextendedYを計算する, inf が現れる場合もある
-        this.extendY = new double[y.length + 2 * extendSize];
-        System.arraycopy(y, 0, extendY, extendSize, y.length);
-        for (int i = extendSize - 1; i >= 0; i--) {
+        this.extendY = new double[y.length + 2 * extendSizeY];
+        System.arraycopy(y, 0, extendY, extendSizeY, y.length);
+        for (int i = extendSizeY - 1; i >= 0; i--) {
             extendY[i] = extendY[i + 1] - resolutionY;
         }
-        for (int i = y.length + extendSize; i < extendY.length; i++) {
+        for (int i = y.length + extendSizeY; i < extendY.length; i++) {
             extendY[i] = extendY[i - 1] + resolutionY;
         }
 
@@ -172,13 +179,13 @@ final class Mesh2D {
         }
 
         List<double[]> outList = new ArrayList<double[]>(extendX.length);
-        for (int j = extendSize; j < extendX.length - extendSize; j++) {
+        for (int j = extendSizeX; j < extendX.length - extendSizeX; j++) {
             double[] src_j = src[j];
 
             if (src_j.length != extendY.length) {
                 throw new IllegalArgumentException("src[j].length != extendY.length");
             }
-            outList.add(Arrays.copyOfRange(src_j, extendSize, extendSize + y.length));
+            outList.add(Arrays.copyOfRange(src_j, extendSizeY, extendSizeY + y.length));
         }
 
         return outList.toArray(EMPTY_DOUBLE_DOUBLE_ARRAY);

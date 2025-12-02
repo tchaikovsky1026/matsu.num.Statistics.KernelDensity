@@ -40,7 +40,7 @@ public final class GaussianKd2D implements KernelDensity2D {
     /**
      * 結果出力のメッシュの各軸方向の最大値(概算).
      */
-    private static final int MAX_MESH = 2_000;
+    private static final int MAX_MESH = 500;
 
     private final BandWidthRule bandWidthRule;
     private final ResolutionRule resolutionRule;
@@ -90,29 +90,38 @@ public final class GaussianKd2D implements KernelDensity2D {
     @Override
     public KdeGrid2dDto evaluateIn(Range rangeX, Range rangeY) {
         // resolutionScale のデフォルトは定数だが, 範囲が広すぎる場合は粗くする.
-        final double filterResolutionScale =
+        // XYは異なるフィルタを使用する: 片方の「粗さ」の影響がもう片方に伝播しないようにするため
+        final double filterResolutionScaleX =
                 Math.max(
                         resolutionRule.resolutionScale,
-                        Math.max(
-                                rangeX.halfWidth() / (MAX_MESH * 0.5d * bandWidthX),
-                                rangeY.halfWidth() / (MAX_MESH * 0.5d * bandWidthY)));
-        final double resolutionX = bandWidthX * filterResolutionScale;
-        final double resolutionY = bandWidthY * filterResolutionScale;
+                        rangeX.halfWidth() / (MAX_MESH * 0.5d * bandWidthX));
+
+        final double filterResolutionScaleY =
+                Math.max(
+                        resolutionRule.resolutionScale,
+                        rangeY.halfWidth() / (MAX_MESH * 0.5d * bandWidthY));
+
+        final double resolutionX = bandWidthX * filterResolutionScaleX;
+        final double resolutionY = bandWidthY * filterResolutionScaleY;
 
         // フィルタを計算し, フィルタ畳み込みを用意
-        final double[] filterOneSide = GaussianFilterComputation.compute(filterResolutionScale);
-        UnaryOperator<double[]> convToSignal = convolution.applyPartial(filterOneSide);
+        final double[] filterOneSideX = GaussianFilterComputation.compute(filterResolutionScaleX);
+        final double[] filterOneSideY = GaussianFilterComputation.compute(filterResolutionScaleY);
+        UnaryOperator<double[]> convToSignalX = convolution.applyPartial(filterOneSideX);
+        UnaryOperator<double[]> convToSignalY = convolution.applyPartial(filterOneSideY);
 
+        int extendSizeX = filterOneSideX.length - 1;
+        int extendSizeY = filterOneSideY.length - 1;
         final Mesh2D mesh2d = new Mesh2D(
-                rangeX, rangeY, resolutionX, resolutionY, filterOneSide.length - 1, source);
+                rangeX, rangeY, resolutionX, resolutionY, extendSizeX, extendSizeY, source);
         final double[][] weight = mesh2d.weight;
         final int lenX = mesh2d.extendX.length;
         final int lenY = mesh2d.extendY.length;
 
-        // y方向にConv
+        // 各Xについて, y方向にConv
         double[][] convY = new double[lenX][];
         for (int j = 0; j < lenX; j++) {
-            convY[j] = convToSignal.apply(weight[j]);
+            convY[j] = convToSignalY.apply(weight[j]);
         }
 
         // 転置 -> x方向にConv -> 転置
@@ -125,7 +134,7 @@ public final class GaussianKd2D implements KernelDensity2D {
             }
 
             // y:k のconv
-            double[] convX_k = convToSignal.apply(signal_k);
+            double[] convX_k = convToSignalX.apply(signal_k);
 
             // (x,y) 配列に代入
             for (int j = 0; j < lenX; j++) {
