@@ -40,7 +40,7 @@ final class GaussianKd2DTest {
             System.arraycopy(createSource(size), 0, source.y, 0, size);
 
             GaussianKd2D.Factory
-                    .of(BandWidthRule.SCOTT_RULE, ResolutionRule.STANDARD)
+                    .of(BandWidthRule.STANDARD, ResolutionRule.STANDARD)
                     .withConvolutionBy(new EffectiveCyclicConvolutionStubForTesting())
                     .createOf(source)
                     .evaluateIn(Range.of(-1d, 1d), Range.of(-1d, 1d));
