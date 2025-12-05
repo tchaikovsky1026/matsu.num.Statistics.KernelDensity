@@ -56,7 +56,7 @@ public interface KernelDensity2D {
      * 与えられた x, y の範囲において, 確率値をカーネル密度推定する.
      * 
      * @param rangeX 推定する x の区間
-     * @param rangeY 推定する y 区間
+     * @param rangeY 推定する y の区間
      * @return 推定結果
      * @throws NullPointerException 引数に null が含まれる場合
      */
