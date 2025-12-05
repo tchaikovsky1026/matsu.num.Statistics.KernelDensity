@@ -21,6 +21,11 @@ import matsu.num.statistics.kerneldensity.KdeGrid2dDto;
  * 区切り文字で区切られた {@link Kde2dTextFormatter}.
  * 
  * <p>
+ * 文字列化した結果は,
+ * 各行を {@link String} とした {@link Iterable} で表す.
+ * </p>
+ * 
+ * <p>
  * 文字列フォーマットは, ラベル有りの場合は先頭行にラベルであり,
  * 以降, <br>
  * {@code x[j]<sep>y[k]<sep>density[j][k]} <br>
@@ -35,7 +40,7 @@ import matsu.num.statistics.kerneldensity.KdeGrid2dDto;
  * 
  * @author Matsuura Y.
  */
-public final class Kde2dCharSVFormatter extends Kde2dTextFormatter {
+public final class Kde2dCharSVFormatter extends Kde2dTextFormatter<Iterable<String>> {
 
     private final char separator;
     private final boolean withLabel;
@@ -50,7 +55,7 @@ public final class Kde2dCharSVFormatter extends Kde2dTextFormatter {
      * @param separator 区切り文字
      * @return Character Separated Values フォーマッター
      */
-    public static Kde2dTextFormatter labelless(char separator) {
+    public static Kde2dCharSVFormatter labelless(char separator) {
         return new Kde2dCharSVFormatter(separator, false);
     }
 
@@ -64,7 +69,7 @@ public final class Kde2dCharSVFormatter extends Kde2dTextFormatter {
      * @param separator 区切り文字
      * @return Character Separated Values フォーマッター
      */
-    public static Kde2dTextFormatter withLabel(char separator) {
+    public static Kde2dCharSVFormatter withLabel(char separator) {
         return new Kde2dCharSVFormatter(separator, true);
     }
 
