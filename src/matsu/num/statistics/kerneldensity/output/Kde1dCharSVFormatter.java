@@ -18,7 +18,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import matsu.num.statistics.kerneldensity.KdeGrid1dDto;
 
 /**
- * 区切り文字で区切られた {@link Kde1dTextFormatter}.
+ * 区切り文字で区切られた {@link Kde1dTextFormatter}. <br>
+ * 
+ * <p>
+ * 文字列化した結果は,
+ * 各行を {@link String} とした {@link Iterable} で表す.
+ * </p>
  * 
  * <p>
  * 文字列フォーマットは, ラベル有りの場合は先頭行にラベルであり,
@@ -34,7 +39,7 @@ import matsu.num.statistics.kerneldensity.KdeGrid1dDto;
  * 
  * @author Matsuura Y.
  */
-public final class Kde1dCharSVFormatter extends Kde1dTextFormatter {
+public final class Kde1dCharSVFormatter extends Kde1dTextFormatter<Iterable<String>> {
 
     private final char separator;
     private final boolean withLabel;
@@ -49,7 +54,7 @@ public final class Kde1dCharSVFormatter extends Kde1dTextFormatter {
      * @param separator 区切り文字
      * @return Character Separated Values フォーマッター
      */
-    public static Kde1dTextFormatter labelless(char separator) {
+    public static Kde1dCharSVFormatter labelless(char separator) {
         return new Kde1dCharSVFormatter(separator, false);
     }
 
@@ -63,7 +68,7 @@ public final class Kde1dCharSVFormatter extends Kde1dTextFormatter {
      * @param separator 区切り文字
      * @return Character Separated Values フォーマッター
      */
-    public static Kde1dTextFormatter withLabel(char separator) {
+    public static Kde1dCharSVFormatter withLabel(char separator) {
         return new Kde1dCharSVFormatter(separator, true);
     }
 

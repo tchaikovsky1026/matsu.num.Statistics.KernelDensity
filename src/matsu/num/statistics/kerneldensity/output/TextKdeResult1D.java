@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.12.4
+ * 2025.12.5
  */
 package matsu.num.statistics.kerneldensity.output;
 
@@ -50,16 +50,14 @@ public final class TextKdeResult1D {
     }
 
     /**
-     * 与えられたフォーマッターにより推定結果を文字列化する.
+     * 与えられたフォーマッターにより推定結果を文字列化する. <br>
+     * 出力の形式は型を含め, フォーマッターで指定される.
      * 
-     * <p>
-     * 文字列は改行を含まず, 各行を {@link String} とした {@link Iterable} で表す.
-     * </p>
-     * 
+     * @param <T> 文字列化した結果を表す型
      * @param formatter フォーマッター
      * @return 推定結果の文字列変換
      */
-    public Iterable<String> formatted(Kde1dTextFormatter formatter) {
+    public <T> T formatted(Kde1dTextFormatter<T> formatter) {
         return formatter.format(dto);
     }
 
