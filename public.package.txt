@@ -1,1 +1,2 @@
 matsu.num.statistics.kerneldensity,
+matsu.num.statistics.kerneldensity.output,

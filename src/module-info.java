@@ -29,4 +29,5 @@
 module matsu.num.Statistics.KernelDensity {
 
     exports matsu.num.statistics.kerneldensity;
+    exports matsu.num.statistics.kerneldensity.output;
 }
