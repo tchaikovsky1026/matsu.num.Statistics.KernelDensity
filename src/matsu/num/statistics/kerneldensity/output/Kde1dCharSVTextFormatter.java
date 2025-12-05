@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import matsu.num.statistics.kerneldensity.KdeGrid1dDto;
 
 /**
- * 区切り文字で区切られた {@link Kde1dTextFormatter}. <br>
+ * 区切り文字で区切られた文字列出力を行う {@link Kde1dFormatter}. <br>
  * 
  * <p>
  * 文字列化した結果は,
@@ -30,16 +30,28 @@ import matsu.num.statistics.kerneldensity.KdeGrid1dDto;
  * 以降, <br>
  * {@code x[i]<sep>density[i]} <br>
  * が続く
- * ({@code <sep>} は区切り文字).
+ * ({@code <sep>} は区切り文字). <br>
+ * ラベル要素は {@code "x"}, {@code "density"} である. <br>
+ * 以下に例を示す.
  * </p>
  * 
- * <p>
- * ラベル要素は {@code "x"}, {@code "density"} である.
- * </p>
+ * <pre>
+ * {@literal //} 元データ
+ * int size = 2;
+ * double[] x = {1.0, 2.0};
+ * double[] density = {0.25, 0.75};
+ * 
+ * {@literal //} 出力 (Iterable{@literal <String>} を配列で表記)
+ * out = {
+ *     "x{@literal <sep>}density",    {@literal //} ラベル有りの場合
+ *     "1.0{@literal <sep>}0.25",
+ *     "2.0{@literal <sep>}0.75"
+ * };
+ * </pre>
  * 
  * @author Matsuura Y.
  */
-public final class Kde1dCharSVFormatter extends Kde1dTextFormatter<Iterable<String>> {
+public final class Kde1dCharSVTextFormatter extends Kde1dFormatter<Iterable<String>> {
 
     private final char separator;
     private final boolean withLabel;
@@ -54,8 +66,8 @@ public final class Kde1dCharSVFormatter extends Kde1dTextFormatter<Iterable<Stri
      * @param separator 区切り文字
      * @return Character Separated Values フォーマッター
      */
-    public static Kde1dCharSVFormatter labelless(char separator) {
-        return new Kde1dCharSVFormatter(separator, false);
+    public static Kde1dCharSVTextFormatter labelless(char separator) {
+        return new Kde1dCharSVTextFormatter(separator, false);
     }
 
     /**
@@ -68,8 +80,8 @@ public final class Kde1dCharSVFormatter extends Kde1dTextFormatter<Iterable<Stri
      * @param separator 区切り文字
      * @return Character Separated Values フォーマッター
      */
-    public static Kde1dCharSVFormatter withLabel(char separator) {
-        return new Kde1dCharSVFormatter(separator, true);
+    public static Kde1dCharSVTextFormatter withLabel(char separator) {
+        return new Kde1dCharSVTextFormatter(separator, true);
     }
 
     /**
@@ -77,7 +89,7 @@ public final class Kde1dCharSVFormatter extends Kde1dTextFormatter<Iterable<Stri
      * 
      * @param separator 区切り文字
      */
-    private Kde1dCharSVFormatter(char separator, boolean withLabel) {
+    private Kde1dCharSVTextFormatter(char separator, boolean withLabel) {
         super();
         this.separator = separator;
         this.withLabel = withLabel;

@@ -23,10 +23,10 @@ import matsu.num.statistics.kerneldensity.KernelDensity1D;
 import matsu.num.statistics.kerneldensity.Range;
 
 /**
- * {@link Kde1dCharSVFormatter} のテスト.
+ * {@link Kde1dCharSVTextFormatter} のテスト.
  */
 @RunWith(Enclosed.class)
-final class Kde1dCharSVFormatterTest {
+final class Kde1dCharSVTextFormatterTest {
 
     public static class フォーマッターのテスト {
 
@@ -56,14 +56,14 @@ final class Kde1dCharSVFormatterTest {
             };
         }
 
-        private TextKdeResult1D createTextKdeResult1D() {
-            return TextKdeResult1D.evaluate(kde1d, null);
+        private FormattableKdeResult1D createTextKdeResult1D() {
+            return FormattableKdeResult1D.evaluate(kde1d, null);
         }
 
         @Test
         public void test_文字列_カンマ区切り() {
             Iterable<String> resultCsv = createTextKdeResult1D()
-                    .formatted(Kde1dCharSVFormatter.withLabel(','));
+                    .formatted(Kde1dCharSVTextFormatter.withLabel(','));
 
             String[] resultStr = StreamSupport.stream(resultCsv.spliterator(), false)
                     .toArray(String[]::new);
@@ -78,7 +78,7 @@ final class Kde1dCharSVFormatterTest {
         @Test
         public void test_文字列_ラベルレスカンマ区切り() {
             Iterable<String> resultCsv = createTextKdeResult1D()
-                    .formatted(Kde1dCharSVFormatter.labelless(','));
+                    .formatted(Kde1dCharSVTextFormatter.labelless(','));
 
             String[] resultStr = StreamSupport.stream(resultCsv.spliterator(), false)
                     .toArray(String[]::new);

@@ -15,12 +15,12 @@ import matsu.num.statistics.kerneldensity.KernelDensity2D;
 import matsu.num.statistics.kerneldensity.Range;
 
 /**
- * 文字列化に特化した, 2次元のカーネル密度推定の結果を扱うクラス.
+ * フォーマット可能な2次元のカーネル密度推定の結果を扱うクラス.
  * 
  * <p>
- * このクラスは, 2次元のカーネル密度推定の結果を文字列化するために用意されている. <br>
+ * このクラスは, 2次元のカーネル密度推定の結果をフォーマットするために用意されている. <br>
  * {@link KernelDensity2D#evaluateIn(Range, Range) } メソッドにより生成された推定結果を属性として持ち,
- * 多種フォーマットでの文字列出力を行う.
+ * 多種フォーマットでの出力を行う.
  * </p>
  * 
  * <p>
@@ -29,7 +29,7 @@ import matsu.num.statistics.kerneldensity.Range;
  * 
  * @author Matsuura Y.
  */
-public final class TextKdeResult2D {
+public final class FormattableKdeResult2D {
 
     private final KdeGrid2dDto dto;
 
@@ -42,27 +42,27 @@ public final class TextKdeResult2D {
      * ({@link #evaluate(KernelDensity2D, Range)} 経由で呼ばれる).
      * </p>
      * 
-     * @param dto 文字列出力の元となるカーネル密度推定の結果
+     * @param dto 出力の元となるカーネル密度推定の結果
      */
-    private TextKdeResult2D(KdeGrid2dDto dto) {
+    private FormattableKdeResult2D(KdeGrid2dDto dto) {
         super();
         this.dto = dto;
     }
 
     /**
-     * 与えられたフォーマッターにより推定結果を文字列化する. <br>
+     * 与えられたフォーマッターにより推定結果をフォーマットする. <br>
      * 出力の形式は型を含め, フォーマッターで指定される.
      * 
-     * @param <T> 文字列化した結果を表す型
+     * @param <T> フォーマットした結果を表す型
      * @param formatter フォーマッター
-     * @return 推定結果の文字列変換
+     * @return 推定結果の変換結果
      */
-    public <T> T formatted(Kde2dTextFormatter<T> formatter) {
+    public <T> T formatted(Kde2dFormatter<T> formatter) {
         return formatter.format(dto);
     }
 
     /**
-     * 2次元のカーネル密度推定を実行し, 文字列化が可能な推定結果オブジェクトを返す.
+     * 2次元のカーネル密度推定を実行し, フォーマット可能な推定結果オブジェクトを返す.
      * 
      * <p>
      * 引数の {@link KernelDensity2D}, {@link Range} インスタンスをもとに
@@ -73,10 +73,10 @@ public final class TextKdeResult2D {
      * @param evaluator 2次元のカーネル密度推定
      * @param rangeX 推定する x の区間
      * @param rangeY 推定する y の区間
-     * @return 推定結果
+     * @return 推定結果相当
      * @throws NullPointerException 引数にnullが含まれる場合
      */
-    public static TextKdeResult2D evaluate(KernelDensity2D evaluator, Range rangeX, Range rangeY) {
-        return new TextKdeResult2D(evaluator.evaluateIn(rangeX, rangeY));
+    public static FormattableKdeResult2D evaluate(KernelDensity2D evaluator, Range rangeX, Range rangeY) {
+        return new FormattableKdeResult2D(evaluator.evaluateIn(rangeX, rangeY));
     }
 }

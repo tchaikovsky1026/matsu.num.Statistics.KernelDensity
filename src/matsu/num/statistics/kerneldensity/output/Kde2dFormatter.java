@@ -13,10 +13,10 @@ package matsu.num.statistics.kerneldensity.output;
 import matsu.num.statistics.kerneldensity.KdeGrid2dDto;
 
 /**
- * 2次元のカーネル密度推定の結果を文字列化するフォーマッター.
+ * 2次元のカーネル密度推定の結果フォーマッター.
  * 
  * <p>
- * 文字列化した結果の型は, 型パラメータで定められる.
+ * フォーマットした結果の型は, 型パラメータで定められる.
  * </p>
  * 
  * <p>
@@ -30,26 +30,25 @@ import matsu.num.statistics.kerneldensity.KdeGrid2dDto;
  *               (継承可能なクラスのコストラクタを公開した場合, パッケージ外で継承される可能性がある.)
  * 
  * @author Matsuura Y.
- * @param <T> 文字列化した結果を表す型
+ * @param <T> フォーマットした結果を表す型
  */
-public abstract class Kde2dTextFormatter<T> {
+public abstract class Kde2dFormatter<T> {
 
     /**
      * 唯一のコンストラクタ. <br>
      * パッケージ外での継承を禁止するため, コンストラクタを公開しない.
      */
-    Kde2dTextFormatter() {
+    Kde2dFormatter() {
         super();
     }
 
     /**
-     * 与えられたDTOの内容を文字列化する.
+     * 与えられたDTOの内容をフォーマットする.
      * 
      * @implSpec
-     *               引数のDTOはミュータブルであるため, 中身を書き換えないようにしなければならない. <br>
-     *               文字列に改行を含んではいけない.
-     * @param dto 文字列化の元となるDTO
-     * @return 変換後の文字列
+     *               引数のDTOはミュータブルであるため, 中身を書き換えないようにしなければならない.
+     * @param dto フォーマットの元となるDTO
+     * @return 変換後
      * @throws NullPointerException 引数が null の場合
      */
     abstract T format(KdeGrid2dDto dto);
