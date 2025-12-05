@@ -32,13 +32,13 @@ import matsu.num.statistics.kerneldensity.KdeGrid2dDto;
  * @author Matsuura Y.
  * @param <T> 文字列化した結果を表す型
  */
-public abstract class Kde2dTextFormatter<T> {
+public abstract class Kde2dFormatter<T> {
 
     /**
      * 唯一のコンストラクタ. <br>
      * パッケージ外での継承を禁止するため, コンストラクタを公開しない.
      */
-    Kde2dTextFormatter() {
+    Kde2dFormatter() {
         super();
     }
 

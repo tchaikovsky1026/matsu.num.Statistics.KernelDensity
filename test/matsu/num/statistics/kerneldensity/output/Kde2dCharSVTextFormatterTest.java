@@ -23,10 +23,10 @@ import matsu.num.statistics.kerneldensity.KernelDensity2D;
 import matsu.num.statistics.kerneldensity.Range;
 
 /**
- * {@link Kde2dCharSVFormatter} のテスト.
+ * {@link Kde2dCharSVTextFormatter} のテスト.
  */
 @RunWith(Enclosed.class)
-final class Kde2dCharSVFormatterTest {
+final class Kde2dCharSVTextFormatterTest {
 
     public static class フォーマッターのテスト_x2_y3 {
 
@@ -59,14 +59,14 @@ final class Kde2dCharSVFormatterTest {
             };
         }
 
-        private TextKdeResult2D createTextKdeResult2D() {
-            return TextKdeResult2D.evaluate(kde1d, null, null);
+        private FormattableKdeResult2D createTextKdeResult2D() {
+            return FormattableKdeResult2D.evaluate(kde1d, null, null);
         }
 
         @Test
         public void test_文字列_カンマ区切り() {
             Iterable<String> resultCsv = createTextKdeResult2D()
-                    .formatted(Kde2dCharSVFormatter.withLabel(','));
+                    .formatted(Kde2dCharSVTextFormatter.withLabel(','));
 
             String[] resultStr = StreamSupport.stream(resultCsv.spliterator(), false)
                     .toArray(String[]::new);
@@ -85,7 +85,7 @@ final class Kde2dCharSVFormatterTest {
         @Test
         public void test_文字列_ラベルレスカンマ区切り() {
             Iterable<String> resultCsv = createTextKdeResult2D()
-                    .formatted(Kde2dCharSVFormatter.labelless(','));
+                    .formatted(Kde2dCharSVTextFormatter.labelless(','));
 
             String[] resultStr = StreamSupport.stream(resultCsv.spliterator(), false)
                     .toArray(String[]::new);
@@ -133,14 +133,14 @@ final class Kde2dCharSVFormatterTest {
             };
         }
 
-        private TextKdeResult2D createTextKdeResult2D() {
-            return TextKdeResult2D.evaluate(kde1d, null, null);
+        private FormattableKdeResult2D createTextKdeResult2D() {
+            return FormattableKdeResult2D.evaluate(kde1d, null, null);
         }
 
         @Test
         public void test_文字列_カンマ区切り() {
             Iterable<String> resultCsv = createTextKdeResult2D()
-                    .formatted(Kde2dCharSVFormatter.withLabel(','));
+                    .formatted(Kde2dCharSVTextFormatter.withLabel(','));
 
             String[] resultStr = StreamSupport.stream(resultCsv.spliterator(), false)
                     .toArray(String[]::new);
@@ -159,7 +159,7 @@ final class Kde2dCharSVFormatterTest {
         @Test
         public void test_文字列_ラベルレスカンマ区切り() {
             Iterable<String> resultCsv = createTextKdeResult2D()
-                    .formatted(Kde2dCharSVFormatter.labelless(','));
+                    .formatted(Kde2dCharSVTextFormatter.labelless(','));
 
             String[] resultStr = StreamSupport.stream(resultCsv.spliterator(), false)
                     .toArray(String[]::new);

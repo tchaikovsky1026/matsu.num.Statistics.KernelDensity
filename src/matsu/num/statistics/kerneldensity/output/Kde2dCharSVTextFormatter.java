@@ -15,10 +15,10 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import matsu.num.statistics.kerneldensity.KdeGrid1dDto;
+import matsu.num.statistics.kerneldensity.KdeGrid2dDto;
 
 /**
- * 区切り文字で区切られた {@link Kde1dTextFormatter}. <br>
+ * 区切り文字で区切られた {@link Kde2dFormatter}.
  * 
  * <p>
  * 文字列化した結果は,
@@ -28,18 +28,19 @@ import matsu.num.statistics.kerneldensity.KdeGrid1dDto;
  * <p>
  * 文字列フォーマットは, ラベル有りの場合は先頭行にラベルであり,
  * 以降, <br>
- * {@code x[i]<sep>density[i]} <br>
+ * {@code x[j]<sep>y[k]<sep>density[j][k]} <br>
  * が続く
- * ({@code <sep>} は区切り文字).
+ * ({@code <sep>} は区切り文字). <br>
+ * イテレーション順は, {@code j} が外側, {@code k} が内側である.
  * </p>
  * 
  * <p>
- * ラベル要素は {@code "x"}, {@code "density"} である.
+ * ラベル要素は {@code "x"}, {@code "y"}, {@code "density"} である.
  * </p>
  * 
  * @author Matsuura Y.
  */
-public final class Kde1dCharSVFormatter extends Kde1dTextFormatter<Iterable<String>> {
+public final class Kde2dCharSVTextFormatter extends Kde2dFormatter<Iterable<String>> {
 
     private final char separator;
     private final boolean withLabel;
@@ -54,8 +55,8 @@ public final class Kde1dCharSVFormatter extends Kde1dTextFormatter<Iterable<Stri
      * @param separator 区切り文字
      * @return Character Separated Values フォーマッター
      */
-    public static Kde1dCharSVFormatter labelless(char separator) {
-        return new Kde1dCharSVFormatter(separator, false);
+    public static Kde2dCharSVTextFormatter labelless(char separator) {
+        return new Kde2dCharSVTextFormatter(separator, false);
     }
 
     /**
@@ -68,8 +69,8 @@ public final class Kde1dCharSVFormatter extends Kde1dTextFormatter<Iterable<Stri
      * @param separator 区切り文字
      * @return Character Separated Values フォーマッター
      */
-    public static Kde1dCharSVFormatter withLabel(char separator) {
-        return new Kde1dCharSVFormatter(separator, true);
+    public static Kde2dCharSVTextFormatter withLabel(char separator) {
+        return new Kde2dCharSVTextFormatter(separator, true);
     }
 
     /**
@@ -77,7 +78,7 @@ public final class Kde1dCharSVFormatter extends Kde1dTextFormatter<Iterable<Stri
      * 
      * @param separator 区切り文字
      */
-    private Kde1dCharSVFormatter(char separator, boolean withLabel) {
+    private Kde2dCharSVTextFormatter(char separator, boolean withLabel) {
         super();
         this.separator = separator;
         this.withLabel = withLabel;
@@ -87,7 +88,7 @@ public final class Kde1dCharSVFormatter extends Kde1dTextFormatter<Iterable<Stri
      * @throws NullPointerException {@inheritDoc}
      */
     @Override
-    Iterable<String> format(KdeGrid1dDto dto) {
+    Iterable<String> format(KdeGrid2dDto dto) {
         return new TextOutputIterable(Objects.requireNonNull(dto));
     }
 
@@ -96,12 +97,12 @@ public final class Kde1dCharSVFormatter extends Kde1dTextFormatter<Iterable<Stri
      */
     private final class TextOutputIterable implements Iterable<String> {
 
-        private final KdeGrid1dDto dto;
+        private final KdeGrid2dDto dto;
 
         /**
          * 非公開のコンストラクタ.
          */
-        TextOutputIterable(KdeGrid1dDto dto) {
+        TextOutputIterable(KdeGrid2dDto dto) {
             super();
             this.dto = dto;
         }
@@ -137,16 +138,24 @@ public final class Kde1dCharSVFormatter extends Kde1dTextFormatter<Iterable<Stri
                     throw new NoSuchElementException();
                 }
                 if (cursor == -1) {
-                    return "x" + Character.toString(separator) + "density";
+                    return "x" + Character.toString(separator) +
+                            "y" + Character.toString(separator) +
+                            "density";
                 }
-                return dto.x[cursor] + Character.toString(separator) + dto.density[cursor];
+
+                int cursorX = cursor / dto.sizeY;
+                int cursorY = cursor - dto.sizeY * cursorX;
+
+                return dto.x[cursorX] + Character.toString(separator) +
+                        dto.y[cursorY] + Character.toString(separator) +
+                        dto.density[cursorX][cursorY];
             }
 
             /**
              * 与えたカーソルの値が, データ内かどうかを確かめる.
              */
             private boolean hasNextHelper(int cursor) {
-                return cursor < dto.size;
+                return cursor < dto.sizeX * dto.sizeY;
             }
 
             /**
