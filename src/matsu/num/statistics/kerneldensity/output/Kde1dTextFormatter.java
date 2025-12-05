@@ -20,6 +20,11 @@ import matsu.num.statistics.kerneldensity.KdeGrid1dDto;
  * 適切に実装された具象クラスや生成メソッドが提供される.
  * </p>
  * 
+ * @implSpec
+ *               パッケージ内で継承する場合, クラスが {@code final} である場合を除いて,
+ *               コンストラクタを公開してはいけない. <br>
+ *               (継承可能なクラスのコストラクタを公開した場合, パッケージ外で継承される可能性がある.)
+ * 
  * @author Matsuura Y.
  */
 public abstract class Kde1dTextFormatter {
