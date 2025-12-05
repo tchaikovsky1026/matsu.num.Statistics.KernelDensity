@@ -16,6 +16,10 @@ import matsu.num.statistics.kerneldensity.KdeGrid2dDto;
  * 2次元のカーネル密度推定の結果を文字列化するフォーマッター.
  * 
  * <p>
+ * 文字列化した結果の型は, 型パラメータで定められる.
+ * </p>
+ * 
+ * <p>
  * パッケージ外ではこのクラスを継承することはできない. <br>
  * 適切に実装された具象クラスや生成メソッドが提供される.
  * </p>
@@ -26,8 +30,9 @@ import matsu.num.statistics.kerneldensity.KdeGrid2dDto;
  *               (継承可能なクラスのコストラクタを公開した場合, パッケージ外で継承される可能性がある.)
  * 
  * @author Matsuura Y.
+ * @param <T> 文字列化した結果を表す型
  */
-public abstract class Kde2dTextFormatter {
+public abstract class Kde2dTextFormatter<T> {
 
     /**
      * 唯一のコンストラクタ. <br>
@@ -40,10 +45,6 @@ public abstract class Kde2dTextFormatter {
     /**
      * 与えられたDTOの内容を文字列化する.
      * 
-     * <p>
-     * 文字列は改行を含まず, 各行を {@link String} とした {@link Iterable} で表す.
-     * </p>
-     * 
      * @implSpec
      *               引数のDTOはミュータブルであるため, 中身を書き換えないようにしなければならない. <br>
      *               文字列に改行を含んではいけない.
@@ -51,5 +52,5 @@ public abstract class Kde2dTextFormatter {
      * @return 変換後の文字列
      * @throws NullPointerException 引数が null の場合
      */
-    abstract Iterable<String> format(KdeGrid2dDto dto);
+    abstract T format(KdeGrid2dDto dto);
 }
