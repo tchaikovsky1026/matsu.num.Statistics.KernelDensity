@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.12.4
+ * 2025.12.5
  */
 package matsu.num.statistics.kerneldensity.output;
 
