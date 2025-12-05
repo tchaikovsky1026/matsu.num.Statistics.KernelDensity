@@ -5,9 +5,6 @@
  * http://opensource.org/licenses/mit-license.php
  */
 
-/*
- * 2025.12.5
- */
 package matsu.num.statistics.kerneldensity.output;
 
 import static org.hamcrest.MatcherAssert.*;
