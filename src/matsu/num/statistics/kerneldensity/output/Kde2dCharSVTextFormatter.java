@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import matsu.num.statistics.kerneldensity.KdeGrid2dDto;
 
 /**
- * 区切り文字で区切られた {@link Kde2dFormatter}.
+ * 区切り文字で区切られた文字列出力を行う {@link Kde2dFormatter}.
  * 
  * <p>
  * 文字列化した結果は,
@@ -31,12 +31,33 @@ import matsu.num.statistics.kerneldensity.KdeGrid2dDto;
  * {@code x[j]<sep>y[k]<sep>density[j][k]} <br>
  * が続く
  * ({@code <sep>} は区切り文字). <br>
- * イテレーション順は, {@code j} が外側, {@code k} が内側である.
+ * イテレーション順は, {@code j} が外側, {@code k} が内側である. <br>
+ * ラベル要素は {@code "x"}, {@code "y"}, {@code "density"} である. <br>
+ * 以下に例を示す.
  * </p>
  * 
- * <p>
- * ラベル要素は {@code "x"}, {@code "y"}, {@code "density"} である.
- * </p>
+ * <pre>
+ * {@literal //} 元データ
+ * int sizeX = 2;
+ * int sizeY = 3;
+ * double[] x = {1.0, 2.0};
+ * double[] y = {1.5, 2.5, 3.5};
+ * double[][] density = {
+ *     {0.125, 0.25, 0.0},
+ *     {0.25, 0.125, 0.25}
+ * };
+ * 
+ * {@literal //} 出力 (Iterable{@literal <String>} を配列で表記)
+ * out = {
+ *     "x{@literal <sep>}y{@literal <sep>}density",    {@literal //} ラベル有りの場合
+ *     "1.0{@literal <sep>}1.5{@literal <sep>}0.125",
+ *     "1.0{@literal <sep>}2.5{@literal <sep>}0.25",
+ *     "1.0{@literal <sep>}3.5{@literal <sep>}0.0",
+ *     "2.0{@literal <sep>}1.5{@literal <sep>}0.25",
+ *     "2.0{@literal <sep>}2.5{@literal <sep>}0.125",
+ *     "2.0{@literal <sep>}3.5{@literal <sep>}0.25"
+ * };
+ * </pre>
  * 
  * @author Matsuura Y.
  */
@@ -46,7 +67,7 @@ public final class Kde2dCharSVTextFormatter extends Kde2dFormatter<Iterable<Stri
     private final boolean withLabel;
 
     /**
-     * ラベル無しの Character Separated Values フォーマッターを生成する.
+     * ラベル無しの Character Separated Values 文字列出力フォーマッターを生成する.
      * 
      * <p>
      * 文字列形式はクラス説明の通りである.
@@ -60,7 +81,7 @@ public final class Kde2dCharSVTextFormatter extends Kde2dFormatter<Iterable<Stri
     }
 
     /**
-     * ラベル有りの Character Separated Values フォーマッターを生成する.
+     * ラベル有りの Character Separated Values 文字列出力フォーマッターを生成する.
      * 
      * <p>
      * 文字列形式はクラス説明の通りである.

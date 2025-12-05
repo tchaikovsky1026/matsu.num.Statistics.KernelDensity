@@ -15,12 +15,12 @@ import matsu.num.statistics.kerneldensity.KernelDensity1D;
 import matsu.num.statistics.kerneldensity.Range;
 
 /**
- * 文字列化に特化した, 1次元のカーネル密度推定の結果を扱うクラス.
+ * フォーマット可能な1次元のカーネル密度推定の結果を扱うクラス.
  * 
  * <p>
- * このクラスは, 1次元のカーネル密度推定の結果を文字列化するために用意されている. <br>
+ * このクラスは, 1次元のカーネル密度推定の結果をフォーマットするために用意されている. <br>
  * {@link KernelDensity1D#evaluateIn(Range) } メソッドにより生成された推定結果を属性として持ち,
- * 多種フォーマットでの文字列出力を行う.
+ * 多種フォーマットでの出力を行う.
  * </p>
  * 
  * <p>
@@ -42,7 +42,7 @@ public final class FormattableKdeResult1D {
      * ({@link #evaluate(KernelDensity1D, Range)} 経由で呼ばれる).
      * </p>
      * 
-     * @param dto 文字列出力の元となるカーネル密度推定の結果
+     * @param dto 出力の元となるカーネル密度推定の結果
      */
     private FormattableKdeResult1D(KdeGrid1dDto dto) {
         super();
@@ -50,19 +50,19 @@ public final class FormattableKdeResult1D {
     }
 
     /**
-     * 与えられたフォーマッターにより推定結果を文字列化する. <br>
+     * 与えられたフォーマッターにより推定結果をフォーマットする. <br>
      * 出力の形式は型を含め, フォーマッターで指定される.
      * 
-     * @param <T> 文字列化した結果を表す型
+     * @param <T> フォーマットした結果を表す型
      * @param formatter フォーマッター
-     * @return 推定結果の文字列変換
+     * @return 推定結果の変換結果
      */
     public <T> T formatted(Kde1dFormatter<T> formatter) {
         return formatter.format(dto);
     }
 
     /**
-     * 1次元のカーネル密度推定を実行し, 文字列化が可能な推定結果オブジェクトを返す.
+     * 1次元のカーネル密度推定を実行し, フォーマット可能な推定結果オブジェクトを返す.
      * 
      * <p>
      * 引数の {@link KernelDensity1D}, {@link Range} インスタンスをもとに
@@ -72,7 +72,7 @@ public final class FormattableKdeResult1D {
      * 
      * @param evaluator 1次元のカーネル密度推定
      * @param range 推定する区間
-     * @return 推定結果
+     * @return 推定結果相当
      * @throws NullPointerException 引数にnullが含まれる場合
      */
     public static FormattableKdeResult1D evaluate(KernelDensity1D evaluator, Range range) {

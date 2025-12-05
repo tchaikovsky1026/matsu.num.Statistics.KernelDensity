@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import matsu.num.statistics.kerneldensity.KdeGrid1dDto;
 
 /**
- * 区切り文字で区切られた {@link Kde1dFormatter}. <br>
+ * 区切り文字で区切られた文字列出力を行う {@link Kde1dFormatter}. <br>
  * 
  * <p>
  * 文字列化した結果は,
@@ -30,12 +30,24 @@ import matsu.num.statistics.kerneldensity.KdeGrid1dDto;
  * 以降, <br>
  * {@code x[i]<sep>density[i]} <br>
  * が続く
- * ({@code <sep>} は区切り文字).
+ * ({@code <sep>} は区切り文字). <br>
+ * ラベル要素は {@code "x"}, {@code "density"} である. <br>
+ * 以下に例を示す.
  * </p>
  * 
- * <p>
- * ラベル要素は {@code "x"}, {@code "density"} である.
- * </p>
+ * <pre>
+ * {@literal //} 元データ
+ * int size = 2;
+ * double[] x = {1.0, 2.0};
+ * double[] density = {0.25, 0.75};
+ * 
+ * {@literal //} 出力 (Iterable{@literal <String>} を配列で表記)
+ * out = {
+ *     "x{@literal <sep>}density",    {@literal //} ラベル有りの場合
+ *     "1.0{@literal <sep>}0.25",
+ *     "2.0{@literal <sep>}0.75"
+ * };
+ * </pre>
  * 
  * @author Matsuura Y.
  */

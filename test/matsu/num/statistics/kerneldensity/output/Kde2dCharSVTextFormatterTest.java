@@ -35,7 +35,7 @@ final class Kde2dCharSVTextFormatterTest {
         private KdeGrid2dDto dto;
 
         // Rangeにnullを与えても良い
-        private KernelDensity2D kde1d;
+        private KernelDensity2D kde2d;
 
         @Before
         public void before_DTOの作成() {
@@ -51,7 +51,7 @@ final class Kde2dCharSVTextFormatterTest {
 
         @Before
         public void before_Kde2dの作成() {
-            kde1d = new KernelDensity2D() {
+            kde2d = new KernelDensity2D() {
                 @Override
                 public KdeGrid2dDto evaluateIn(Range rangeX, Range rangeY) {
                     return dto;
@@ -60,7 +60,7 @@ final class Kde2dCharSVTextFormatterTest {
         }
 
         private FormattableKdeResult2D createTextKdeResult2D() {
-            return FormattableKdeResult2D.evaluate(kde1d, null, null);
+            return FormattableKdeResult2D.evaluate(kde2d, null, null);
         }
 
         @Test
@@ -108,7 +108,7 @@ final class Kde2dCharSVTextFormatterTest {
         private KdeGrid2dDto dto;
 
         // Rangeにnullを与えても良い
-        private KernelDensity2D kde1d;
+        private KernelDensity2D kde2d;
 
         @Before
         public void before_DTOの作成() {
@@ -125,7 +125,7 @@ final class Kde2dCharSVTextFormatterTest {
 
         @Before
         public void before_Kde2dの作成() {
-            kde1d = new KernelDensity2D() {
+            kde2d = new KernelDensity2D() {
                 @Override
                 public KdeGrid2dDto evaluateIn(Range rangeX, Range rangeY) {
                     return dto;
@@ -134,7 +134,7 @@ final class Kde2dCharSVTextFormatterTest {
         }
 
         private FormattableKdeResult2D createTextKdeResult2D() {
-            return FormattableKdeResult2D.evaluate(kde1d, null, null);
+            return FormattableKdeResult2D.evaluate(kde2d, null, null);
         }
 
         @Test
