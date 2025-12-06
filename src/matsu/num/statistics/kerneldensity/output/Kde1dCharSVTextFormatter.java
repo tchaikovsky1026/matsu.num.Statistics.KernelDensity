@@ -38,8 +38,8 @@ import matsu.num.statistics.kerneldensity.KdeGrid1dDto;
  * <pre>
  * {@literal //} 元データ
  * int size = 2;
- * double[] x = {1.0, 2.0};
- * double[] density = {0.25, 0.75};
+ * double[] x = { 1.0, 2.0 };
+ * double[] density = { 0.25, 0.75 };
  * 
  * {@literal //} 出力 (Iterable{@literal <String>} を配列で表記)
  * out = {
