@@ -20,7 +20,10 @@ import matsu.num.statistics.kerneldensity.Range;
  * <p>
  * このクラスは, 1次元のカーネル密度推定の結果をフォーマットするために用意されている. <br>
  * {@link KernelDensity1D#evaluateIn(Range) } メソッドにより生成された推定結果を属性として持ち,
- * 多種フォーマットでの出力を行う.
+ * 多種フォーマットでの出力を行う. <br>
+ * このクラスのインスタンスは,
+ * {@link #evaluate(KernelDensity1D, Range)}
+ * メソッドにより生成する.
  * </p>
  * 
  * <p>

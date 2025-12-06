@@ -40,11 +40,11 @@ import matsu.num.statistics.kerneldensity.KdeGrid2dDto;
  * {@literal //} 元データ
  * int sizeX = 2;
  * int sizeY = 3;
- * double[] x = {1.0, 2.0};
- * double[] y = {1.5, 2.5, 3.5};
+ * double[] x = { 1.0, 2.0 };
+ * double[] y = { 1.5, 2.5, 3.5 };
  * double[][] density = {
- *     {0.125, 0.25, 0.0},
- *     {0.25, 0.125, 0.25}
+ *     { 0.125, 0.25, 0.0 },
+ *     { 0.25, 0.125, 0.25 }
  * };
  * 
  * {@literal //} 出力 (Iterable{@literal <String>} を配列で表記)
