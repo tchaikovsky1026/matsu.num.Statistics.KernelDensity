@@ -73,8 +73,9 @@ public final class KdeGrid2dDto {
      * <p>
      * 空であってはならない. <br>
      * x.length = density.length でなければならない. <br>
+     * 任意の i について, y.length = density[i].length でなければならない. <br>
      * 有限でなければならない. <br>
-     * x は昇順(できれば等間隔) でなければならない.
+     * x, y は昇順(できれば等間隔) でなければならない.
      * </p>
      * 
      * @param x x

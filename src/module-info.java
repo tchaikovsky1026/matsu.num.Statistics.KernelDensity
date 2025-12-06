@@ -9,9 +9,11 @@
  * カーネル密度推定を扱うモジュール.
  * 
  * <p>
- * このモジュールの主要なパッケージは, {@link matsu.num.statistics.kerneldensity} パッケージである. <br>
+ * このモジュールの主要なパッケージは次である. <br>
  * {@link matsu.num.statistics.kerneldensity}
- * はカーネル密度推定 (1次元, 2次元) を実行するためのインターフェース, 実装が用意されている.
+ * はカーネル密度推定 (1次元, 2次元) を実行するためのインターフェース, 実装が用意されている. <br>
+ * {@link matsu.num.statistics.kerneldensity.output}
+ * はカーネル密度推定の結果の出力をサポートする.
  * </p>
  * 
  * <p>
@@ -24,9 +26,10 @@
  * </p>
  * 
  * @author Matsuura Y.
- * @version 1.0.0
+ * @version 1.1.0
  */
 module matsu.num.Statistics.KernelDensity {
 
     exports matsu.num.statistics.kerneldensity;
+    exports matsu.num.statistics.kerneldensity.output;
 }
