@@ -32,11 +32,13 @@ import matsu.num.statistics.kerneldensity.KdeGrid2dDto;
  * であり, 以降, <br>
  * {@code x[j]<sep>density[j][0]<sep>density[j][1]...} <br>
  * が続く
- * ({@code <sep>} は区切り文字). <br>
- * 以下に例を示す.
+ * ({@code <sep>} は区切り文字).
  * </p>
  * 
- * <pre>
+ * @apiNote
+ *              以下に, フォーマッターの実行例を示す.
+ * 
+ *              <pre>
  * {@literal //} 元データ
  * int sizeX = 2;
  * int sizeY = 3;
