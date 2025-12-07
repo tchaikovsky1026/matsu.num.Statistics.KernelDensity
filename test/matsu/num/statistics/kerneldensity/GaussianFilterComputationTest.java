@@ -5,9 +5,6 @@
  * http://opensource.org/licenses/mit-license.php
  */
 
-/*
- * 2025.10.15
- */
 package matsu.num.statistics.kerneldensity;
 
 import static matsu.num.statistics.kerneldensity.GaussianFilterComputation.*;

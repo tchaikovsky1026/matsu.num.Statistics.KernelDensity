@@ -41,20 +41,19 @@ import matsu.num.statistics.kerneldensity.KdeGrid2dDto;
  * {@link IllegalStateException} がスローされる.
  * </p>
  * 
- * <p>
- * 結果を出力する目的で実行されるため,
- * 外側の iteration の実行において "全データを1回だけ出力する" ことが求められる. <br>
- * これを実現するため, 内部の {@link Iterable} は1度しか実行できないようにした. <br>
- * {@literal Iterable<Iterator<String>>}
- * とすれば型としてこの仕様を実現できるが,
- * 拡張 {@code for} 文での使用を容易にするため, 内側を {@link Iterable} とした.
- * </p>
+ * @apiNote
+ *              結果を出力する目的で実行されるため,
+ *              外側の iteration の実行において "全データを1回だけ出力する" ことが求められる. <br>
+ *              これを実現するため, 内部の {@link Iterable} は1度しか実行できないようにした. <br>
+ *              {@literal Iterable<Iterator<String>>}
+ *              とすれば型としてこの仕様を実現できるが,
+ *              拡張 {@code for} 文での使用を容易にするため, 内側を {@link Iterable} とした.
  * 
- * <p>
- * 以下に, フォーマッターの実行例を示す.
- * </p>
+ *              <p>
+ *              以下に, フォーマッターの実行例を示す.
+ *              </p>
  * 
- * <pre>
+ *              <pre>
  * {@literal //} 元データ
  * int sizeX = 2;
  * int sizeY = 3;

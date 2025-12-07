@@ -31,11 +31,13 @@ import matsu.num.statistics.kerneldensity.KdeGrid1dDto;
  * {@code x[i]<sep>density[i]} <br>
  * が続く
  * ({@code <sep>} は区切り文字). <br>
- * ラベル要素は {@code "x"}, {@code "density"} である. <br>
- * 以下に例を示す.
+ * ラベル要素は {@code "x"}, {@code "density"} である.
  * </p>
  * 
- * <pre>
+ * @apiNote
+ *              以下に, フォーマッターの実行例を示す.
+ * 
+ *              <pre>
  * {@literal //} 元データ
  * int size = 2;
  * double[] x = { 1.0, 2.0 };

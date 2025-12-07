@@ -30,7 +30,7 @@ final class Kde2dCharSVTextFormatterTest {
 
     public static class フォーマッターのテスト_x2_y3 {
 
-        // kde1dの戻り値
+        // kde2dの戻り値
         // DTOの内部を書き換えてはいけない
         private KdeGrid2dDto dto;
 
@@ -103,7 +103,7 @@ final class Kde2dCharSVTextFormatterTest {
 
     public static class フォーマッターのテスト_x3_y2 {
 
-        // kde1dの戻り値
+        // kde2dの戻り値
         // DTOの内部を書き換えてはいけない
         private KdeGrid2dDto dto;
 
