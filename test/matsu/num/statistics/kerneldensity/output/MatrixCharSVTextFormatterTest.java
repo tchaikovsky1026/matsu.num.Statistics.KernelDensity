@@ -23,10 +23,10 @@ import matsu.num.statistics.kerneldensity.KernelDensity2D;
 import matsu.num.statistics.kerneldensity.Range;
 
 /**
- * {@link Kde2dCharSVTextFormatter} のテスト.
+ * {@link MatrixCharSVTextFormatter} のテスト.
  */
 @RunWith(Enclosed.class)
-final class Kde2dCharSVTextFormatterTest {
+final class MatrixCharSVTextFormatterTest {
 
     public static class フォーマッターのテスト_x2_y3 {
 
@@ -66,36 +66,14 @@ final class Kde2dCharSVTextFormatterTest {
         @Test
         public void test_文字列_カンマ区切り() {
             Iterable<String> resultCsv = createTextKdeResult2D()
-                    .formatted(Kde2dCharSVTextFormatter.withLabel(','));
+                    .formatted(MatrixCharSVTextFormatter.of(','));
 
             String[] resultStr = StreamSupport.stream(resultCsv.spliterator(), false)
                     .toArray(String[]::new);
             String[] expected = {
-                    "x,y,density",
-                    "1.0,3.0,11.0",
-                    "1.0,4.0,12.0",
-                    "1.0,5.0,13.0",
-                    "2.0,3.0,14.0",
-                    "2.0,4.0,15.0",
-                    "2.0,5.0,16.0"
-            };
-            assertThat(resultStr, is(expected));
-        }
-
-        @Test
-        public void test_文字列_ラベルレスカンマ区切り() {
-            Iterable<String> resultCsv = createTextKdeResult2D()
-                    .formatted(Kde2dCharSVTextFormatter.labelless(','));
-
-            String[] resultStr = StreamSupport.stream(resultCsv.spliterator(), false)
-                    .toArray(String[]::new);
-            String[] expected = {
-                    "1.0,3.0,11.0",
-                    "1.0,4.0,12.0",
-                    "1.0,5.0,13.0",
-                    "2.0,3.0,14.0",
-                    "2.0,4.0,15.0",
-                    "2.0,5.0,16.0"
+                    ",3.0,4.0,5.0",
+                    "1.0,11.0,12.0,13.0",
+                    "2.0,14.0,15.0,16.0",
             };
             assertThat(resultStr, is(expected));
         }
@@ -140,36 +118,15 @@ final class Kde2dCharSVTextFormatterTest {
         @Test
         public void test_文字列_カンマ区切り() {
             Iterable<String> resultCsv = createTextKdeResult2D()
-                    .formatted(Kde2dCharSVTextFormatter.withLabel(','));
+                    .formatted(MatrixCharSVTextFormatter.of(','));
 
             String[] resultStr = StreamSupport.stream(resultCsv.spliterator(), false)
                     .toArray(String[]::new);
             String[] expected = {
-                    "x,y,density",
-                    "1.0,4.0,11.0",
-                    "1.0,5.0,12.0",
-                    "2.0,4.0,13.0",
-                    "2.0,5.0,14.0",
-                    "3.0,4.0,15.0",
-                    "3.0,5.0,16.0"
-            };
-            assertThat(resultStr, is(expected));
-        }
-
-        @Test
-        public void test_文字列_ラベルレスカンマ区切り() {
-            Iterable<String> resultCsv = createTextKdeResult2D()
-                    .formatted(Kde2dCharSVTextFormatter.labelless(','));
-
-            String[] resultStr = StreamSupport.stream(resultCsv.spliterator(), false)
-                    .toArray(String[]::new);
-            String[] expected = {
-                    "1.0,4.0,11.0",
-                    "1.0,5.0,12.0",
-                    "2.0,4.0,13.0",
-                    "2.0,5.0,14.0",
-                    "3.0,4.0,15.0",
-                    "3.0,5.0,16.0"
+                    ",4.0,5.0",
+                    "1.0,11.0,12.0",
+                    "2.0,13.0,14.0",
+                    "3.0,15.0,16.0"
             };
             assertThat(resultStr, is(expected));
         }

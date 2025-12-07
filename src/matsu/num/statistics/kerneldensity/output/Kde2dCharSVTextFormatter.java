@@ -32,11 +32,13 @@ import matsu.num.statistics.kerneldensity.KdeGrid2dDto;
  * が続く
  * ({@code <sep>} は区切り文字). <br>
  * イテレーション順は, {@code j} が外側, {@code k} が内側である. <br>
- * ラベル要素は {@code "x"}, {@code "y"}, {@code "density"} である. <br>
- * 以下に例を示す.
+ * ラベル要素は {@code "x"}, {@code "y"}, {@code "density"} である.
  * </p>
  * 
- * <pre>
+ * @apiNote
+ *              以下に, フォーマッターの実行例を示す.
+ * 
+ *              <pre>
  * {@literal //} 元データ
  * int sizeX = 2;
  * int sizeY = 3;
