@@ -33,7 +33,7 @@ interface Power2Dft {
      * シグナルを離散 Fourier 変換する.
      * 
      * <p>
-     * 入力シグナルは, {@code double[2][size]} であり,
+     * 入力シグナルは {@code double[2][size]} であり,
      * {@code signal[0]} が実部を,
      * {@code signal[1]} が虚部を表す. <br>
      * {@code size} は2の累乗でなければならない.
@@ -42,6 +42,12 @@ interface Power2Dft {
      * <p>
      * シグナルの長さは, 2<sup>25</sup>までは必ず対応している. <br>
      * (これ以上の長さが与えられても, 直ちに例外をスローするわけではない.)
+     * </p>
+     * 
+     * <p>
+     * 出力結果 ({@code double[][] result}) は {@code double[2][size]} であり,
+     * {@code result[0]} が実部を,
+     * {@code result[1]} が虚部を表す.
      * </p>
      * 
      * @param signal シグナル
@@ -55,14 +61,21 @@ interface Power2Dft {
      * シグナルを逆離散 Fourier 変換する.
      * 
      * <p>
-     * 入力シグナルは, {@code double[2][size]} であり,
+     * 入力シグナルは {@code double[2][size]} であり,
      * {@code signal[0]} が実部を,
-     * {@code signal[1]} が虚部を表す.
+     * {@code signal[1]} が虚部を表す. <br>
+     * {@code size} は2の累乗でなければならない.
      * </p>
      * 
      * <p>
      * シグナルの長さは, 2<sup>25</sup>までは必ず対応している. <br>
      * (これ以上の長さが与えられても, 直ちに例外をスローするわけではない.)
+     * </p>
+     * 
+     * <p>
+     * 出力結果 ({@code double[][] result}) は {@code double[2][size]} であり,
+     * {@code result[0]} が実部を,
+     * {@code result[1]} が虚部を表す.
      * </p>
      * 
      * @param signal シグナル
