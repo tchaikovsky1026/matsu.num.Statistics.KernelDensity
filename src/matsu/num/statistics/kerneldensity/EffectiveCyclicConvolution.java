@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.11.25
+ * 2025.12.15
  */
 package matsu.num.statistics.kerneldensity;
 
@@ -29,7 +29,7 @@ import java.util.function.UnaryOperator;
  * 
  * <p>
  * このインターフェースは, モジュール内で使用するために外部からインジェクションされるために用意されている. <br>
- * モジュール外からメソッドコールをするような使い方は不適である.
+ * (実装提供者を除いて) モジュール外からメソッドコール<b>してはならない</b>.
  * </p>
  * 
  * @implSpec
@@ -42,15 +42,29 @@ public interface EffectiveCyclicConvolution {
 
     /**
      * 畳み込みのシグナルとして受け入れ可能なサイズについて,
-     * 与えた値を下回らない最小値を返す.
+     * 与えた値を下回らない最小値を返す. <br>
+     * 値を返せない場合は例外がスローされる.
      * 
      * <p>
      * 次が {@code true} である. <br>
      * {@code calcAcceptableSize(calcAcceptableSize(v)) == calcAcceptableSize(v)}
      * </p>
      * 
+     * @implSpec
+     *               適切に使用される限り, 0や負の数が与えられることはないが,
+     *               おそらく 1 を返すのが良い. <br>
+     *               例外をスローしてはならない.
+     * 
+     *               <p>
+     *               例外をスローしない場合, 戻り値の長さを持つ配列は {@link #applyPartial(double[])}
+     *               の引数として適切である. <br>
+     *               逆に, {@link #applyPartial(double[])} が受け入れ可能な長さ,
+     *               およびそれ以下の値が与えられた場合, 例外をスローしてはならない.
+     *               </p>
+     * 
      * @param lower 受け入れ可能サイズの下限 (inclusive)
      * @return 受け入れ可能サイズ
+     * @throws IllegalArgumentException 受け入れ可能サイズが返せない場合
      */
     public abstract int calcAcceptableSize(int lower);
 
@@ -72,13 +86,18 @@ public interface EffectiveCyclicConvolution {
      * </p>
      * 
      * <p>
-     * 戻り値の {@link UnaryOperator} は,
-     * {@link UnaryOperator#apply(Object) apply(g)}
-     * メソッドのコールにより畳み込み: (<i>f</i>*<i>g</i>) を計算する. <br>
-     * コールしたときに
-     * {@code f.length == g.length}
-     * が {@code true} でない場合は例外 ({@link IllegalArgumentException}) がスローされる.
+     * 戻り値である {@link UnaryOperator} に関するさらなる契約は,
+     * "APIのノート" を参照すること.
      * </p>
+     * 
+     * @apiNote
+     *              戻り値の {@link UnaryOperator} は,
+     *              {@link UnaryOperator#apply(Object) apply(g)}
+     *              メソッドのコールにより畳み込み: (<i>f</i>*<i>g</i>) を計算する. <br>
+     *              コールしたときに
+     *              {@code f.length == g.length}
+     *              が {@code true} でない場合は例外 ({@link IllegalArgumentException})
+     *              がスローされる.
      * 
      * @implSpec
      *               メソッドの説明に従って実装しなければならない. <br>

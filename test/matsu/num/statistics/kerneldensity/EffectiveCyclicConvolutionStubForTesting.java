@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.11.25
+ * 2025.12.15
  */
 package matsu.num.statistics.kerneldensity;
 
@@ -24,6 +24,8 @@ import java.util.function.UnaryOperator;
  * @author Matsuura Y.
  */
 public final class EffectiveCyclicConvolutionStubForTesting implements EffectiveCyclicConvolution {
+
+    private static final int MAX_SIZE = 1 << 29;
 
     /**
      * 唯一のコンストラクタ.
@@ -43,6 +45,10 @@ public final class EffectiveCyclicConvolutionStubForTesting implements Effective
      */
     @Override
     public int calcAcceptableSize(int lower) {
+        if (lower > MAX_SIZE) {
+            throw new IllegalArgumentException("too large: " + lower);
+        }
+
         if (lower <= 1) {
             return 1;
         }
@@ -60,14 +66,11 @@ public final class EffectiveCyclicConvolutionStubForTesting implements Effective
         final int size = f.length;
 
         // 引数の検証
+        // 大きすぎる場合も例外もスローされる
         if (size != calcAcceptableSize(size)) {
             throw new IllegalArgumentException(
                     "size is not acceptable, size = %s"
                             .formatted(size));
-        }
-        if (size > (1 << 29)) {
-            throw new IllegalArgumentException(
-                    "size is too large: size = %s".formatted(size));
         }
 
         return new PartialApplyImpl(f);
