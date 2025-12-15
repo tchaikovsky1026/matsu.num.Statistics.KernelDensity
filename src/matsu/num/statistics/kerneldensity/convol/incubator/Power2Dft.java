@@ -64,7 +64,8 @@ interface Power2Dft {
      * 入力シグナルは {@code double[2][size]} であり,
      * {@code signal[0]} が実部を,
      * {@code signal[1]} が虚部を表す. <br>
-     * {@code size} は (1以上の) 2の累乗でなければならない.
+     * {@code size} は (1以上の) 2の累乗でなければならない. <br>
+     * このメソッドは入力配列を書き換えないことを保証する.
      * </p>
      * 
      * <p>
@@ -76,6 +77,13 @@ interface Power2Dft {
      * {@code result[0]} が実部を,
      * {@code result[1]} が虚部を表す.
      * </p>
+     * 
+     * @apiNote
+     *              マルチスレッドにおいて, このメソッドの実行中に呼び出し元が {@code signal}
+     *              の要素の値を変更してはいけない. <br>
+     *              変更した場合, 意図しない結果が返る可能性がある.
+     * @implSpec
+     *               入力配列を書き換えてはならない.
      * 
      * @param signal シグナル
      * @return 離散 Fourier 変換の結果
@@ -91,7 +99,8 @@ interface Power2Dft {
      * 入力シグナルは {@code double[2][size]} であり,
      * {@code signal[0]} が実部を,
      * {@code signal[1]} が虚部を表す. <br>
-     * {@code size} は (1以上の) 2の累乗でなければならない.
+     * {@code size} は (1以上の) 2の累乗でなければならない. <br>
+     * このメソッドは入力配列を書き換えないことを保証する.
      * </p>
      * 
      * <p>
@@ -103,6 +112,13 @@ interface Power2Dft {
      * {@code result[0]} が実部を,
      * {@code result[1]} が虚部を表す.
      * </p>
+     * 
+     * @apiNote
+     *              マルチスレッドにおいて, このメソッドの実行中に呼び出し元が {@code signal}
+     *              の要素の値を変更してはいけない. <br>
+     *              変更した場合, 意図しない結果が返る可能性がある.
+     * @implSpec
+     *               入力配列を書き換えてはならない.
      * 
      * @param signal シグナル
      * @return 離散 Fourier 変換の結果
