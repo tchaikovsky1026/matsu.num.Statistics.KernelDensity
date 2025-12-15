@@ -20,17 +20,14 @@ import matsu.num.statistics.kerneldensity.EffectiveCyclicConvolution;
  * {@link EffectiveCyclicConvolution} の実装.
  * 
  * <p>
- * 2の累乗サイズにのみ対応している.
+ * 2の累乗サイズにのみ対応している. <br>
+ * 対応可能サイズの最大はインジェクションされる {@link Power2Dft#maxAcceptableSize()}
+ * に一致する.
  * </p>
  * 
  * @author Matsuura Y.
  */
 final class Power2DftInjectedCyclicConvolution implements EffectiveCyclicConvolution {
-
-    /*
-     * 受け入れられる最大サイズ.
-     */
-    private static final int MAX_SIZE = 1 << 25;
 
     private final Power2Dft dft;
 
@@ -49,7 +46,7 @@ final class Power2DftInjectedCyclicConvolution implements EffectiveCyclicConvolu
      */
     @Override
     public int calcAcceptableSize(int lower) {
-        if (lower > MAX_SIZE) {
+        if (lower > dft.maxAcceptableSize()) {
             throw new IllegalArgumentException("too large: " + lower);
         }
 
@@ -133,6 +130,12 @@ final class Power2DftInjectedCyclicConvolution implements EffectiveCyclicConvolu
             double[] h_dft_im = new double[size];
             double[] temp = new double[2];
             for (int j = 0, len = size; j < len; j++) {
+
+                /*
+                 * 複素数の積をインライン化する意義について要検討.
+                 * 配列が不要になる効果はあると思われる.
+                 */
+                // 複素数の積 h_dft[j] = f_dft[j] * g_dft[j]
                 multiplyAndWriteComplex(
                         f_dft_re[j], f_dft_im[j], g_dft_re[j], g_dft_im[j], temp);
                 h_dft_re[j] = temp[0];
