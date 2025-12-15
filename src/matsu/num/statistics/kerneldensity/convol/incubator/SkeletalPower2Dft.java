@@ -47,6 +47,11 @@ abstract class SkeletalPower2Dft implements Power2Dft {
      * @param lbMaxAcceptableSize maxAcceptableSize の2を底とする対数の値
      * @throws AssertionError {@code lbMaxAcceptableSize} は25以上30以下でない場合
      */
+
+    /*
+     * 将来, この抽象クラスが public になった場合,
+     * コンストラクタのアクセス修飾子は protected とする.
+     */
     SkeletalPower2Dft(int lbMaxAcceptableSize) {
         super();
         if (!(25 <= lbMaxAcceptableSize && lbMaxAcceptableSize <= 30)) {
@@ -138,6 +143,11 @@ abstract class SkeletalPower2Dft implements Power2Dft {
      * @param isIt 変換と逆変換の切り替えを行う {@code boolean},
      *            {@code false} の場合は変換を, {@code true} の場合は逆変換を行う
      * @return 変換結果
+     */
+
+    /*
+     * 将来, この抽象クラスが public になった場合,
+     * この抽象メソッドのアクセス修飾子は protected とする.
      */
     abstract double[][] transform(double[] signal_re, double[] signal_im, boolean isIt);
 
