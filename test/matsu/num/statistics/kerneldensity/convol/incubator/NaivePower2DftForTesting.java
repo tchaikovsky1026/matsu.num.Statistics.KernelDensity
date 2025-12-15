@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.12.14
+ * 2025.12.15
  */
 package matsu.num.statistics.kerneldensity.convol.incubator;
 
@@ -27,6 +27,11 @@ public final class NaivePower2DftForTesting implements Power2Dft {
      */
     public NaivePower2DftForTesting() {
         super();
+    }
+
+    @Override
+    public int maxAcceptableSize() {
+        return MAX_SIZE;
     }
 
     /**
@@ -73,7 +78,7 @@ public final class NaivePower2DftForTesting implements Power2Dft {
      * @throws IllegalArgumentException シグナルが正しい形式でない場合
      * @throws NullPointerException 引数にnullが含まれる場合
      */
-    private static double[][] calc(double[] real, double[] imaginary, boolean isIt) {
+    private double[][] calc(double[] real, double[] imaginary, boolean isIt) {
         validateSignal(real, imaginary);
         int N = real.length;
         // mod Nを計算するとき, 論理積を取ればよい.
@@ -116,7 +121,7 @@ public final class NaivePower2DftForTesting implements Power2Dft {
      * 適切でない場合は例外 ({@link IllegalArgumentException},
      * {@link NullPointerException}) をスローする.
      */
-    private static void validateSignal(double[] real, double[] imaginary) {
+    private void validateSignal(double[] real, double[] imaginary) {
         int size = real.length;
         if (imaginary.length != size) {
             throw new IllegalArgumentException("real.length != imaginary.length");
@@ -124,7 +129,7 @@ public final class NaivePower2DftForTesting implements Power2Dft {
         if (size > 0 && (size & (size - 1)) != 0) {
             throw new IllegalArgumentException("NOT power of 2");
         }
-        if (size > MAX_SIZE) {
+        if (size > maxAcceptableSize()) {
             throw new IllegalArgumentException("size is too large: size = " + size);
         }
     }
