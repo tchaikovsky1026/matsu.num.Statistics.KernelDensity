@@ -15,68 +15,25 @@ package matsu.num.statistics.kerneldensity.convol.incubator;
  * 
  * @author Matsuura Y.
  */
-final class Power2Fft implements Power2Dft {
+final class Power2Fft extends SkeletalPower2Dft implements Power2Dft {
+
+    // 2^{28} まで対応する
+    private static final int MAX_SIZE_LB = 28;
 
     /**
-     * 読み込める配列サイズの最大値.
+     * 唯一のコンストラクタ.
      */
-    private static final int MAX_SIZE = 1 << 28;
-
-    @Override
-    public int maxAcceptableSize() {
-        return MAX_SIZE;
+    Power2Fft() {
+        super(MAX_SIZE_LB);
     }
 
-    /**
-     * @throws IllegalArgumentException {@inheritDoc}
-     * @throws NullPointerException {@inheritDoc}
-     */
     @Override
-    public double[][] dft(double[][] signal) {
-        if (signal.length != 2) {
-            throw new IllegalArgumentException("signal.length != 2");
-        }
-        return calc(signal[0], signal[1], false);
-    }
+    double[][] transform(double[] signal_re, double[] signal_im, boolean isIt) {
 
-    /**
-     * @throws IllegalArgumentException {@inheritDoc}
-     * @throws NullPointerException {@inheritDoc}
-     */
-    @Override
-    public double[][] idft(double[][] signal) {
-        if (signal.length != 2) {
-            throw new IllegalArgumentException("signal.length != 2");
-        }
-        return calc(signal[0], signal[1], true);
-    }
-
-    /**
-     * 離散 Fourier 変換, 逆変換を行う. <br>
-     * 変換と逆変換の切り替えは, {@code boolean} で行う.
-     * 
-     * <p>
-     * 入力シグナルサイズは2の累乗でなければならない.
-     * </p>
-     * 
-     * <p>
-     * シグナルの長さは, 2<sup>25</sup>までは必ず対応している. <br>
-     * (これ以上の長さが与えられても, 直ちに例外をスローするわけではない.)
-     * </p>
-     * 
-     * @param real 実部
-     * @param imaginary 虚部
-     * @param isIt 逆変換の場合はtrue
-     * @return 変換結果
-     * @throws IllegalArgumentException シグナルが正しい形式でない場合
-     * @throws NullPointerException 引数にnullが含まれる場合
-     */
-    private double[][] calc(double[] real, double[] imaginary, boolean isIt) {
-        validateSignal(real, imaginary);
-        int N = real.length;
+        int N = signal_re.length;
 
         // 回転を用意する
-        // このアルゴリズムでは位相piまでしか使用しないので, 不要な生成は行わない
+        // このアルゴリズムでは位相 < piまでしか使用しないので, 不要な生成は行わない
         double[] rot_re = new double[N >>> 1];
         double[] rot_im = new double[N >>> 1];
         computeAndWriteRotation(N, rot_re, rot_im, isIt);
@@ -88,8 +45,8 @@ final class Power2Fft implements Power2Dft {
 
         // 作業用バッファ（in-place FFT）
         // 初期値はシグナルである
-        double[] sr = real.clone();
-        double[] si = imaginary.clone();
+        double[] sr = signal_re.clone();
+        double[] si = signal_im.clone();
 
         // =========================
         // bit-reversal permutation
@@ -144,24 +101,6 @@ final class Power2Fft implements Power2Dft {
         }
 
         return new double[][] { sr, si };
-    }
-
-    /**
-     * {@code real}, {@code imaginary} の配列サイズが適切かどうかを調べる. <br>
-     * 適切でない場合は例外 ({@link IllegalArgumentException},
-     * {@link NullPointerException}) をスローする.
-     */
-    private void validateSignal(double[] real, double[] imaginary) {
-        int size = real.length;
-        if (imaginary.length != size) {
-            throw new IllegalArgumentException("real.length != imaginary.length");
-        }
-        if (size > 0 && (size & (size - 1)) != 0) {
-            throw new IllegalArgumentException("NOT power of 2");
-        }
-        if (size > maxAcceptableSize()) {
-            throw new IllegalArgumentException("size is too large: size = " + size);
-        }
     }
 
     /**
