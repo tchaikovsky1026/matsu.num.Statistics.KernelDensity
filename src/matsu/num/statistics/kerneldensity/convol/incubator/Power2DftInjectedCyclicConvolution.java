@@ -128,18 +128,15 @@ final class Power2DftInjectedCyclicConvolution implements EffectiveCyclicConvolu
             // H = FG = DFT(f*g) を計算
             double[] h_dft_re = new double[size];
             double[] h_dft_im = new double[size];
-            double[] temp = new double[2];
             for (int j = 0, len = size; j < len; j++) {
+                double f_dft_re_j = f_dft_re[j];
+                double f_dft_im_j = f_dft_im[j];
+                double g_dft_re_j = g_dft_re[j];
+                double g_dft_im_j = g_dft_im[j];
 
-                /*
-                 * 複素数の積をインライン化する意義について要検討.
-                 * 配列が不要になる効果はあると思われる.
-                 */
                 // 複素数の積 h_dft[j] = f_dft[j] * g_dft[j]
-                multiplyAndWriteComplex(
-                        f_dft_re[j], f_dft_im[j], g_dft_re[j], g_dft_im[j], temp);
-                h_dft_re[j] = temp[0];
-                h_dft_im[j] = temp[1];
+                h_dft_re[j] = f_dft_re_j * g_dft_re_j - f_dft_im_j * g_dft_im_j;
+                h_dft_im[j] = f_dft_re_j * g_dft_im_j + f_dft_im_j * g_dft_re_j;
             }
 
             // H を　h に直す
@@ -151,21 +148,6 @@ final class Power2DftInjectedCyclicConvolution implements EffectiveCyclicConvolu
             }
 
             return h_re;
-        }
-
-        /**
-         * 複素数の積を計算し, 結果を配列に書き込む.
-         * 
-         * @param result 長さ2, result[0] = Re, result[1] = Im
-         */
-        private static void multiplyAndWriteComplex(
-                double re_a, double im_a, double re_b, double im_b,
-                double[] result) {
-
-            assert result.length == 2;
-
-            result[0] = re_a * re_b - im_a * im_b;
-            result[1] = re_a * im_b + im_a * re_b;
         }
     }
 }
