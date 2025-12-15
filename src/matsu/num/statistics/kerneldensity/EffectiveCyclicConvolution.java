@@ -86,13 +86,18 @@ public interface EffectiveCyclicConvolution {
      * </p>
      * 
      * <p>
-     * 戻り値の {@link UnaryOperator} は,
-     * {@link UnaryOperator#apply(Object) apply(g)}
-     * メソッドのコールにより畳み込み: (<i>f</i>*<i>g</i>) を計算する. <br>
-     * コールしたときに
-     * {@code f.length == g.length}
-     * が {@code true} でない場合は例外 ({@link IllegalArgumentException}) がスローされる.
+     * 戻り値である {@link UnaryOperator} に関するさらなる契約は,
+     * "APIのノート" を参照すること.
      * </p>
+     * 
+     * @apiNote
+     *              戻り値の {@link UnaryOperator} は,
+     *              {@link UnaryOperator#apply(Object) apply(g)}
+     *              メソッドのコールにより畳み込み: (<i>f</i>*<i>g</i>) を計算する. <br>
+     *              コールしたときに
+     *              {@code f.length == g.length}
+     *              が {@code true} でない場合は例外 ({@link IllegalArgumentException})
+     *              がスローされる.
      * 
      * @implSpec
      *               メソッドの説明に従って実装しなければならない. <br>
