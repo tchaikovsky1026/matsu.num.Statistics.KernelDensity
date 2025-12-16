@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.11.25
+ * 2025.12.15
  */
 package matsu.num.statistics.kerneldensity;
 
@@ -29,7 +29,7 @@ import java.util.function.UnaryOperator;
  * 
  * <p>
  * このインターフェースは, モジュール内で使用するために外部からインジェクションされるために用意されている. <br>
- * モジュール外からメソッドコールをするような使い方は不適である.
+ * (実装提供者を除いて) モジュール外からメソッドコール<b>してはならない</b>.
  * </p>
  * 
  * @implSpec
@@ -42,20 +42,34 @@ public interface EffectiveCyclicConvolution {
 
     /**
      * 畳み込みのシグナルとして受け入れ可能なサイズについて,
-     * 与えた値を下回らない最小値を返す.
+     * 与えた値を下回らない最小値を返す. <br>
+     * 値を返せない場合は例外がスローされる.
      * 
      * <p>
      * 次が {@code true} である. <br>
      * {@code calcAcceptableSize(calcAcceptableSize(v)) == calcAcceptableSize(v)}
      * </p>
      * 
+     * @implSpec
+     *               適切に使用される限り, 0や負の数が与えられることはないが,
+     *               おそらく 1 を返すのが良い. <br>
+     *               例外をスローしてはならない.
+     * 
+     *               <p>
+     *               例外をスローしない場合, 戻り値の長さを持つ配列は {@link #applyPartial(double[])}
+     *               の引数として適切である. <br>
+     *               逆に, {@link #applyPartial(double[])} が受け入れ可能な長さ,
+     *               およびそれ以下の値が与えられた場合, 例外をスローしてはならない.
+     *               </p>
+     * 
      * @param lower 受け入れ可能サイズの下限 (inclusive)
      * @return 受け入れ可能サイズ
+     * @throws IllegalArgumentException 受け入れ可能サイズが返せない場合
      */
     public abstract int calcAcceptableSize(int lower);
 
     /**
-     * 畳み込みの片方のシグナル <i>f</i> を与えて,
+     * 畳み込みの片方のシグナル {@code f} を与えて,
      * {@code g -> (f*g)}
      * という関数を返す.
      * 
@@ -67,27 +81,65 @@ public interface EffectiveCyclicConvolution {
      * </p>
      * 
      * <p>
-     * シグナルの長さは, 2<sup>25</sup>までは必ず対応している. <br>
-     * (これ以上の長さが与えられても, 直ちに例外をスローするわけではない.)
+     * {@code f} はメソッドコール中は変更してはならない
+     * (変更された場合は, 結果は保証されない).
      * </p>
      * 
      * <p>
-     * 戻り値の {@link UnaryOperator} は,
-     * {@link UnaryOperator#apply(Object) apply(g)}
-     * メソッドのコールにより畳み込み: (<i>f</i>*<i>g</i>) を計算する. <br>
-     * コールしたときに
-     * {@code f.length == g.length}
-     * が {@code true} でない場合は例外 ({@link IllegalArgumentException}) がスローされる.
+     * シグナルの長さは, 2<sup>25</sup>までは必ず対応している
+     * (これ以上の長さが与えられても, 直ちに例外をスローするわけではない).
      * </p>
+     * 
+     * <p>
+     * 戻り値である {@link UnaryOperator} に関するさらなる契約は,
+     * "APIのノート" を参照すること.
+     * </p>
+     * 
+     * <p>
+     * <u><i><b>モジュール内での利用</b></i></u> <br>
+     * モジュール内での利用では, 上記の条件は必ず満たされている. <br>
+     * さらに, {@code f} の要素を変更しないことが保証されるため,
+     * 実装において引数 {@code f} をコピーする必要は無い. <br>
+     * <u><i>
+     * モジュール内では, このように利用されなければならない.
+     * </i></u>
+     * </p>
+     * 
+     * @apiNote
+     *              <b>戻り値 {@link UnaryOperator}</b> <br>
+     *              戻り値の {@link UnaryOperator} は,
+     *              {@link UnaryOperator#apply(Object) apply(g)}
+     *              メソッドのコールにより畳み込み: ({@code f*g}) を計算する. <br>
+     *              コールしたときに
+     *              {@code f.length == g.length}
+     *              が {@code true} でない場合は例外 ({@link IllegalArgumentException})
+     *              がスローされる.
+     * 
+     *              <p>
+     *              {@code g} はメソッドコール中は変更してはならない
+     *              (変更された場合は, 結果は保証されない).
+     *              </p>
+     * 
+     *              <p>
+     *              <u><i><b>{@link UnaryOperator} のモジュール内での利用</b></i></u> <br>
+     *              モジュール内での利用では, 上記の条件は必ず満たされている. <br>
+     *              さらに, {@code g} の要素を変更しないことが保証されるため,
+     *              実装において引数 {@code g} をコピーする必要は無い. <br>
+     *              <u><i>
+     *              モジュール内では, このように利用されなければならない. </i></u>
+     *              </p>
+     * 
+     *              <p>
+     *              <b>{@link UnaryOperator} の実装要件:</b><br>
+     *              メソッドの説明に従って実装しなければならない. <br>
+     *              すなわち, 引数のチェックを必ず行い, 不適切の場合は例外をスローしなければならない.
+     *              </p>
      * 
      * @implSpec
      *               メソッドの説明に従って実装しなければならない. <br>
-     *               すなわち, 引数のチェックを必ず行い, 不適切の場合は例外をスローしなければならない. <br>
-     *               戻り値となる {@link UnaryOperator} の実装において,
-     *               引数 <i>f</i> をコピーする必要は無い
-     *               (モジュール内での利用においては <i>f</i> は変更されないことを保証する).
+     *               すなわち, 引数のチェックを必ず行い, 不適切の場合は例外をスローしなければならない.
      * 
-     * @param f <i>f</i>
+     * @param f {@code f}
      * @return {@code g -> (f*g)} なる関数
      * @throws IllegalArgumentException 引数の長さが受け入れ可能でない場合,
      *             長さが大きすぎる場合
@@ -96,7 +148,7 @@ public interface EffectiveCyclicConvolution {
     public abstract UnaryOperator<double[]> applyPartial(double[] f);
 
     /**
-     * 与えた <i>f</i>, <i>g</i> について, 巡回畳み込みを計算する. <br>
+     * 与えた {@code f}, {@code g} について, 巡回畳み込みを計算する. <br>
      * 計算コストは O(NlogN) 程度である.
      * 
      * <p>
@@ -106,7 +158,7 @@ public interface EffectiveCyclicConvolution {
      * </p>
      * 
      * <p>
-     * 与える <i>f</i>, <i>g</i> の長さは同一かつ, 受け入れ可能でなければならない. <br>
+     * 与える {@code f}, {@code g} の長さは同一かつ, 受け入れ可能でなければならない. <br>
      * すなわち, <br>
      * {@code f.length == g.length
      *  && f.length == calcAcceptableSize(f.length)} <br>
@@ -114,8 +166,23 @@ public interface EffectiveCyclicConvolution {
      * </p>
      * 
      * <p>
-     * 与えられる <i>f</i>, <i>g</i> はサイズは, 2<sup>25</sup>までは必ず対応している. <br>
-     * (これ以上の長さが与えられても, 直ちに例外をスローするわけではない.)
+     * {@code f}, {@code g} はメソッドコール中は変更してはならない
+     * (変更された場合は, 結果は保証されない).
+     * </p>
+     * 
+     * <p>
+     * 与えられる {@code f}, {@code g} はサイズは, 2<sup>25</sup>までは必ず対応している
+     * (これ以上の長さが与えられても, 直ちに例外をスローするわけではない).
+     * </p>
+     * 
+     * <p>
+     * <u><i><b>モジュール内での利用</b></i></u> <br>
+     * モジュール内での利用では, 上記の条件は必ず満たされている. <br>
+     * さらに, {@code f}, {@code g} の要素を変更しないことが保証されるため,
+     * 実装において引数 {@code f}, {@code g} をコピーする必要は無い. <br>
+     * <u><i>
+     * モジュール内では, このように利用されなければならない.
+     * </i></u>
      * </p>
      * 
      * @implSpec
@@ -124,11 +191,11 @@ public interface EffectiveCyclicConvolution {
      *               {@code return this.applyPartial(f).apply(g);} <br>
      *               であり, 多くの場合はデフォルト実装で十分である.
      * 
-     * @param f <i>f</i>
-     * @param g <i>g</i>
+     * @param f {@code f}
+     * @param g {@code g}
      * @return 畳み込みの結果
      * @throws IllegalArgumentException 引数の長さが受け入れ可能でない場合,
-     *             <i>f</i> と <i>g</i> の長さが異なる場合,
+     *             {@code f}, {@code g} の長さが異なる場合,
      *             長さが大きすぎる場合
      * @throws NullPointerException 引数に null が含まれる場合
      */

@@ -18,6 +18,7 @@ import org.junit.runner.RunWith;
 
 import matsu.num.statistics.kerneldensity.GaussianKd2D.BandWidthRule;
 import matsu.num.statistics.kerneldensity.GaussianKd2D.ResolutionRule;
+import matsu.num.statistics.kerneldensity.conv.CyclicConvolutions;
 
 /**
  * {@link GaussianKd2D} のテスト.
@@ -41,7 +42,7 @@ final class GaussianKd2DTest {
 
             GaussianKd2D.Factory
                     .of(BandWidthRule.STANDARD, ResolutionRule.STANDARD)
-                    .withConvolutionBy(new EffectiveCyclicConvolutionStubForTesting())
+                    .withConvolutionBy(CyclicConvolutions.fftBased())
                     .createOf(source)
                     .evaluateIn(Range.of(-1d, 1d), Range.of(-1d, 1d));
         }

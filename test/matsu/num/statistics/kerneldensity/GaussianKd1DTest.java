@@ -18,6 +18,7 @@ import org.junit.runner.RunWith;
 
 import matsu.num.statistics.kerneldensity.GaussianKd1D.BandWidthRule;
 import matsu.num.statistics.kerneldensity.GaussianKd1D.ResolutionRule;
+import matsu.num.statistics.kerneldensity.conv.CyclicConvolutions;
 
 /**
  * {@link GaussianKd1D} のテスト.
@@ -39,7 +40,7 @@ final class GaussianKd1DTest {
 
             GaussianKd1D.Factory
                     .of(BandWidthRule.STANDARD, ResolutionRule.STANDARD)
-                    .withConvolutionBy(new EffectiveCyclicConvolutionStubForTesting())
+                    .withConvolutionBy(CyclicConvolutions.fftBased())
                     .createOf(source)
                     .evaluateIn(Range.of(-5d, 5d));
         }

@@ -98,6 +98,11 @@ public interface KernelDensity1D {
          * </p>
          * 
          * <p>
+         * データソースはメソッドコール中は変更してはならない. <br>
+         * (変更された場合は, 結果は保証されない.)
+         * </p>
+         * 
+         * <p>
          * 引数の事前チェックとして, {@link Factory#validateSource(double[])}
          * を提供している.
          * </p>
@@ -113,6 +118,11 @@ public interface KernelDensity1D {
          * データソースが正当であるか
          * ({@link #createOf(double[])} の引数に使用できるかどうか)
          * を検証する.
+         * 
+         * <p>
+         * データソースはメソッドコール中は変更してはならない. <br>
+         * (変更された場合は, 結果は保証されない.)
+         * </p>
          * 
          * @param source データソース
          * @return データソースが正当な場合は true
