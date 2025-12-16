@@ -15,6 +15,7 @@ import java.util.stream.IntStream;
 
 import matsu.num.statistics.kerneldensity.GaussianKd2D.BandWidthRule;
 import matsu.num.statistics.kerneldensity.GaussianKd2D.ResolutionRule;
+import matsu.num.statistics.kerneldensity.conv.CyclicConvolutions;
 
 /**
  * {@link GaussianKd2D} の実行のサンプル.
@@ -50,7 +51,7 @@ final class GaussianKd2DExecutionSample {
 
         KdeGrid2dDto result = GaussianKd2D.Factory
                 .of(BandWidthRule.STANDARD, ResolutionRule.LOW)
-                .withConvolutionBy(new EffectiveCyclicConvolutionStubForTesting())
+                .withConvolutionBy(CyclicConvolutions.fftBased())
                 .createOf(src)
                 .evaluateIn(Range.of(-2d, 8d), Range.of(0d, 3d));
 
