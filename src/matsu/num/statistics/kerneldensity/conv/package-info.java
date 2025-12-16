@@ -11,8 +11,11 @@
  * <p>
  * このパッケージでは,
  * {@link matsu.num.statistics.kerneldensity.EffectiveCyclicConvolution}
- * の具象実装を提供する. <br>
- * 詳細は各具象クラスを参照のこと.
+ * の実装を提供する. <br>
+ * 実装クラスは隠ぺいされており,
+ * ユーティリティクラス
+ * {@link matsu.num.statistics.kerneldensity.conv.CyclicConvolutions}
+ * を経由して取得する.
  * </p>
  */
 package matsu.num.statistics.kerneldensity.conv;
