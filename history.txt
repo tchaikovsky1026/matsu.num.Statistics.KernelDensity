@@ -1,5 +1,6 @@
 develop:
 公開APIのドキュメント補強.
+EffectiveCyclicConvolution の実装を提供.
 
 1:
 1.2.0: Matrix形式, 構造化形式のKde2D出力フォーマットの整備.
