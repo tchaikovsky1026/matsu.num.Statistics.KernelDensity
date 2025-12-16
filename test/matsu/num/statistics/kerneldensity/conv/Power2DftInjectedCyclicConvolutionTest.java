@@ -59,8 +59,14 @@ final class Power2DftInjectedCyclicConvolutionTest {
         }
     }
 
+    @SuppressWarnings("exports")
     @RunWith(Theories.class)
     public static class ランダムな信号でテスト_DFTバリエーション {
+
+        /*
+         * publicフィールドとメソッドに含まれるPower2Dftが
+         * 非公開であることに対する警告抑制.
+         */
 
         /**
          * テストに使うDFTのセット.
