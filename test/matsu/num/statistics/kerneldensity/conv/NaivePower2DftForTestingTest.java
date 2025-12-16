@@ -5,7 +5,7 @@
  * http://opensource.org/licenses/mit-license.php
  */
 
-package matsu.num.statistics.kerneldensity.convol.incubator;
+package matsu.num.statistics.kerneldensity.conv;
 
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;

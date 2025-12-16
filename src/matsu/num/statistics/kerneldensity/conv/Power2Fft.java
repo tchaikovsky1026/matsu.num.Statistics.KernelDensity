@@ -8,7 +8,7 @@
 /*
  * 2025.12.15
  */
-package matsu.num.statistics.kerneldensity.convol.incubator;
+package matsu.num.statistics.kerneldensity.conv;
 
 /**
  * FFT (Cooley–Tukey algorithm) により {@link Power2Dft} を実装する.

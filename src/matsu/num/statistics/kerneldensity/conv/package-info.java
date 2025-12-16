@@ -7,12 +7,5 @@
 
 /**
  * 巡回畳み込みの実装提供のためのパッケージ.
- * 
- * <p>
- * <i>
- * deprecate: <br>
- * このパッケージは将来で必ず削除される.
- * </i>
- * </p>
  */
-package matsu.num.statistics.kerneldensity.convol.incubator;
+package matsu.num.statistics.kerneldensity.conv;

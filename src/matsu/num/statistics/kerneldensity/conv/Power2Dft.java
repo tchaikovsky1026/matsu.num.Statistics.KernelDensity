@@ -8,7 +8,7 @@
 /*
  * 2025.12.15
  */
-package matsu.num.statistics.kerneldensity.convol.incubator;
+package matsu.num.statistics.kerneldensity.conv;
 
 /**
  * 2の累乗のシグナルサイズを受け付ける DFT (離散 Fourier 変換) 機能. <br>

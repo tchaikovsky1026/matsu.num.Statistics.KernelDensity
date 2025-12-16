@@ -8,7 +8,7 @@
 /*
  * 2025.12.15
  */
-package matsu.num.statistics.kerneldensity.convol.incubator;
+package matsu.num.statistics.kerneldensity.conv;
 
 /**
  * テスト用の DFT の素朴実装.
