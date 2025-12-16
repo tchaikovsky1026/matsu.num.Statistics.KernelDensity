@@ -16,6 +16,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import matsu.num.statistics.kerneldensity.GaussianKd2D.BandWidthRule;
 import matsu.num.statistics.kerneldensity.GaussianKd2D.ResolutionRule;
+import matsu.num.statistics.kerneldensity.conv.CyclicConvolutions;
 
 /**
  * {@link GaussianKd2D} の実行のサンプル2.
@@ -65,7 +66,7 @@ final class GaussianKd2DExecutionSampleForGnuplot {
 
         KdeGrid2dDto result = GaussianKd2D.Factory
                 .of(BandWidthRule.STANDARD, ResolutionRule.STANDARD)
-                .withConvolutionBy(new EffectiveCyclicConvolutionStubForTesting())
+                .withConvolutionBy(CyclicConvolutions.fftBased())
                 .createOf(src)
                 .evaluateIn(Range.of(-1d, 7d), Range.of(0d, 3d));
 
