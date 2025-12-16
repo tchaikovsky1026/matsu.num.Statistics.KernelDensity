@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.11.30
+ * 2025.12.16
  */
 package matsu.num.statistics.kerneldensity;
 
@@ -237,10 +237,16 @@ public final class GaussianKd2D implements KernelDensity2D {
      * 
      * <p>
      * <i>
+     * <u>
      * 将来のバージョンで列挙定数が追加される可能性がある. <br>
-     * {@code switch} 文 &middot; 式で使用する場合は,
-     * 将来の拡張に備えて {@code default} 節を必ず記述すること.
+     * モジュール外で, {@code switch} 文 &middot; {@code switch} 式,
+     * {@code if} 文での分岐に使用することを強く非推奨とする. <br>
+     * やむを得ず {@code switch} 文 &middot; {@code switch} 式に使用する場合は,
+     * 将来の拡張に備えて {@code default} 節を必ず記述すること. <br>
+     * インスタンスをシリアライズすることは, 強く非推奨である.
+     * </u>
      * </i>
+     * </p>
      */
     public static enum BandWidthRule {
 
@@ -287,9 +293,14 @@ public final class GaussianKd2D implements KernelDensity2D {
      * 
      * <p>
      * <i>
+     * <u>
      * 将来のバージョンで列挙定数が追加される可能性がある. <br>
-     * {@code switch} 文 &middot; 式で使用する場合は,
-     * 将来の拡張に備えて {@code default} 節を必ず記述すること.
+     * モジュール外で, {@code switch} 文 &middot; {@code switch} 式,
+     * {@code if} 文での分岐に使用することを強く非推奨とする. <br>
+     * やむを得ず {@code switch} 文 &middot; {@code switch} 式に使用する場合は,
+     * 将来の拡張に備えて {@code default} 節を必ず記述すること. <br>
+     * インスタンスをシリアライズすることは, 強く非推奨である.
+     * </u>
      * </i>
      * </p>
      */
