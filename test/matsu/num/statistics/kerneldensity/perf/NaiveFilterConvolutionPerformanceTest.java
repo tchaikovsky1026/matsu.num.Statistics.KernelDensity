@@ -6,12 +6,16 @@
  */
 
 /*
- * 2025.11.27
+ * 2025.12.18
  */
-package matsu.num.statistics.kerneldensity.incubator;
+package matsu.num.statistics.kerneldensity.perf;
 
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
+
+import matsu.num.statistics.kerneldensity.NaiveFilterZeroFillingConvolutionPublicWrapper;
 
 /**
  * {@link NaiveFilterZeroFillingConvolutionIncubator}
@@ -21,11 +25,17 @@ import java.util.stream.IntStream;
  */
 final class NaiveFilterConvolutionPerformanceTest {
 
-    private static final NaiveFilterZeroFillingConvolutionIncubator SEQUENTIAL =
-            new NaiveFilterZeroFillingConvolutionIncubator(false);
+    private static final Function<double[], UnaryOperator<double[]>> SEQUENTIAL;
 
-    private static final NaiveFilterZeroFillingConvolutionIncubator PARALLEL =
-            new NaiveFilterZeroFillingConvolutionIncubator(true);
+    private static final Function<double[], UnaryOperator<double[]>> PARALLEL;
+
+    static {
+        NaiveFilterZeroFillingConvolutionPublicWrapper conv =
+                new NaiveFilterZeroFillingConvolutionPublicWrapper();
+
+        SEQUENTIAL = filter -> (signal -> conv.applyPartial(filter).compute(signal, false));
+        PARALLEL = filter -> (signal -> conv.applyPartial(filter).compute(signal, true));
+    }
 
     public static void main(String[] args) {
 
@@ -38,13 +48,13 @@ final class NaiveFilterConvolutionPerformanceTest {
     private static final class Exe {
 
         private final String title;
-        private final NaiveFilterZeroFillingConvolutionIncubator conv;
+        private final Function<double[], UnaryOperator<double[]>> conv;
 
         /**
          * 唯一のコンストラクタ. <br>
          * 畳み込み演算を与える.
          */
-        Exe(NaiveFilterZeroFillingConvolutionIncubator conv, String title) {
+        Exe(Function<double[], UnaryOperator<double[]>> conv, String title) {
             super();
             this.conv = conv;
             this.title = title;
@@ -65,9 +75,11 @@ final class NaiveFilterConvolutionPerformanceTest {
             double dummy = 0d;
             int iteration = 100_000;
 
+            UnaryOperator<double[]> partialConv = conv.apply(filter);
+
             long startTime = System.nanoTime();
             for (int c = 0; c < iteration; c++) {
-                double[] result = conv.compute(filter, signal);
+                double[] result = partialConv.apply(signal);
                 dummy += result[0];
             }
             long endTime = System.nanoTime();
