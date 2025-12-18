@@ -6,13 +6,14 @@
  */
 
 /*
- * 2025.12.16
+ * 2025.12.19
  */
 package matsu.num.statistics.kerneldensity;
 
 import java.util.Objects;
 import java.util.function.ToDoubleFunction;
-import java.util.function.UnaryOperator;
+
+import matsu.num.statistics.kerneldensity.FilterZeroFillingConvolution.PartialApplied;
 
 /**
  * ガウシアンをカーネル関数とする, 2次元のカーネル密度推定.
@@ -44,7 +45,7 @@ public final class GaussianKd2D implements KernelDensity2D {
 
     private final BandWidthRule bandWidthRule;
     private final ResolutionRule resolutionRule;
-    private final FilterZeroFillingConvolutionFacade convolution;
+    private final FilterZeroFillingConvolution convolution;
 
     private final Kde2DSourceDto source;
 
@@ -73,7 +74,11 @@ public final class GaussianKd2D implements KernelDensity2D {
 
         this.bandWidthRule = factory.bandWidthRule;
         this.resolutionRule = factory.resolutionRule;
-        this.convolution = new FilterZeroFillingConvolutionFacade(factory.effectiveCyclicConvolution);
+
+        EffectiveCyclicConvolution cycconv = factory.effectiveCyclicConvolution;
+        this.convolution = Objects.isNull(cycconv)
+                ? NaiveFilterZeroFillingConvolutionParallelizable.instance()
+                : EffectiveFilterZeroFillingConvolution.instanceOf(cycconv);
 
         this.source = source;
         this.bandWidthX = Math.max(
@@ -107,8 +112,8 @@ public final class GaussianKd2D implements KernelDensity2D {
         // フィルタを計算し, フィルタ畳み込みを用意
         final double[] filterOneSideX = GaussianFilterComputation.compute(filterResolutionScaleX);
         final double[] filterOneSideY = GaussianFilterComputation.compute(filterResolutionScaleY);
-        UnaryOperator<double[]> convToSignalX = convolution.applyPartial(filterOneSideX);
-        UnaryOperator<double[]> convToSignalY = convolution.applyPartial(filterOneSideY);
+        PartialApplied convToSignalX = convolution.applyPartial(filterOneSideX);
+        PartialApplied convToSignalY = convolution.applyPartial(filterOneSideY);
 
         int extendSizeX = filterOneSideX.length - 1;
         int extendSizeY = filterOneSideY.length - 1;
@@ -121,7 +126,7 @@ public final class GaussianKd2D implements KernelDensity2D {
         // 各Xについて, y方向にConv
         double[][] convY = new double[lenX][];
         for (int j = 0; j < lenX; j++) {
-            convY[j] = convToSignalY.apply(weight[j]);
+            convY[j] = convToSignalY.compute(weight[j]);
         }
 
         // 転置 -> x方向にConv -> 転置
@@ -134,7 +139,7 @@ public final class GaussianKd2D implements KernelDensity2D {
             }
 
             // y:k のconv
-            double[] convX_k = convToSignalX.apply(signal_k);
+            double[] convX_k = convToSignalX.compute(signal_k);
 
             // (x,y) 配列に代入
             for (int j = 0; j < lenX; j++) {
