@@ -18,7 +18,9 @@ import java.util.function.UnaryOperator;
  * 範囲外について, 0埋めしたものとして計算する.
  * 
  * @author Matsuura Y.
+ * @deprecated アルゴリズムの切り替えを自動で行わないことにしたので, このクラスは使用しない.
  */
+@Deprecated
 final class FilterZeroFillingConvolutionFacade {
 
     private final FilterZeroFillingConvolution naiveConvolution;
