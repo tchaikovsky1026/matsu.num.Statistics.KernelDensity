@@ -28,12 +28,12 @@ final class EffectiveFilterZeroFillingConvolution
     /**
      * 高効率な畳み込みを実行する場合の, フィルタの最低サイズの目安.
      */
-    private static final int MIN_FILTER_SIZE_FOR_EFFECTIVE = 20;
+    private static final int MIN_FILTER_SIZE_FOR_EFFECTIVE = 100;
 
     /**
      * 高効率な畳み込みを実行する場合の, (filter * signal)の最低サイズの目安.
      */
-    private static final long MIN_FILTER_TIMES_SIGNAL_SIZE_FOR_EFFECTIVE = 50_000L;
+    private static final long MIN_FILTER_TIMES_SIGNAL_SIZE_FOR_EFFECTIVE = 500_000L;
 
     /**
      * 高効率な巡回畳み込み.
