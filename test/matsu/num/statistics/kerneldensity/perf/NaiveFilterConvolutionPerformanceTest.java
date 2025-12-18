@@ -18,7 +18,7 @@ import java.util.stream.IntStream;
 import matsu.num.statistics.kerneldensity.NaiveFilterZeroFillingConvolutionPublicWrapper;
 
 /**
- * {@link NaiveFilterZeroFillingConvolutionIncubator}
+ * {@link NaiveFilterZeroFillingConvolutionPublicWrapper}
  * に関するパフォーマンステスト.
  * 
  * @author Matsuura Y.
