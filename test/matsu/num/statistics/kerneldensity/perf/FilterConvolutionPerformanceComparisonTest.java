@@ -19,14 +19,11 @@ import matsu.num.statistics.kerneldensity.EffectiveFilterZeroFillingConvolutionP
 import matsu.num.statistics.kerneldensity.NaiveFilterZeroFillingConvolutionPublicWrapper;
 
 /**
- * {@link NaiveFilterZeroFillingConvolutionPublicWrapper}
- * と
- * {@link EffectiveFilterZeroFillingConvolutionPublicWrapper}
- * に関するパフォーマンステスト.
+ * フィルタ畳み込みのパフォーマンスの比較に関するテスト.
  * 
  * @author Matsuura Y.
  */
-final class EffectiveFilterConvolutionPerformanceTest {
+final class FilterConvolutionPerformanceComparisonTest {
 
     private static final Function<double[], UnaryOperator<double[]>> NAIVE;
 
