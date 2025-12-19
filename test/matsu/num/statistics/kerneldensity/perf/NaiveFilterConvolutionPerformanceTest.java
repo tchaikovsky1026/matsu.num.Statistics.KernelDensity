@@ -66,10 +66,10 @@ final class NaiveFilterConvolutionPerformanceTest {
             int filterSize = 100;
             int signalSize = 500;
             double[] filter = IntStream.range(0, filterSize)
-                    .mapToDouble(i -> ThreadLocalRandom.current().nextDouble() - 0.5)
+                    .mapToDouble(i -> ThreadLocalRandom.current().nextDouble())
                     .toArray();
             double[] signal = IntStream.range(0, signalSize)
-                    .mapToDouble(i -> ThreadLocalRandom.current().nextDouble() - 0.5)
+                    .mapToDouble(i -> ThreadLocalRandom.current().nextDouble())
                     .toArray();
 
             double dummy = 0d;

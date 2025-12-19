@@ -73,10 +73,10 @@ final class FilterConvolutionPerformanceComparisonTest {
             int iteration = 10_000;
 
             double[] filter = IntStream.range(0, filterSize)
-                    .mapToDouble(i -> ThreadLocalRandom.current().nextDouble() - 0.5)
+                    .mapToDouble(i -> ThreadLocalRandom.current().nextDouble())
                     .toArray();
             double[] signal = IntStream.range(0, signalSize)
-                    .mapToDouble(i -> ThreadLocalRandom.current().nextDouble() - 0.5)
+                    .mapToDouble(i -> ThreadLocalRandom.current().nextDouble())
                     .toArray();
             UnaryOperator<double[]> partialConv = conv.apply(filter);
 
