@@ -66,13 +66,28 @@ final class NaiveFilterZeroFillingConvolutionParallelizableTest {
 
         @Theory
         public void test_畳み込みの検証(int signalSize) {
+
+            // 意図的に0を混ぜる
             double[] signal = IntStream.range(0, signalSize)
-                    .mapToDouble(i -> ThreadLocalRandom.current().nextInt(-5, 5))
+                    .mapToDouble(i -> {
+                        if (ThreadLocalRandom.current().nextBoolean()) {
+                            return 0d;
+                        }
+                        if (ThreadLocalRandom.current().nextBoolean()) {
+                            return 0d;
+                        }
+
+                        return ThreadLocalRandom.current().nextDouble();
+                    })
                     .toArray();
 
             double[] result = TESTING_CONVOLUTION.applyPartial(filter).compute(signal, false);
             double[] expected = VALIDATOR.apply(filter).compute(signal);
+
             assertThat(result.length, is(expected.length));
+            for (double v : result) {
+                assertThat(v, is(greaterThanOrEqualTo(0d)));
+            }
 
             double[] res = expected.clone();
             for (int i = 0; i < res.length; i++) {
@@ -113,13 +128,28 @@ final class NaiveFilterZeroFillingConvolutionParallelizableTest {
 
         @Theory
         public void test_畳み込みの検証(int signalSize) {
+
+            // 意図的に0を混ぜる
             double[] signal = IntStream.range(0, signalSize)
-                    .mapToDouble(i -> ThreadLocalRandom.current().nextInt(-5, 5))
+                    .mapToDouble(i -> {
+                        if (ThreadLocalRandom.current().nextBoolean()) {
+                            return 0d;
+                        }
+                        if (ThreadLocalRandom.current().nextBoolean()) {
+                            return 0d;
+                        }
+
+                        return ThreadLocalRandom.current().nextDouble();
+                    })
                     .toArray();
 
             double[] result = TESTING_CONVOLUTION.applyPartial(filter).compute(signal, true);
             double[] expected = VALIDATOR.apply(filter).compute(signal);
+
             assertThat(result.length, is(expected.length));
+            for (double v : result) {
+                assertThat(v, is(greaterThanOrEqualTo(0d)));
+            }
 
             double[] res = expected.clone();
             for (int i = 0; i < res.length; i++) {
@@ -160,13 +190,28 @@ final class NaiveFilterZeroFillingConvolutionParallelizableTest {
 
         @Theory
         public void test_畳み込みの検証(int signalSize) {
+
+            // 意図的に0を混ぜる
             double[] signal = IntStream.range(0, signalSize)
-                    .mapToDouble(i -> ThreadLocalRandom.current().nextInt(-5, 5))
+                    .mapToDouble(i -> {
+                        if (ThreadLocalRandom.current().nextBoolean()) {
+                            return 0d;
+                        }
+                        if (ThreadLocalRandom.current().nextBoolean()) {
+                            return 0d;
+                        }
+
+                        return ThreadLocalRandom.current().nextDouble();
+                    })
                     .toArray();
 
             double[] result = TESTING_CONVOLUTION.applyPartial(filter).compute(signal, false);
             double[] expected = VALIDATOR.apply(filter).compute(signal);
+
             assertThat(result.length, is(expected.length));
+            for (double v : result) {
+                assertThat(v, is(greaterThanOrEqualTo(0d)));
+            }
 
             double[] res = expected.clone();
             for (int i = 0; i < res.length; i++) {
@@ -207,13 +252,28 @@ final class NaiveFilterZeroFillingConvolutionParallelizableTest {
 
         @Theory
         public void test_畳み込みの検証(int signalSize) {
+
+            // 意図的に0を混ぜる
             double[] signal = IntStream.range(0, signalSize)
-                    .mapToDouble(i -> ThreadLocalRandom.current().nextInt(-5, 5))
+                    .mapToDouble(i -> {
+                        if (ThreadLocalRandom.current().nextBoolean()) {
+                            return 0d;
+                        }
+                        if (ThreadLocalRandom.current().nextBoolean()) {
+                            return 0d;
+                        }
+
+                        return ThreadLocalRandom.current().nextDouble();
+                    })
                     .toArray();
 
             double[] result = TESTING_CONVOLUTION.applyPartial(filter).compute(signal, true);
             double[] expected = VALIDATOR.apply(filter).compute(signal);
+
             assertThat(result.length, is(expected.length));
+            for (double v : result) {
+                assertThat(v, is(greaterThanOrEqualTo(0d)));
+            }
 
             double[] res = expected.clone();
             for (int i = 0; i < res.length; i++) {

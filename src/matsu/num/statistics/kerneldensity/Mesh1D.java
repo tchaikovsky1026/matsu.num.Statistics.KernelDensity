@@ -78,20 +78,15 @@ final class Mesh1D {
         // ソースの各要素を重み1として, weightにaddする.
         for (double v : source) {
             double srcXR = (v - x0) / resolution;
-            if (0d <= srcXR && srcXR < (weight.length - 1)) {
-                int i = (int) srcXR;
-                double w = srcXR - i;
-                weight[i] += 1d - w;
-                weight[i + 1] += w;
-                continue;
+            int i = (int) Math.floor(srcXR);
+            double w_i = (i + 1) - srcXR;
+            double w_ip1 = srcXR - i;
+
+            if (0 <= i && i < extendX.length) {
+                weight[i] += w_i;
             }
-            if (-1d <= srcXR && srcXR <= 0d) {
-                weight[0] += 1d + srcXR;
-                continue;
-            }
-            if ((weight.length - 1) <= srcXR && srcXR <= weight.length) {
-                weight[weight.length - 1] += srcXR - (weight.length - 1);
-                continue;
+            if (-1 <= i && i < extendX.length - 1) {
+                weight[i + 1] += w_ip1;
             }
         }
 
