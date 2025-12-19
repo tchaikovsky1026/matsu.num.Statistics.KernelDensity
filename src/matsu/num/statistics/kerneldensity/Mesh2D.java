@@ -128,9 +128,10 @@ final class Mesh2D {
             double srcXR = (vx - x0) / resolutionX;
             double srcYR = (vy - y0) / resolutionY;
 
-            // (srcXR, srcXR) を格子点に重みを割り振る
-            int j = (int) srcXR;
-            int k = (int) srcYR;
+            // (srcXR, srcYR) を格子点に重みを割り振る
+            // (srcXR, srcYR)が負になる可能性に注意して, floorを使う
+            int j = (int) Math.floor(srcXR);
+            int k = (int) Math.floor(srcYR);
             double w_jk = ((j + 1) - srcXR) * ((k + 1) - srcYR);
             double w_jkp1 = ((j + 1) - srcXR) * (srcYR - k);
             double w_jp1k = (srcXR - j) * ((k + 1) - srcYR);

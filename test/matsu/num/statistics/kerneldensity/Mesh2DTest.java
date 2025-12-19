@@ -101,12 +101,12 @@ final class Mesh2DTest {
 
             // データ数2のソースを重複させて構築
             Kde2DSourceDto source = new Kde2DSourceDto(4);
-            source.x[0] = 0.5d;
-            source.y[0] = 0.25d;
+            source.x[0] = -1.625d;
+            source.y[0] = -1.625d;
             source.x[1] = 1.125d;
             source.y[1] = 0.125d;
-            source.x[2] = 0.5d;
-            source.y[2] = 0.25d;
+            source.x[2] = -1.625d;
+            source.y[2] = -1.625d;
             source.x[3] = 1.125d;
             source.y[3] = 0.125d;
 
@@ -118,8 +118,8 @@ final class Mesh2DTest {
              * データ数2より, 各データの重みは0.5
              * 
              * No.1
-             * (0.5, 0.25) -> [4.0][7.0]
-             * -> [4][7]: 0.5 * 1 * 1
+             * (-1.625, -1.625) -> [-0.25][-0.5]
+             * -> [0][0]: 0.5 * 0.75 * 0.5
              * 
              * N0. 2
              * (1.125, 0.125) -> [5.25][6.5]
@@ -130,8 +130,10 @@ final class Mesh2DTest {
              * [6][7]: 0.5 * 0.25 * 0.5
              */
             double[][] expectedWeight = new double[9][13];
-            // [5.0][7.0]
-            expectedWeight[4][7] = 0.5 * 1 * 1;
+            // [-0.25][-0.5]
+            expectedWeight[0][0] = 0.5 * 0.75 * 0.5;
+
+            // [5.25][6.5]
             expectedWeight[5][6] = 0.5 * 0.75 * 0.5;
             expectedWeight[5][7] = 0.5 * 0.75 * 0.5;
             expectedWeight[6][6] = 0.5 * 0.25 * 0.5;

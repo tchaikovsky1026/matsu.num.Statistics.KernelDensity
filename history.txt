@@ -1,5 +1,6 @@
 hotfix:
 EffectiveCyclicConvolutionを使用したフィルタ畳み込みが負値を返す場合があったのを修正.
+区間の境界値付近で振動が生じるバグを修正.
 
 1:
 1.3.0: EffectiveCyclicConvolution の実装を提供. 公開APIのドキュメント補強.
