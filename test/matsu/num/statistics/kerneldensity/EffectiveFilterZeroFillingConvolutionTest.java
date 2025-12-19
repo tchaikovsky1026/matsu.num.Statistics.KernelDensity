@@ -52,7 +52,7 @@ final class EffectiveFilterZeroFillingConvolutionTest {
         @Theory
         public void test_畳み込みの検証(int signalSize) {
             double[] signal = IntStream.range(0, signalSize)
-                    .mapToDouble(i -> ThreadLocalRandom.current().nextInt(-5, 5))
+                    .mapToDouble(i -> ThreadLocalRandom.current().nextDouble())
                     .toArray();
 
             double[] result = TESTING_CONVOLUTION.applyPartial(filter).compute(signal, false);
@@ -87,7 +87,7 @@ final class EffectiveFilterZeroFillingConvolutionTest {
         @Theory
         public void test_畳み込みの検証(int signalSize) {
             double[] signal = IntStream.range(0, signalSize)
-                    .mapToDouble(i -> ThreadLocalRandom.current().nextInt(-5, 5))
+                    .mapToDouble(i -> ThreadLocalRandom.current().nextDouble())
                     .toArray();
 
             double[] result = TESTING_CONVOLUTION.applyPartial(filter).compute(signal, true);
@@ -122,7 +122,7 @@ final class EffectiveFilterZeroFillingConvolutionTest {
         @Theory
         public void test_畳み込みの検証(int signalSize) {
             double[] signal = IntStream.range(0, signalSize)
-                    .mapToDouble(i -> ThreadLocalRandom.current().nextInt(-5, 5))
+                    .mapToDouble(i -> ThreadLocalRandom.current().nextDouble())
                     .toArray();
 
             double[] result = TESTING_CONVOLUTION.applyPartial(filter).compute(signal, false);
@@ -157,7 +157,7 @@ final class EffectiveFilterZeroFillingConvolutionTest {
         @Theory
         public void test_畳み込みの検証(int signalSize) {
             double[] signal = IntStream.range(0, signalSize)
-                    .mapToDouble(i -> ThreadLocalRandom.current().nextInt(-5, 5))
+                    .mapToDouble(i -> ThreadLocalRandom.current().nextDouble())
                     .toArray();
 
             double[] result = TESTING_CONVOLUTION.applyPartial(filter).compute(signal, true);
