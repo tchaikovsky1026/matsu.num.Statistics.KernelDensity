@@ -20,15 +20,22 @@ import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 
+import matsu.num.statistics.kerneldensity.conv.CyclicConvolutions;
+
 /**
  * {@link EffectiveFilterZeroFillingConvolution} のテスト.
  */
 @RunWith(Enclosed.class)
 final class EffectiveFilterZeroFillingConvolutionTest {
 
-    private static final FilterZeroFillingConvolution TESTING_CONVOLUTION =
-            EffectiveFilterZeroFillingConvolution.instanceOf(
-                    new EffectiveCyclicConvolutionStubForTesting());
+    /**
+     * テストされるべき巡回畳み込み. <br>
+     * (依存関係がおかしいので, 本来はここにあるべきではないと思われる.)
+     */
+    private static final EffectiveCyclicConvolution[] TESTING_CYCLIC_CONV = {
+            new EffectiveCyclicConvolutionStubForTesting(),
+            CyclicConvolutions.fftBased()
+    };
 
     private static final Function<double[], FilterZeroFillingConvolutionForTesting> VALIDATOR =
             filter -> new FilterZeroFillingConvolutionForTesting(filter);
@@ -41,6 +48,9 @@ final class EffectiveFilterZeroFillingConvolutionTest {
         };
 
         @DataPoints
+        public static EffectiveCyclicConvolution[] cyclicConv = TESTING_CYCLIC_CONV;
+
+        @DataPoints
         public static int[] signalSizes;
 
         @BeforeClass
@@ -50,14 +60,31 @@ final class EffectiveFilterZeroFillingConvolutionTest {
         }
 
         @Theory
-        public void test_畳み込みの検証(int signalSize) {
+        public void test_畳み込みの検証(int signalSize, EffectiveCyclicConvolution cyclicConv) {
+            FilterZeroFillingConvolution testingFIlterConv =
+                    EffectiveFilterZeroFillingConvolution.instanceOf(cyclicConv);
+
+            // 巡回畳み込みで負の数が出やすいように, 意図的に0を混ぜる
             double[] signal = IntStream.range(0, signalSize)
-                    .mapToDouble(i -> ThreadLocalRandom.current().nextDouble())
+                    .mapToDouble(i -> {
+                        if (ThreadLocalRandom.current().nextBoolean()) {
+                            return 0d;
+                        }
+                        if (ThreadLocalRandom.current().nextBoolean()) {
+                            return 0d;
+                        }
+
+                        return ThreadLocalRandom.current().nextDouble();
+                    })
                     .toArray();
 
-            double[] result = TESTING_CONVOLUTION.applyPartial(filter).compute(signal, false);
+            double[] result = testingFIlterConv.applyPartial(filter).compute(signal, false);
             double[] expected = VALIDATOR.apply(filter).compute(signal);
+
             assertThat(result.length, is(expected.length));
+            for (double v : result) {
+                assertThat(v, is(greaterThanOrEqualTo(0d)));
+            }
 
             double[] res = expected.clone();
             for (int i = 0; i < res.length; i++) {
@@ -76,6 +103,9 @@ final class EffectiveFilterZeroFillingConvolutionTest {
         };
 
         @DataPoints
+        public static EffectiveCyclicConvolution[] cyclicConv = TESTING_CYCLIC_CONV;
+
+        @DataPoints
         public static int[] signalSizes;
 
         @BeforeClass
@@ -85,14 +115,31 @@ final class EffectiveFilterZeroFillingConvolutionTest {
         }
 
         @Theory
-        public void test_畳み込みの検証(int signalSize) {
+        public void test_畳み込みの検証(int signalSize, EffectiveCyclicConvolution cyclicConv) {
+            FilterZeroFillingConvolution testingFIlterConv =
+                    EffectiveFilterZeroFillingConvolution.instanceOf(cyclicConv);
+
+            // 巡回畳み込みで負の数が出やすいように, 意図的に0を混ぜる
             double[] signal = IntStream.range(0, signalSize)
-                    .mapToDouble(i -> ThreadLocalRandom.current().nextDouble())
+                    .mapToDouble(i -> {
+                        if (ThreadLocalRandom.current().nextBoolean()) {
+                            return 0d;
+                        }
+                        if (ThreadLocalRandom.current().nextBoolean()) {
+                            return 0d;
+                        }
+
+                        return ThreadLocalRandom.current().nextDouble();
+                    })
                     .toArray();
 
-            double[] result = TESTING_CONVOLUTION.applyPartial(filter).compute(signal, true);
+            double[] result = testingFIlterConv.applyPartial(filter).compute(signal, true);
             double[] expected = VALIDATOR.apply(filter).compute(signal);
+
             assertThat(result.length, is(expected.length));
+            for (double v : result) {
+                assertThat(v, is(greaterThanOrEqualTo(0d)));
+            }
 
             double[] res = expected.clone();
             for (int i = 0; i < res.length; i++) {
@@ -111,6 +158,9 @@ final class EffectiveFilterZeroFillingConvolutionTest {
         };
 
         @DataPoints
+        public static EffectiveCyclicConvolution[] cyclicConv = TESTING_CYCLIC_CONV;
+
+        @DataPoints
         public static int[] signalSizes;
 
         @BeforeClass
@@ -120,14 +170,31 @@ final class EffectiveFilterZeroFillingConvolutionTest {
         }
 
         @Theory
-        public void test_畳み込みの検証(int signalSize) {
+        public void test_畳み込みの検証(int signalSize, EffectiveCyclicConvolution cyclicConv) {
+            FilterZeroFillingConvolution testingFIlterConv =
+                    EffectiveFilterZeroFillingConvolution.instanceOf(cyclicConv);
+
+            // 巡回畳み込みで負の数が出やすいように, 意図的に0を混ぜる
             double[] signal = IntStream.range(0, signalSize)
-                    .mapToDouble(i -> ThreadLocalRandom.current().nextDouble())
+                    .mapToDouble(i -> {
+                        if (ThreadLocalRandom.current().nextBoolean()) {
+                            return 0d;
+                        }
+                        if (ThreadLocalRandom.current().nextBoolean()) {
+                            return 0d;
+                        }
+
+                        return ThreadLocalRandom.current().nextDouble();
+                    })
                     .toArray();
 
-            double[] result = TESTING_CONVOLUTION.applyPartial(filter).compute(signal, false);
+            double[] result = testingFIlterConv.applyPartial(filter).compute(signal, false);
             double[] expected = VALIDATOR.apply(filter).compute(signal);
+
             assertThat(result.length, is(expected.length));
+            for (double v : result) {
+                assertThat(v, is(greaterThanOrEqualTo(0d)));
+            }
 
             double[] res = expected.clone();
             for (int i = 0; i < res.length; i++) {
@@ -148,6 +215,9 @@ final class EffectiveFilterZeroFillingConvolutionTest {
         @DataPoints
         public static int[] signalSizes;
 
+        @DataPoints
+        public static EffectiveCyclicConvolution[] cyclicConv = TESTING_CYCLIC_CONV;
+
         @BeforeClass
         public static void before_シグナルサイズのリストを作成する() {
             // 畳み込み区間のtupleが複数区間になるようにシグナルサイズの範囲を決める
@@ -155,14 +225,31 @@ final class EffectiveFilterZeroFillingConvolutionTest {
         }
 
         @Theory
-        public void test_畳み込みの検証(int signalSize) {
+        public void test_畳み込みの検証(int signalSize, EffectiveCyclicConvolution cyclicConv) {
+            FilterZeroFillingConvolution testingFIlterConv =
+                    EffectiveFilterZeroFillingConvolution.instanceOf(cyclicConv);
+
+            // 巡回畳み込みで負の数が出やすいように, 意図的に0を混ぜる
             double[] signal = IntStream.range(0, signalSize)
-                    .mapToDouble(i -> ThreadLocalRandom.current().nextDouble())
+                    .mapToDouble(i -> {
+                        if (ThreadLocalRandom.current().nextBoolean()) {
+                            return 0d;
+                        }
+                        if (ThreadLocalRandom.current().nextBoolean()) {
+                            return 0d;
+                        }
+
+                        return ThreadLocalRandom.current().nextDouble();
+                    })
                     .toArray();
 
-            double[] result = TESTING_CONVOLUTION.applyPartial(filter).compute(signal, true);
+            double[] result = testingFIlterConv.applyPartial(filter).compute(signal, true);
             double[] expected = VALIDATOR.apply(filter).compute(signal);
+
             assertThat(result.length, is(expected.length));
+            for (double v : result) {
+                assertThat(v, is(greaterThanOrEqualTo(0d)));
+            }
 
             double[] res = expected.clone();
             for (int i = 0; i < res.length; i++) {
