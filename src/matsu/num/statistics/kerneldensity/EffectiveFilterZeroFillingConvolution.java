@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.12.1
+ * 2025.12.19
  */
 package matsu.num.statistics.kerneldensity;
 
@@ -24,6 +24,16 @@ import java.util.stream.Stream;
  */
 final class EffectiveFilterZeroFillingConvolution
         implements FilterZeroFillingConvolution {
+
+    /**
+     * 並列実行に適する場合の, フィルタの最低サイズ.
+     */
+    private static final int MIN_FILTER_SIZE_IN_PARALLEL = 20;
+
+    /**
+     * 並列実行に適する場合の, (フィルタ*シグナル)の最低サイズ.
+     */
+    private static final long MIN_FILTER_TIMES_SIGNAL_SIZE_IN_PARALLEL = 20_000L;
 
     /**
      * 高効率な巡回畳み込み.
@@ -57,6 +67,15 @@ final class EffectiveFilterZeroFillingConvolution
     }
 
     /**
+     * 並列化すべきかどうかを判定する.
+     * 不要なので公開しない.
+     */
+    private static boolean shouldParallelize(double[] filter, double[] signal) {
+        return filter.length >= MIN_FILTER_SIZE_IN_PARALLEL
+                && (long) filter.length * signal.length >= MIN_FILTER_TIMES_SIGNAL_SIZE_IN_PARALLEL;
+    }
+
+    /**
      * @throws IllegalArgumentException {@inheritDoc}
      * @throws NullPointerException {@inheritDoc}
      */
@@ -80,6 +99,7 @@ final class EffectiveFilterZeroFillingConvolution
      */
     private final class PartialApplied implements FilterZeroFillingConvolution.PartialApplied {
 
+        private final double[] filter;
         private final ConvolutionExecution convolution;
 
         /**
@@ -89,6 +109,7 @@ final class EffectiveFilterZeroFillingConvolution
         private PartialApplied(double[] filter) {
             super();
             this.convolution = new ConvolutionExecution(filter);
+            this.filter = filter;
         }
 
         /**
@@ -97,7 +118,7 @@ final class EffectiveFilterZeroFillingConvolution
          */
         @Override
         public double[] compute(double[] signal) {
-            return compute(signal, true);
+            return compute(signal, shouldParallelize(filter, signal));
         }
 
         /**
