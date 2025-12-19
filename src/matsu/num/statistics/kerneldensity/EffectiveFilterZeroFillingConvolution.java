@@ -85,6 +85,9 @@ final class EffectiveFilterZeroFillingConvolution
         if (filterCopy.length == 0) {
             throw new IllegalArgumentException("filter is empty");
         }
+        if (!Arrays.stream(filterCopy).allMatch(v -> (Double.isFinite(v) && v >= 0d))) {
+            throw new IllegalArgumentException("filter values are invalid");
+        }
 
         return new PartialApplied(filterCopy);
     }
@@ -172,6 +175,14 @@ final class EffectiveFilterZeroFillingConvolution
              * 畳み込みを計算する.
              */
             double[] compute(double[] signal, boolean parallel) {
+
+                if (signal.length == 0) {
+                    throw new IllegalArgumentException("signal is empty");
+                }
+                if (!Arrays.stream(signal).allMatch(v -> (Double.isFinite(v) && v >= 0d))) {
+                    throw new IllegalArgumentException("signal values are invalid");
+                }
+
                 return new ExecutionInner(signal).compute(parallel);
             }
 
@@ -232,7 +243,8 @@ final class EffectiveFilterZeroFillingConvolution
                         stream = stream.parallel();
                     }
 
-                    return stream
+                    // 畳み込みを実行し, 結果用配列とする
+                    double[] out = stream
                             .map(tuple -> {
                                 int start = tuple[0];
                                 int subListEfficientLength = tuple[1];
@@ -240,6 +252,18 @@ final class EffectiveFilterZeroFillingConvolution
                             })
                             .flatMapToDouble(d -> Arrays.stream(d))
                             .toArray();
+
+                    // 負の値を修正
+                    double negativeAbsMax = Arrays.stream(out)
+                            .filter(v -> v < 0d)
+                            .map(Math::abs)
+                            .max().orElse(0d);
+                    for (int i = 0, len = out.length; i < len; i++) {
+                        double v = out[i];
+                        out[i] = v >= negativeAbsMax ? v : 0d;
+                    }
+
+                    return out;
                 }
 
                 /**

@@ -76,6 +76,9 @@ final class NaiveFilterZeroFillingConvolutionParallelizable
         if (filterCopy.length == 0) {
             throw new IllegalArgumentException("filter is empty");
         }
+        if (!Arrays.stream(filterCopy).allMatch(v -> (Double.isFinite(v) && v >= 0d))) {
+            throw new IllegalArgumentException("filter values are invalid");
+        }
 
         return new PartialApplied(filterCopy);
     }
@@ -115,6 +118,9 @@ final class NaiveFilterZeroFillingConvolutionParallelizable
 
             if (signal.length == 0) {
                 throw new IllegalArgumentException("signal is empty");
+            }
+            if (!Arrays.stream(signal).allMatch(v -> (Double.isFinite(v) && v >= 0d))) {
+                throw new IllegalArgumentException("signal values are invalid");
             }
 
             return new ConvolutionExecution(signal).compute(parallel);

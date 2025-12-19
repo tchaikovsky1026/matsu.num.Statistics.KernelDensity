@@ -62,16 +62,16 @@ final class Mesh1DTest {
 
         @Test
         public void test_weightのテスト() {
-            double[] source = { 0.5d, 1.125d };
+            double[] source = { -2.25d, 1.125d };
             Mesh1D mesh1d = new Mesh1D(range, resolution, extSize, source);
 
             assertThat(mesh1d.weight.length, is(11));
-            assertThat(mesh1d.weight[0], is(0d));
+            assertThat(mesh1d.weight[0], is(0.25d));
             assertThat(mesh1d.weight[1], is(0d));
             assertThat(mesh1d.weight[2], is(0d));
             assertThat(mesh1d.weight[3], is(0d));
             assertThat(mesh1d.weight[4], is(0d));
-            assertThat(mesh1d.weight[5], is(0.5d));
+            assertThat(mesh1d.weight[5], is(0d));
             assertThat(mesh1d.weight[6], is(0.375d));
             assertThat(mesh1d.weight[7], is(0.125d));
             assertThat(mesh1d.weight[8], is(0d));
