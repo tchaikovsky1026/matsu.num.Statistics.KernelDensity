@@ -15,34 +15,37 @@ import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
 
+import matsu.num.statistics.kerneldensity.EffectiveFilterZeroFillingConvolutionPublicWrapper;
 import matsu.num.statistics.kerneldensity.NaiveFilterZeroFillingConvolutionPublicWrapper;
 
 /**
- * {@link NaiveFilterZeroFillingConvolutionPublicWrapper}
- * に関するパフォーマンステスト.
+ * フィルタ畳み込みのパフォーマンスの比較に関するテスト.
  * 
  * @author Matsuura Y.
  */
-final class NaiveFilterConvolutionPerformanceTest {
+final class FilterConvolutionPerformanceComparisonTest {
 
-    private static final Function<double[], UnaryOperator<double[]>> SEQUENTIAL;
+    private static final Function<double[], UnaryOperator<double[]>> NAIVE;
 
-    private static final Function<double[], UnaryOperator<double[]>> PARALLEL;
+    private static final Function<double[], UnaryOperator<double[]>> EFFECTIVE;
 
     static {
-        NaiveFilterZeroFillingConvolutionPublicWrapper conv =
+        NaiveFilterZeroFillingConvolutionPublicWrapper naive_conv =
                 new NaiveFilterZeroFillingConvolutionPublicWrapper();
 
-        SEQUENTIAL = filter -> (signal -> conv.applyPartial(filter).compute(signal, false));
-        PARALLEL = filter -> (signal -> conv.applyPartial(filter).compute(signal, true));
+        EffectiveFilterZeroFillingConvolutionPublicWrapper effective_conv =
+                new EffectiveFilterZeroFillingConvolutionPublicWrapper();
+
+        NAIVE = filter -> (signal -> naive_conv.applyPartial(filter).compute(signal));
+        EFFECTIVE = filter -> (signal -> effective_conv.applyPartial(filter).compute(signal));
     }
 
     public static void main(String[] args) {
 
-        new Exe(SEQUENTIAL, "SEQUENTIAL").exe();
-        new Exe(PARALLEL, "PARALLEL").exe();
-        new Exe(SEQUENTIAL, "SEQUENTIAL").exe();
-        new Exe(PARALLEL, "PARALLEL").exe();
+        new Exe(NAIVE, "NAIVE").exe();
+        new Exe(EFFECTIVE, "EFFECTIVE").exe();
+        new Exe(NAIVE, "NAIVE").exe();
+        new Exe(EFFECTIVE, "EFFECTIVE").exe();
     }
 
     private static final class Exe {
@@ -64,23 +67,25 @@ final class NaiveFilterConvolutionPerformanceTest {
             System.out.println(title + ":");
 
             int filterSize = 100;
-            int signalSize = 500;
+            int signalSize = 5000;
+
+            double dummy = 0d;
+            int iteration = 10_000;
+
             double[] filter = IntStream.range(0, filterSize)
                     .mapToDouble(i -> ThreadLocalRandom.current().nextDouble())
                     .toArray();
             double[] signal = IntStream.range(0, signalSize)
                     .mapToDouble(i -> ThreadLocalRandom.current().nextDouble())
                     .toArray();
-
-            double dummy = 0d;
-            int iteration = 100_000;
-
             UnaryOperator<double[]> partialConv = conv.apply(filter);
 
             long startTime = System.nanoTime();
             for (int c = 0; c < iteration; c++) {
                 double[] result = partialConv.apply(signal);
-                dummy += result[0];
+                for (double v : result) {
+                    dummy += v;
+                }
             }
             long endTime = System.nanoTime();
             long nanoTime = endTime - startTime;
