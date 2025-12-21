@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.12.1
+ * 2025.12.19
  */
 package matsu.num.statistics.kerneldensity;
 
@@ -26,14 +26,14 @@ final class EffectiveFilterZeroFillingConvolution
         implements FilterZeroFillingConvolution {
 
     /**
-     * 高効率な畳み込みを実行する場合の, フィルタの最低サイズの目安.
+     * 並列実行に適する場合の, フィルタの最低サイズ.
      */
-    private static final int MIN_FILTER_SIZE_FOR_EFFECTIVE = 100;
+    private static final int MIN_FILTER_SIZE_IN_PARALLEL = 20;
 
     /**
-     * 高効率な畳み込みを実行する場合の, (filter * signal)の最低サイズの目安.
+     * 並列実行に適する場合の, (フィルタ*シグナル)の最低サイズ.
      */
-    private static final long MIN_FILTER_TIMES_SIGNAL_SIZE_FOR_EFFECTIVE = 500_000L;
+    private static final long MIN_FILTER_TIMES_SIGNAL_SIZE_IN_PARALLEL = 20_000L;
 
     /**
      * 高効率な巡回畳み込み.
@@ -53,14 +53,6 @@ final class EffectiveFilterZeroFillingConvolution
     }
 
     /**
-     * このクラスの計算方法を使用すべきかどうかを判定する.
-     */
-    static boolean shouldBeUsed(double[] filter, double[] signal) {
-        return filter.length >= MIN_FILTER_SIZE_FOR_EFFECTIVE
-                && (long) filter.length * signal.length >= MIN_FILTER_TIMES_SIGNAL_SIZE_FOR_EFFECTIVE;
-    }
-
-    /**
      * 巡回畳み込みのインスタンスを与えて, このクラスのインスタンスを返す.
      * 
      * @param cyclicConvolution 巡回畳み込み
@@ -72,6 +64,15 @@ final class EffectiveFilterZeroFillingConvolution
 
         return new EffectiveFilterZeroFillingConvolution(
                 Objects.requireNonNull(cyclicConvolution));
+    }
+
+    /**
+     * 並列化すべきかどうかを判定する.
+     * 不要なので公開しない.
+     */
+    private static boolean shouldParallelize(double[] filter, double[] signal) {
+        return filter.length >= MIN_FILTER_SIZE_IN_PARALLEL
+                && (long) filter.length * signal.length >= MIN_FILTER_TIMES_SIGNAL_SIZE_IN_PARALLEL;
     }
 
     /**
@@ -98,6 +99,7 @@ final class EffectiveFilterZeroFillingConvolution
      */
     private final class PartialApplied implements FilterZeroFillingConvolution.PartialApplied {
 
+        private final double[] filter;
         private final ConvolutionExecution convolution;
 
         /**
@@ -107,6 +109,7 @@ final class EffectiveFilterZeroFillingConvolution
         private PartialApplied(double[] filter) {
             super();
             this.convolution = new ConvolutionExecution(filter);
+            this.filter = filter;
         }
 
         /**
@@ -115,7 +118,7 @@ final class EffectiveFilterZeroFillingConvolution
          */
         @Override
         public double[] compute(double[] signal) {
-            return compute(signal, true);
+            return compute(signal, shouldParallelize(filter, signal));
         }
 
         /**
