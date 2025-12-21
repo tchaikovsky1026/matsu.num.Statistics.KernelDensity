@@ -155,7 +155,8 @@ public final class GaussianKd2D implements KernelDensity2D {
      * 
      * <p>
      * {@link GaussianKd2D} は,
-     * {@link EffectiveCyclicConvolution} のインスタンスをインジェクションすることで高速に動作する. <br>
+     * {@link EffectiveCyclicConvolution}
+     * のインスタンスをインジェクションすることで高速に動作する可能性がある. <br>
      * このファクトリは, インジェクションを
      * {@link #withConvolutionBy(EffectiveCyclicConvolution)}
      * メソッドにより行う.

@@ -108,7 +108,8 @@ public final class GaussianKd1D implements KernelDensity1D {
      * 
      * <p>
      * {@link GaussianKd1D} は,
-     * {@link EffectiveCyclicConvolution} のインスタンスをインジェクションすることで高速に動作する. <br>
+     * {@link EffectiveCyclicConvolution}
+     * のインスタンスをインジェクションすることで高速に動作する可能性がある. <br>
      * このファクトリは, インジェクションを
      * {@link #withConvolutionBy(EffectiveCyclicConvolution)}
      * メソッドにより行う.
