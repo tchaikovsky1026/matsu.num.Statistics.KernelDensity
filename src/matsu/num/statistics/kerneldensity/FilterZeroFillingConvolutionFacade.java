@@ -18,8 +18,28 @@ import java.util.function.UnaryOperator;
  * 範囲外について, 0埋めしたものとして計算する.
  * 
  * @author Matsuura Y.
+ * @deprecated アルゴリズムの切り替えを自動で行わないことにしたので, このクラスは使用しない.
  */
+@Deprecated
 final class FilterZeroFillingConvolutionFacade {
+
+    /**
+     * Effective畳み込みを実行する場合の, フィルタの最低サイズの目安.
+     */
+    private static final int MIN_FILTER_SIZE_FOR_EFFECTIVE = 100;
+
+    /**
+     * Effective畳み込みを実行する場合の, (filter * signal)の最低サイズの目安.
+     */
+    private static final long MIN_FILTER_TIMES_SIGNAL_SIZE_FOR_EFFECTIVE = 500_000L;
+
+    /**
+     * Effective計算方法を使用すべきかどうかを判定する.
+     */
+    private static boolean shouldBeUsed(double[] filter, double[] signal) {
+        return filter.length >= MIN_FILTER_SIZE_FOR_EFFECTIVE
+                && (long) filter.length * signal.length >= MIN_FILTER_TIMES_SIGNAL_SIZE_FOR_EFFECTIVE;
+    }
 
     private final FilterZeroFillingConvolution naiveConvolution;
     private final FilterZeroFillingConvolution effectiveConvolution;
@@ -118,7 +138,7 @@ final class FilterZeroFillingConvolutionFacade {
             }
 
             if (Objects.nonNull(effectiveConvolutionPartial)
-                    && EffectiveFilterZeroFillingConvolution.shouldBeUsed(filter, signal)) {
+                    && shouldBeUsed(filter, signal)) {
                 return effectiveConvolutionPartial.compute(signal);
             }
 
