@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.12.5
+ * 2026.1.21
  */
 package matsu.num.statistics.kerneldensity.output;
 
@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import matsu.num.statistics.kerneldensity.KdeGrid1dDto;
 
 /**
- * 区切り文字で区切られた文字列出力を行う {@link Kde1dFormatter}. <br>
+ * 区切り文字で区切られた文字列出力を行う {@link Kde1dFormatter}.
  * 
  * <p>
  * 文字列化した結果は,
@@ -31,7 +31,9 @@ import matsu.num.statistics.kerneldensity.KdeGrid1dDto;
  * {@code x[i]<sep>density[i]} <br>
  * が続く
  * ({@code <sep>} は区切り文字). <br>
- * ラベル要素は {@code "x"}, {@code "density"} である.
+ * ラベル要素は {@code "x"}, {@code "density"} である. <br>
+ * データの要素数は必ず 1 以上である ({@code density[0]} が必ず存在する). <br>
+ * ラベルエスケープ文字 {@code <escape>} が指定された場合, ラベル行の最初にエスケープ文字が追加される.
  * </p>
  * 
  * @apiNote
@@ -45,7 +47,7 @@ import matsu.num.statistics.kerneldensity.KdeGrid1dDto;
  * 
  * {@literal //} 出力 (Iterable{@literal <String>} を配列で表記)
  * out = {
- *     "x{@literal <sep>}density",    {@literal //} ラベル有りの場合
+ *     "{@literal <escape>}x{@literal <sep>}density",    {@literal //} ラベル有りの場合, {@literal <escape>} はラベルエスケープを行う場合
  *     "1.0{@literal <sep>}0.25",
  *     "2.0{@literal <sep>}0.75"
  * };
@@ -56,7 +58,9 @@ import matsu.num.statistics.kerneldensity.KdeGrid1dDto;
 public final class Kde1dCharSVTextFormatter extends Kde1dFormatter<Iterable<String>> {
 
     private final char separator;
+
     private final boolean withLabel;
+    private final Character labelEscape;
 
     /**
      * ラベル無しの Character Separated Values フォーマッターを生成する.
@@ -65,11 +69,16 @@ public final class Kde1dCharSVTextFormatter extends Kde1dFormatter<Iterable<Stri
      * 文字列形式はクラス説明の通りである.
      * </p>
      * 
+     * <p>
+     * 区切り文字に制限はないが,
+     * ほとんどの場合, null文字 {@code \u005cu0000} や改行 {@code \n} は不適切である.
+     * </p>
+     * 
      * @param separator 区切り文字
      * @return Character Separated Values フォーマッター
      */
     public static Kde1dCharSVTextFormatter labelless(char separator) {
-        return new Kde1dCharSVTextFormatter(separator, false);
+        return new Kde1dCharSVTextFormatter(separator);
     }
 
     /**
@@ -79,22 +88,63 @@ public final class Kde1dCharSVTextFormatter extends Kde1dFormatter<Iterable<Stri
      * 文字列形式はクラス説明の通りである.
      * </p>
      * 
+     * <p>
+     * 区切り文字に制限はないが,
+     * ほとんどの場合, null文字 {@code \u005cu0000} や改行 {@code \n} は不適切である.
+     * </p>
+     * 
      * @param separator 区切り文字
      * @return Character Separated Values フォーマッター
      */
     public static Kde1dCharSVTextFormatter withLabel(char separator) {
-        return new Kde1dCharSVTextFormatter(separator, true);
+        return new Kde1dCharSVTextFormatter(separator, null);
     }
 
     /**
-     * 唯一のコンストラクタ.
+     * エスケープ文字付きラベルを有する, Character Separated Values フォーマッターを生成する.
+     * 
+     * <p>
+     * 文字列形式はクラス説明の通りである.
+     * </p>
+     * 
+     * <p>
+     * 区切り文字, エスケープ文字に制限はないが,
+     * ほとんどの場合, null文字 {@code \u005cu0000} や改行 {@code \n} は不適切である.
+     * </p>
+     * 
+     * @param separator 区切り文字
+     * @param labelEscape ラベル文字列の先頭に付けるエスケープ文字
+     * @return Character Separated Values フォーマッター
+     */
+    public static Kde1dCharSVTextFormatter withLabelEscaped(char separator, char labelEscape) {
+        return new Kde1dCharSVTextFormatter(separator, Character.valueOf(labelEscape));
+    }
+
+    /**
+     * ラベル無しのコンストラクタ.
      * 
      * @param separator 区切り文字
      */
-    private Kde1dCharSVTextFormatter(char separator, boolean withLabel) {
-        super();
+    private Kde1dCharSVTextFormatter(char separator) {
         this.separator = separator;
-        this.withLabel = withLabel;
+        this.withLabel = false;
+        this.labelEscape = null;
+    }
+
+    /**
+     * ラベルありのコンストラクタ.
+     * 
+     * <p>
+     * エスケープしない場合, nullを渡す.
+     * </p>
+     * 
+     * @param separator 区切り文字
+     * @param labelEscape エスケープ文字, nullを許容
+     */
+    private Kde1dCharSVTextFormatter(char separator, Character labelEscape) {
+        this.separator = separator;
+        this.withLabel = true;
+        this.labelEscape = labelEscape;
     }
 
     /**
@@ -103,6 +153,19 @@ public final class Kde1dCharSVTextFormatter extends Kde1dFormatter<Iterable<Stri
     @Override
     Iterable<String> format(KdeGrid1dDto dto) {
         return new TextOutputIterable(Objects.requireNonNull(dto));
+    }
+
+    /**
+     * ラベル行の文字列を生成する非公開メソッド:
+     * 
+     * @return "{@literal <escape>}x{@literal <sep>}density"
+     */
+    private String labelString() {
+        String escape = Objects.isNull(labelEscape)
+                ? ""
+                : String.valueOf(labelEscape.charValue());
+
+        return escape + "x" + Character.toString(separator) + "density";
     }
 
     /**
@@ -151,7 +214,7 @@ public final class Kde1dCharSVTextFormatter extends Kde1dFormatter<Iterable<Stri
                     throw new NoSuchElementException();
                 }
                 if (cursor == -1) {
-                    return "x" + Character.toString(separator) + "density";
+                    return labelString();
                 }
                 return dto.x[cursor] + Character.toString(separator) + dto.density[cursor];
             }

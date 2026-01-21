@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.12.5
+ * 2026.1.21
  */
 package matsu.num.statistics.kerneldensity.output;
 
@@ -59,6 +59,7 @@ public final class FormattableKdeResult2D {
      * @param <T> フォーマットした結果を表す型
      * @param formatter フォーマッター
      * @return 推定結果の変換結果
+     * @throws NullPointerException 引数にnullが含まれる場合
      */
     public <T> T formatted(Kde2dFormatter<T> formatter) {
         return formatter.format(dto);
