@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.12.1
+ * 2026.1.21
  */
 package matsu.num.statistics.kerneldensity;
 
@@ -34,12 +34,14 @@ import java.util.Arrays;
 public final class KdeGrid2dDto {
 
     /**
-     * 結果の <i>x</i> のサイズを表す {@code int} 値.
+     * 結果の <i>x</i> のサイズを表す {@code int} 値. <br>
+     * 必ず 1 以上である.
      */
     public final int sizeX;
 
     /**
-     * 結果の <i>y</i> のサイズを表す {@code int} 値.
+     * 結果の <i>y</i> のサイズを表す {@code int} 値. <br>
+     * 必ず 1 以上である.
      */
     public final int sizeY;
 
