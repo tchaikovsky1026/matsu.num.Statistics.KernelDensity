@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.12.7
+ * 2026.1.21
  */
 package matsu.num.statistics.kerneldensity.output;
 
@@ -31,7 +31,8 @@ import matsu.num.statistics.kerneldensity.KdeGrid2dDto;
  * {@code x_index = j} についての内側 iterator は <br>
  * {@code x[j]<sep>y[k]<sep>density[j][k]} <br>
  * についての {@code k} に関する iteration である
- * ({@code <sep>} は区切り文字).
+ * ({@code <sep>} は区切り文字). <br>
+ * データの要素数は必ず 1 以上である ({@code density[0][0]} が必ず存在する).
  * </p>
  * 
  * <p>
@@ -89,6 +90,11 @@ public final class StructuredCharSVTextFormatter extends Kde2dFormatter<Iterable
      * 
      * <p>
      * 文字列形式はクラス説明の通りである.
+     * </p>
+     * 
+     * <p>
+     * 区切り文字に制限はないが,
+     * ほとんどの場合, 改行 {@code \n} は不適切である.
      * </p>
      * 
      * @param separator 区切り文字
