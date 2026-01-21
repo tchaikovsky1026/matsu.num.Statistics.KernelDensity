@@ -88,5 +88,20 @@ final class Kde1dCharSVTextFormatterTest {
             };
             assertThat(resultStr, is(expected));
         }
+
+        @Test
+        public void test_文字列_ラベルエスケープカンマ区切り() {
+            Iterable<String> resultCsv = createTextKdeResult1D()
+                    .formatted(Kde1dCharSVTextFormatter.withLabelEscaped(',','#'));
+
+            String[] resultStr = StreamSupport.stream(resultCsv.spliterator(), false)
+                    .toArray(String[]::new);
+            String[] expected = {
+                    "#x,density",
+                    "1.0,3.0",
+                    "2.0,4.0"
+            };
+            assertThat(resultStr, is(expected));
+        }
     }
 }

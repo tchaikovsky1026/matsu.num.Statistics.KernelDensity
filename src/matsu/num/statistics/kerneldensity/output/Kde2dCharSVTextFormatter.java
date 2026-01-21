@@ -33,7 +33,8 @@ import matsu.num.statistics.kerneldensity.KdeGrid2dDto;
  * ({@code <sep>} は区切り文字). <br>
  * イテレーション順は, {@code j} が外側, {@code k} が内側である. <br>
  * ラベル要素は {@code "x"}, {@code "y"}, {@code "density"} である. <br>
- * データの要素数は必ず 1 以上である ({@code density[0][0]} が必ず存在する).
+ * データの要素数は必ず 1 以上である ({@code density[0][0]} が必ず存在する). <br>
+ * ラベルエスケープ文字 {@code <escape>} が指定された場合, ラベル行の最初にエスケープ文字が追加される.
  * </p>
  * 
  * @apiNote
@@ -52,7 +53,7 @@ import matsu.num.statistics.kerneldensity.KdeGrid2dDto;
  * 
  * {@literal //} 出力 (Iterable{@literal <String>} を配列で表記)
  * out = {
- *     "x{@literal <sep>}y{@literal <sep>}density",    {@literal //} ラベル有りの場合
+ *     "{@literal <escape>}x{@literal <sep>}y{@literal <sep>}density",    {@literal //} ラベル有りの場合, {@literal <escape>} はラベルエスケープを行う場合
  *     "1.0{@literal <sep>}1.5{@literal <sep>}0.125",
  *     "1.0{@literal <sep>}2.5{@literal <sep>}0.25",
  *     "1.0{@literal <sep>}3.5{@literal <sep>}0.0",
@@ -67,7 +68,9 @@ import matsu.num.statistics.kerneldensity.KdeGrid2dDto;
 public final class Kde2dCharSVTextFormatter extends Kde2dFormatter<Iterable<String>> {
 
     private final char separator;
+
     private final boolean withLabel;
+    private final Character labelEscape;
 
     /**
      * ラベル無しの Character Separated Values 文字列出力フォーマッターを生成する.
@@ -78,14 +81,14 @@ public final class Kde2dCharSVTextFormatter extends Kde2dFormatter<Iterable<Stri
      * 
      * <p>
      * 区切り文字に制限はないが,
-     * ほとんどの場合, 改行 {@code \n} は不適切である.
+     * ほとんどの場合, null文字 {@code \u005cu0000} や改行 {@code \n} は不適切である.
      * </p>
      * 
      * @param separator 区切り文字
      * @return Character Separated Values フォーマッター
      */
     public static Kde2dCharSVTextFormatter labelless(char separator) {
-        return new Kde2dCharSVTextFormatter(separator, false);
+        return new Kde2dCharSVTextFormatter(separator);
     }
 
     /**
@@ -97,25 +100,63 @@ public final class Kde2dCharSVTextFormatter extends Kde2dFormatter<Iterable<Stri
      * 
      * <p>
      * 区切り文字に制限はないが,
-     * ほとんどの場合, 改行 {@code \n} は不適切である.
+     * ほとんどの場合, null文字 {@code \u005cu0000} や改行 {@code \n} は不適切である.
      * </p>
      * 
      * @param separator 区切り文字
      * @return Character Separated Values フォーマッター
      */
     public static Kde2dCharSVTextFormatter withLabel(char separator) {
-        return new Kde2dCharSVTextFormatter(separator, true);
+        return new Kde2dCharSVTextFormatter(separator, null);
     }
 
     /**
-     * 唯一のコンストラクタ.
+     * エスケープ文字付きラベルを有する, Character Separated Values フォーマッターを生成する.
+     * 
+     * <p>
+     * 文字列形式はクラス説明の通りである.
+     * </p>
+     * 
+     * <p>
+     * 区切り文字, エスケープ文字に制限はないが,
+     * ほとんどの場合, null文字 {@code \u005cu0000} や改行 {@code \n} は不適切である.
+     * </p>
+     * 
+     * @param separator 区切り文字
+     * @param labelEscape ラベル文字列の先頭に付けるエスケープ文字
+     * @return Character Separated Values フォーマッター
+     */
+    public static Kde2dCharSVTextFormatter withLabelEscaped(char separator, char labelEscape) {
+        return new Kde2dCharSVTextFormatter(separator, Character.valueOf(labelEscape));
+    }
+
+    /**
+     * ラベル無しのコンストラクタ.
      * 
      * @param separator 区切り文字
      */
-    private Kde2dCharSVTextFormatter(char separator, boolean withLabel) {
+    private Kde2dCharSVTextFormatter(char separator) {
         super();
         this.separator = separator;
-        this.withLabel = withLabel;
+        this.withLabel = false;
+        this.labelEscape = null;
+    }
+
+    /**
+     * ラベルありのコンストラクタ.
+     * 
+     * <p>
+     * エスケープしない場合, nullを渡す.
+     * </p>
+     * 
+     * @param separator 区切り文字
+     * @param labelEscape エスケープ文字, nullを許容
+     */
+    private Kde2dCharSVTextFormatter(char separator, Character labelEscape) {
+        super();
+        this.separator = separator;
+        this.withLabel = true;
+        this.labelEscape = labelEscape;
     }
 
     /**
@@ -124,6 +165,22 @@ public final class Kde2dCharSVTextFormatter extends Kde2dFormatter<Iterable<Stri
     @Override
     Iterable<String> format(KdeGrid2dDto dto) {
         return new TextOutputIterable(Objects.requireNonNull(dto));
+    }
+
+    /**
+     * ラベル行の文字列を生成する非公開メソッド:
+     * 
+     * @return "{@literal <escape>}x{@literal <sep>}y{@literal <sep>}density"
+     */
+    private String labelString() {
+        String escape = Objects.isNull(labelEscape)
+                ? ""
+                : String.valueOf(labelEscape.charValue());
+
+        return escape +
+                "x" + Character.toString(separator) +
+                "y" + Character.toString(separator) +
+                "density";
     }
 
     /**
@@ -172,9 +229,7 @@ public final class Kde2dCharSVTextFormatter extends Kde2dFormatter<Iterable<Stri
                     throw new NoSuchElementException();
                 }
                 if (cursor == -1) {
-                    return "x" + Character.toString(separator) +
-                            "y" + Character.toString(separator) +
-                            "density";
+                    return labelString();
                 }
 
                 int cursorX = cursor / dto.sizeY;

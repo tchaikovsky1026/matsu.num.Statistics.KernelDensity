@@ -94,7 +94,7 @@ public final class StructuredCharSVTextFormatter extends Kde2dFormatter<Iterable
      * 
      * <p>
      * 区切り文字に制限はないが,
-     * ほとんどの場合, 改行 {@code \n} は不適切である.
+     * ほとんどの場合, null文字 {@code \u005cu0000} や改行 {@code \n} は不適切である.
      * </p>
      * 
      * @param separator 区切り文字

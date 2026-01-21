@@ -99,6 +99,25 @@ final class Kde2dCharSVTextFormatterTest {
             };
             assertThat(resultStr, is(expected));
         }
+
+        @Test
+        public void test_文字列_ラベルエスケープカンマ区切り() {
+            Iterable<String> resultCsv = createTextKdeResult2D()
+                    .formatted(Kde2dCharSVTextFormatter.withLabelEscaped(',', '#'));
+
+            String[] resultStr = StreamSupport.stream(resultCsv.spliterator(), false)
+                    .toArray(String[]::new);
+            String[] expected = {
+                    "#x,y,density",
+                    "1.0,3.0,11.0",
+                    "1.0,4.0,12.0",
+                    "1.0,5.0,13.0",
+                    "2.0,3.0,14.0",
+                    "2.0,4.0,15.0",
+                    "2.0,5.0,16.0"
+            };
+            assertThat(resultStr, is(expected));
+        }
     }
 
     public static class フォーマッターのテスト_x3_y2 {
@@ -164,6 +183,25 @@ final class Kde2dCharSVTextFormatterTest {
             String[] resultStr = StreamSupport.stream(resultCsv.spliterator(), false)
                     .toArray(String[]::new);
             String[] expected = {
+                    "1.0,4.0,11.0",
+                    "1.0,5.0,12.0",
+                    "2.0,4.0,13.0",
+                    "2.0,5.0,14.0",
+                    "3.0,4.0,15.0",
+                    "3.0,5.0,16.0"
+            };
+            assertThat(resultStr, is(expected));
+        }
+
+        @Test
+        public void test_文字列_ラベルエスケープカンマ区切り() {
+            Iterable<String> resultCsv = createTextKdeResult2D()
+                    .formatted(Kde2dCharSVTextFormatter.withLabelEscaped(',', '#'));
+
+            String[] resultStr = StreamSupport.stream(resultCsv.spliterator(), false)
+                    .toArray(String[]::new);
+            String[] expected = {
+                    "#x,y,density",
                     "1.0,4.0,11.0",
                     "1.0,5.0,12.0",
                     "2.0,4.0,13.0",
