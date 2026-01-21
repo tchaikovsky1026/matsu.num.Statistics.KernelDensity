@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.12.5
+ * 2026.1.21
  */
 package matsu.num.statistics.kerneldensity.output;
 
@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import matsu.num.statistics.kerneldensity.KdeGrid1dDto;
 
 /**
- * 区切り文字で区切られた文字列出力を行う {@link Kde1dFormatter}. <br>
+ * 区切り文字で区切られた文字列出力を行う {@link Kde1dFormatter}.
  * 
  * <p>
  * 文字列化した結果は,
@@ -31,7 +31,8 @@ import matsu.num.statistics.kerneldensity.KdeGrid1dDto;
  * {@code x[i]<sep>density[i]} <br>
  * が続く
  * ({@code <sep>} は区切り文字). <br>
- * ラベル要素は {@code "x"}, {@code "density"} である.
+ * ラベル要素は {@code "x"}, {@code "density"} である. <br>
+ * データの要素数は必ず 1 以上である ({@code density[0]} が必ず存在する).
  * </p>
  * 
  * @apiNote

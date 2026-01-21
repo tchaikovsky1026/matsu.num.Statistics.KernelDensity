@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.12.6
+ * 2026.1.21
  */
 package matsu.num.statistics.kerneldensity.output;
 
@@ -32,7 +32,8 @@ import matsu.num.statistics.kerneldensity.KdeGrid2dDto;
  * であり, 以降, <br>
  * {@code x[j]<sep>density[j][0]<sep>density[j][1]...} <br>
  * が続く
- * ({@code <sep>} は区切り文字).
+ * ({@code <sep>} は区切り文字). <br>
+ * データの要素数は必ず 1 以上である ({@code density[0][0]} が必ず存在する).
  * </p>
  * 
  * @apiNote
