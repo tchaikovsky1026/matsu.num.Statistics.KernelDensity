@@ -92,6 +92,11 @@ public final class StructuredCharSVTextFormatter extends Kde2dFormatter<Iterable
      * 文字列形式はクラス説明の通りである.
      * </p>
      * 
+     * <p>
+     * 区切り文字に制限はないが,
+     * ほとんどの場合, 改行 {@code \n} は不適切である.
+     * </p>
+     * 
      * @param separator 区切り文字
      * @return Character Separated Values フォーマッター
      */
