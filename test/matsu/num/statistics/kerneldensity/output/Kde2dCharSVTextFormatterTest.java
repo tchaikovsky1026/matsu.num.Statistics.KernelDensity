@@ -101,6 +101,25 @@ final class Kde2dCharSVTextFormatterTest {
         }
 
         @Test
+        public void test_文字列_ラベルエスケープカンマ区切り_文字列エスケープ() {
+            Iterable<String> resultCsv = createTextKdeResult2D()
+                    .formatted(Kde2dCharSVTextFormatter.withLabelEscaped(',', "//"));
+
+            String[] resultStr = StreamSupport.stream(resultCsv.spliterator(), false)
+                    .toArray(String[]::new);
+            String[] expected = {
+                    "//x,y,density",
+                    "1.0,3.0,11.0",
+                    "1.0,4.0,12.0",
+                    "1.0,5.0,13.0",
+                    "2.0,3.0,14.0",
+                    "2.0,4.0,15.0",
+                    "2.0,5.0,16.0"
+            };
+            assertThat(resultStr, is(expected));
+        }
+
+        @Test
         public void test_文字列_ラベルエスケープカンマ区切り() {
             Iterable<String> resultCsv = createTextKdeResult2D()
                     .formatted(Kde2dCharSVTextFormatter.withLabelEscaped(',', '#'));
@@ -202,6 +221,25 @@ final class Kde2dCharSVTextFormatterTest {
                     .toArray(String[]::new);
             String[] expected = {
                     "#x,y,density",
+                    "1.0,4.0,11.0",
+                    "1.0,5.0,12.0",
+                    "2.0,4.0,13.0",
+                    "2.0,5.0,14.0",
+                    "3.0,4.0,15.0",
+                    "3.0,5.0,16.0"
+            };
+            assertThat(resultStr, is(expected));
+        }
+
+        @Test
+        public void test_文字列_ラベルエスケープカンマ区切り_文字列エスケープ() {
+            Iterable<String> resultCsv = createTextKdeResult2D()
+                    .formatted(Kde2dCharSVTextFormatter.withLabelEscaped(',', "//"));
+
+            String[] resultStr = StreamSupport.stream(resultCsv.spliterator(), false)
+                    .toArray(String[]::new);
+            String[] expected = {
+                    "//x,y,density",
                     "1.0,4.0,11.0",
                     "1.0,5.0,12.0",
                     "2.0,4.0,13.0",
