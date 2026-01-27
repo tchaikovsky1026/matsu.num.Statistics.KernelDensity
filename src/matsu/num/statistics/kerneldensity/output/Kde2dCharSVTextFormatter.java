@@ -6,7 +6,7 @@
  */
 
 /*
- * 2026.1.21
+ * 2026.1.27
  */
 package matsu.num.statistics.kerneldensity.output;
 
@@ -34,7 +34,7 @@ import matsu.num.statistics.kerneldensity.KdeGrid2dDto;
  * イテレーション順は, {@code j} が外側, {@code k} が内側である. <br>
  * ラベル要素は {@code "x"}, {@code "y"}, {@code "density"} である. <br>
  * データの要素数は必ず 1 以上である ({@code density[0][0]} が必ず存在する). <br>
- * ラベルエスケープ文字 {@code <escape>} が指定された場合, ラベル行の最初にエスケープ文字が追加される.
+ * ラベルエスケープ文字列 {@code <escape>} が指定された場合, ラベル行の最初にエスケープ文字列が追加される.
  * </p>
  * 
  * @apiNote
@@ -70,7 +70,7 @@ public final class Kde2dCharSVTextFormatter extends Kde2dFormatter<Iterable<Stri
     private final char separator;
 
     private final boolean withLabel;
-    private final Character labelEscape;
+    private final String labelEscape;
 
     /**
      * ラベル無しの Character Separated Values 文字列出力フォーマッターを生成する.
@@ -107,7 +107,7 @@ public final class Kde2dCharSVTextFormatter extends Kde2dFormatter<Iterable<Stri
      * @return Character Separated Values フォーマッター
      */
     public static Kde2dCharSVTextFormatter withLabel(char separator) {
-        return new Kde2dCharSVTextFormatter(separator, null);
+        return withLabelEscaped(separator, "");
     }
 
     /**
@@ -127,7 +127,28 @@ public final class Kde2dCharSVTextFormatter extends Kde2dFormatter<Iterable<Stri
      * @return Character Separated Values フォーマッター
      */
     public static Kde2dCharSVTextFormatter withLabelEscaped(char separator, char labelEscape) {
-        return new Kde2dCharSVTextFormatter(separator, Character.valueOf(labelEscape));
+        return withLabelEscaped(separator, String.valueOf(labelEscape));
+    }
+
+    /**
+     * エスケープ文字列付きラベルを有する, Character Separated Values フォーマッターを生成する.
+     * 
+     * <p>
+     * 文字列形式はクラス説明の通りである.
+     * </p>
+     * 
+     * <p>
+     * 区切り文字, エスケープ文字列に制限はないが,
+     * ほとんどの場合, null文字列 {@code "\u005cu0000"} や改行文字列 {@code "\n"} は不適切である.
+     * </p>
+     * 
+     * @param separator 区切り文字
+     * @param labelEscape ラベル文字列の先頭に付けるエスケープ文字列
+     * @return Character Separated Values フォーマッター
+     * @throws NullPointerException 引数にnullが含まれる場合
+     */
+    public static Kde2dCharSVTextFormatter withLabelEscaped(char separator, String labelEscape) {
+        return new Kde2dCharSVTextFormatter(separator, Objects.requireNonNull(labelEscape));
     }
 
     /**
@@ -139,20 +160,20 @@ public final class Kde2dCharSVTextFormatter extends Kde2dFormatter<Iterable<Stri
         super();
         this.separator = separator;
         this.withLabel = false;
-        this.labelEscape = null;
+        this.labelEscape = "";
     }
 
     /**
      * ラベルありのコンストラクタ.
      * 
      * <p>
-     * エスケープしない場合, nullを渡す.
+     * エスケープしない場合, 空文字を渡す.
      * </p>
      * 
      * @param separator 区切り文字
-     * @param labelEscape エスケープ文字, nullを許容
+     * @param labelEscape エスケープ文字
      */
-    private Kde2dCharSVTextFormatter(char separator, Character labelEscape) {
+    private Kde2dCharSVTextFormatter(char separator, String labelEscape) {
         super();
         this.separator = separator;
         this.withLabel = true;
@@ -173,11 +194,7 @@ public final class Kde2dCharSVTextFormatter extends Kde2dFormatter<Iterable<Stri
      * @return "{@literal <escape>}x{@literal <sep>}y{@literal <sep>}density"
      */
     private String labelString() {
-        String escape = Objects.isNull(labelEscape)
-                ? ""
-                : String.valueOf(labelEscape.charValue());
-
-        return escape +
+        return labelEscape +
                 "x" + Character.toString(separator) +
                 "y" + Character.toString(separator) +
                 "density";
