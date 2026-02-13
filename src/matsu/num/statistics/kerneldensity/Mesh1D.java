@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.11.16
+ * 2026.2.13
  */
 package matsu.num.statistics.kerneldensity;
 
@@ -56,9 +56,16 @@ final class Mesh1D {
         assert extendSize >= 0;
         assert source.length > 0;
 
-        // range を resolution間隔で分割したメッシュ配列を構成する.
+        // resolutionがrangeのスケールより小さすぎる場合,
+        // 丸め誤差によりインクリメントできないため修正する
+        final double modifiedResolution =
+                Math.max(
+                        Math.max(Double.MIN_NORMAL, resolution),
+                        1E-10 * Math.max(Math.abs(range.min()), Math.abs(range.max())));
+
+        // range を (modified)resolution間隔で分割したメッシュ配列を構成する.
         this.x = DoubleStream
-                .iterate(range.min(), v -> v <= range.max(), v -> v + resolution)
+                .iterate(range.min(), v -> v <= range.max(), v -> v + modifiedResolution)
                 .toArray();
         this.extendSize = extendSize;
 
@@ -66,10 +73,10 @@ final class Mesh1D {
         this.extendX = new double[x.length + 2 * extendSize];
         System.arraycopy(x, 0, extendX, extendSize, x.length);
         for (int i = extendSize - 1; i >= 0; i--) {
-            extendX[i] = extendX[i + 1] - resolution;
+            extendX[i] = extendX[i + 1] - modifiedResolution;
         }
         for (int i = x.length + extendSize; i < extendX.length; i++) {
-            extendX[i] = extendX[i - 1] + resolution;
+            extendX[i] = extendX[i - 1] + modifiedResolution;
         }
 
         /* ソースを反映したweightを構築する. */
@@ -77,7 +84,7 @@ final class Mesh1D {
         final double x0 = extendX[0];
         // ソースの各要素を重み1として, weightにaddする.
         for (double v : source) {
-            double srcXR = (v - x0) / resolution;
+            double srcXR = (v - x0) / modifiedResolution;
             int i = (int) Math.floor(srcXR);
             double w_i = (i + 1) - srcXR;
             double w_ip1 = srcXR - i;

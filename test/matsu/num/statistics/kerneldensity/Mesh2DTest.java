@@ -12,6 +12,7 @@ import static org.hamcrest.Matchers.*;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Test.None;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
@@ -20,6 +21,39 @@ import org.junit.runner.RunWith;
  */
 @RunWith(Enclosed.class)
 final class Mesh2DTest {
+
+    public static class メッシュ生成のテスト {
+
+        @Test(expected = None.class)
+        public void test_resolutionXが小さすぎる場合に失敗しないことを確認() {
+            Range rangeX = Range.of(1d, 1d);
+            Range rangeY = Range.of(1d, 2d);
+            double resolutionX = 1E-100;
+            double resolutionY = 0.01;
+            final int extSize = 2;
+
+            Kde2DSourceDto source = new Kde2DSourceDto(1);
+            source.x[0] = 0.5d;
+            source.y[0] = 0.5d;
+
+            new Mesh2D(rangeX, rangeY, resolutionX, resolutionY, extSize, extSize, source);
+        }
+
+        @Test(expected = None.class)
+        public void test_resolutionYが小さすぎる場合に失敗しないことを確認() {
+            Range rangeX = Range.of(1d, 2d);
+            Range rangeY = Range.of(1d, 1d);
+            double resolutionX = 0.01;
+            double resolutionY = 1E-100;
+            final int extSize = 2;
+
+            Kde2DSourceDto source = new Kde2DSourceDto(1);
+            source.x[0] = 0.5d;
+            source.y[0] = 0.5d;
+
+            new Mesh2D(rangeX, rangeY, resolutionX, resolutionY, extSize, extSize, source);
+        }
+    }
 
     public static class メッシュ計算のテスト {
 

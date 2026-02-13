@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.12.1
+ * 2026.2.13
  */
 package matsu.num.statistics.kerneldensity;
 
@@ -84,12 +84,21 @@ final class Mesh2D {
         assert extendSizeX >= 0;
         assert extendSizeY >= 0;
 
+        // resolutionがrangeのスケールより小さすぎる場合,
+        // 丸め誤差によりインクリメントできないため修正する
+        double modifiedResolutionX = Math.max(
+                Math.max(Double.MIN_NORMAL, resolutionX),
+                1E-10 * Math.max(Math.abs(rangeX.min()), Math.abs(rangeX.max())));
+        double modifiedResolutionY = Math.max(
+                Math.max(Double.MIN_NORMAL, resolutionY),
+                1E-10 * Math.max(Math.abs(rangeY.min()), Math.abs(rangeY.max())));
+
         // range を resolution間隔で分割したメッシュ配列を構成する.
         this.x = DoubleStream
-                .iterate(rangeX.min(), v -> v <= rangeX.max(), v -> v + resolutionX)
+                .iterate(rangeX.min(), v -> v <= rangeX.max(), v -> v + modifiedResolutionX)
                 .toArray();
         this.y = DoubleStream
-                .iterate(rangeY.min(), v -> v <= rangeY.max(), v -> v + resolutionY)
+                .iterate(rangeY.min(), v -> v <= rangeY.max(), v -> v + modifiedResolutionY)
                 .toArray();
         this.extendSizeX = extendSizeX;
         this.extendSizeY = extendSizeY;
@@ -99,20 +108,20 @@ final class Mesh2D {
         this.extendX = new double[x.length + 2 * extendSizeX];
         System.arraycopy(x, 0, extendX, extendSizeX, x.length);
         for (int i = extendSizeX - 1; i >= 0; i--) {
-            extendX[i] = extendX[i + 1] - resolutionX;
+            extendX[i] = extendX[i + 1] - modifiedResolutionX;
         }
         for (int i = x.length + extendSizeX; i < extendX.length; i++) {
-            extendX[i] = extendX[i - 1] + resolutionX;
+            extendX[i] = extendX[i - 1] + modifiedResolutionX;
         }
 
         // yからextendedYを計算する, inf が現れる場合もある
         this.extendY = new double[y.length + 2 * extendSizeY];
         System.arraycopy(y, 0, extendY, extendSizeY, y.length);
         for (int i = extendSizeY - 1; i >= 0; i--) {
-            extendY[i] = extendY[i + 1] - resolutionY;
+            extendY[i] = extendY[i + 1] - modifiedResolutionY;
         }
         for (int i = y.length + extendSizeY; i < extendY.length; i++) {
-            extendY[i] = extendY[i - 1] + resolutionY;
+            extendY[i] = extendY[i - 1] + modifiedResolutionY;
         }
 
         /* ソースを反映したweightを構築する. */
@@ -125,8 +134,8 @@ final class Mesh2D {
             double vy = source.y[i];
 
             // (vx, vy) を格子点座標系 (srcXR, srcYR) に直す
-            double srcXR = (vx - x0) / resolutionX;
-            double srcYR = (vy - y0) / resolutionY;
+            double srcXR = (vx - x0) / modifiedResolutionX;
+            double srcYR = (vy - y0) / modifiedResolutionY;
 
             // (srcXR, srcYR) を格子点に重みを割り振る
             // (srcXR, srcYR)が負になる可能性に注意して, floorを使う
