@@ -26,7 +26,7 @@
  * </p>
  * 
  * @author Matsuura Y.
- * @version 1.6.0
+ * @version 1.6.1
  */
 module matsu.num.Statistics.KernelDensity {
 
