@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.*;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Test.None;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
@@ -19,6 +20,19 @@ import org.junit.runner.RunWith;
  */
 @RunWith(Enclosed.class)
 final class Mesh1DTest {
+
+    public static class メッシュ生成のテスト {
+
+        @Test(expected = None.class)
+        public void test_resolutionが小さすぎる場合に失敗しないことを確認() {
+            Range range = Range.of(1d, 1d);
+            double resolution = 1E-100;
+            final int extSize = 2;
+            double[] source = { 0.5d };
+
+            new Mesh1D(range, resolution, extSize, source);
+        }
+    }
 
     public static class メッシュ計算のテスト {
 
