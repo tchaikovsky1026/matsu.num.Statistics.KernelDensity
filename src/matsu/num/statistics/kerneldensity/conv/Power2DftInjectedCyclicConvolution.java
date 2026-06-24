@@ -6,7 +6,7 @@
  */
 
 /*
- * 2025.12.15
+ * 2026.6.24
  */
 package matsu.num.statistics.kerneldensity.conv;
 
@@ -59,7 +59,10 @@ final class Power2DftInjectedCyclicConvolution implements EffectiveCyclicConvolu
     }
 
     /**
-     * @apiNote {@inheritDoc}
+     * @apiNote
+     *              {@link EffectiveCyclicConvolution#applyPartial(double[])}
+     *              の APIノートを参照.
+     * 
      * @throws IllegalArgumentException {@inheritDoc}
      * @throws NullPointerException {@inheritDoc}
      */

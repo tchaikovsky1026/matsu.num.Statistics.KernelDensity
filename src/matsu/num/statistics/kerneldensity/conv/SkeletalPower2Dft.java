@@ -66,7 +66,9 @@ abstract class SkeletalPower2Dft implements Power2Dft {
     }
 
     /**
-     * @apiNote {@inheritDoc}
+     * @apiNote
+     *              {@link Power2Dft#dft(double[][])}
+     *              の APIノートを参照.
      * @throws IllegalArgumentException {@inheritDoc}
      * @throws NullPointerException {@inheritDoc}
      */
@@ -83,7 +85,9 @@ abstract class SkeletalPower2Dft implements Power2Dft {
     }
 
     /**
-     * @apiNote {@inheritDoc}
+     * @apiNote
+     *              {@link Power2Dft#idft(double[][])}
+     *              の APIノートを参照.
      * @throws IllegalArgumentException {@inheritDoc}
      * @throws NullPointerException {@inheritDoc}
      */
